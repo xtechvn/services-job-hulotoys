@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "F:\\PROJECT\\HULOTOYS\\HuloToys-Service\\HuloToys-Service\\HuloToys-Service.csproj": {}
+    "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Git\\HuloToys-Service\\HuloToys-Service.csproj": {}
   },
   "projects": {
-    "F:\\PROJECT\\HULOTOYS\\HuloToys-Service\\HuloToys-Service\\HuloToys-Service.csproj": {
+    "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Git\\HuloToys-Service\\HuloToys-Service.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service\\HuloToys-Service\\HuloToys-Service.csproj",
+        "projectUniqueName": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Git\\HuloToys-Service\\HuloToys-Service.csproj",
         "projectName": "HuloToys-Service",
-        "projectPath": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service\\HuloToys-Service\\HuloToys-Service.csproj",
+        "projectPath": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Git\\HuloToys-Service\\HuloToys-Service.csproj",
         "packagesPath": "C:\\Users\\cuong\\.nuget\\packages\\",
-        "outputPath": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service\\HuloToys-Service\\obj\\",
+        "outputPath": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Git\\HuloToys-Service\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
