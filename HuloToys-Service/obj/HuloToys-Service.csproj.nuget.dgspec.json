@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Git\\HuloToys-Service\\HuloToys-Service.csproj": {}
+    "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git\\HuloToys-Service\\HuloToys-Service.csproj": {}
   },
   "projects": {
-    "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Git\\HuloToys-Service\\HuloToys-Service.csproj": {
+    "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git\\HuloToys-Service\\HuloToys-Service.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Git\\HuloToys-Service\\HuloToys-Service.csproj",
+        "projectUniqueName": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git\\HuloToys-Service\\HuloToys-Service.csproj",
         "projectName": "HuloToys-Service",
-        "projectPath": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Git\\HuloToys-Service\\HuloToys-Service.csproj",
+        "projectPath": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git\\HuloToys-Service\\HuloToys-Service.csproj",
         "packagesPath": "C:\\Users\\cuong\\.nuget\\packages\\",
-        "outputPath": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Git\\HuloToys-Service\\obj\\",
+        "outputPath": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git\\HuloToys-Service\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -45,9 +45,29 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[7.0.20, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[7.0.4, )"
+            },
+            "NEST": {
+              "target": "Package",
+              "version": "[7.17.5, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            },
+            "RabbitMQ.Client": {
+              "target": "Package",
+              "version": "[6.8.1, )"
+            },
+            "StackExchange.Redis": {
+              "target": "Package",
+              "version": "[2.8.0, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
