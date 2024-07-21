@@ -45,3 +45,5 @@ F:\PROJECT\HULOTOYS\HuloToys-Service-Job-Git\HuloToys-Service\bin\Debug\net7.0\S
 F:\PROJECT\HULOTOYS\HuloToys-Service-Job-Git\HuloToys-Service\bin\Debug\net7.0\Elasticsearch.Net.dll
 F:\PROJECT\HULOTOYS\HuloToys-Service-Job-Git\HuloToys-Service\bin\Debug\net7.0\Nest.dll
 F:\PROJECT\HULOTOYS\HuloToys-Service-Job-Git\HuloToys-Service\bin\Debug\net7.0\RabbitMQ.Client.dll
+F:\PROJECT\HULOTOYS\HuloToys-Service-Job-Git\HuloToys-Service\bin\Debug\net7.0\Utilities.dll
+F:\PROJECT\HULOTOYS\HuloToys-Service-Job-Git\HuloToys-Service\bin\Debug\net7.0\Utilities.pdb

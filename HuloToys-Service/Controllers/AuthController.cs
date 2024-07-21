@@ -2,7 +2,6 @@
 using HuloToys_Service.Utilities.Lib;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Security.Claims;
@@ -26,6 +25,7 @@ namespace HuloToys_Service.Controllers
             {                
                 // Kiểm tra thông tin đăng nhập
                 // Check trong ES xem user này có tồn tại hay không ?
+                // đẩy data từ CMS lên Elasticsearch node accountAccessApi. Sau đó truy vấn lấy thông tin từ đó xuống
                 if (user.Username == "test" && user.Password == "password")
                 {
                     var token = GenerateJwtToken(user.Username);

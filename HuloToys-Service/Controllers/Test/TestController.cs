@@ -2,12 +2,13 @@
 using HuloToys_Service.Models;
 using HuloToys_Service.RabitMQ;
 using HuloToys_Service.RedisWorker;
-using HuloToys_Service.Utilities.Contants;
+
 using HuloToys_Service.Utilities.Lib;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Reflection;
+using Utilities.Contants;
 
 namespace HuloToys_Service.Controllers.Test
 {
@@ -78,10 +79,10 @@ namespace HuloToys_Service.Controllers.Test
             try
             {
                 bool response_queue = false;
-                var j_param = new Dictionary<string, string>
+                var j_param = new Dictionary<string, object>
                 {
-                    {"data_push","test message queue"},
-                    {"type",QueueType.product_detail}
+                    {"data_push","test message queue"}, // có thể là json
+                    {"type",QueueType.ADDRESS_DETAIL}
                 };
                 var _data_push = JsonConvert.SerializeObject(j_param);
 
@@ -95,7 +96,7 @@ namespace HuloToys_Service.Controllers.Test
                     username = configuration["Queue:Username"],
                     password = configuration["Queue:Password"]
                 };
-                response_queue = work_queue.InsertQueueSimple(queue_setting, _data_push, QueueType.product_detail);
+                response_queue = work_queue.InsertQueueSimple(queue_setting, _data_push, QueueName.queue_app_push);
                 if (response_queue)
                 {
                     return Ok(new { msg = "done" });

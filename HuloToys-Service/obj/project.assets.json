@@ -511,6 +511,16 @@
         "build": {
           "buildTransitive/net6.0/_._": {}
         }
+      },
+      "Utilities/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v7.0",
+        "compile": {
+          "bin/placeholder/Utilities.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Utilities.dll": {}
+        }
       }
     }
   },
@@ -1720,6 +1730,11 @@
         "system.threading.channels.nuspec",
         "useSharedDesignerContext.txt"
       ]
+    },
+    "Utilities/1.0.0": {
+      "type": "project",
+      "path": "../Utilities/Utilities.csproj",
+      "msbuildProject": "../Utilities/Utilities.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -1730,7 +1745,8 @@
       "Newtonsoft.Json >= 13.0.3",
       "RabbitMQ.Client >= 6.8.1",
       "StackExchange.Redis >= 2.8.0",
-      "Swashbuckle.AspNetCore >= 6.4.0"
+      "Swashbuckle.AspNetCore >= 6.4.0",
+      "Utilities >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -1765,7 +1781,11 @@
       "frameworks": {
         "net7.0": {
           "targetAlias": "net7.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git\\Utilities\\Utilities.csproj": {
+              "projectPath": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git\\Utilities\\Utilities.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

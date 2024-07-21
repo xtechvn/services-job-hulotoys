@@ -1,4 +1,4 @@
-﻿namespace HuloToys_Service.Utilities.Contants
+﻿namespace Utilities.Contants
 {
     public struct CacheType
     {

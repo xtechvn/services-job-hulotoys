@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HuloToys-Service", "HuloToy
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App_Check_Out", "App_Check_Out\App_Check_Out.csproj", "{3569B4D1-99C3-4AC2-BAF6-BAD862ED66CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App_Push_Consummer", "App_Push_Consummer\App_Push_Consummer.csproj", "{0F0C0D8A-8F21-409B-8F39-607F41A8A233}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "Utilities\Utilities.csproj", "{71D9655A-EF49-4824-8ECC-05B71AAFEEA5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{3569B4D1-99C3-4AC2-BAF6-BAD862ED66CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3569B4D1-99C3-4AC2-BAF6-BAD862ED66CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3569B4D1-99C3-4AC2-BAF6-BAD862ED66CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F0C0D8A-8F21-409B-8F39-607F41A8A233}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F0C0D8A-8F21-409B-8F39-607F41A8A233}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F0C0D8A-8F21-409B-8F39-607F41A8A233}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F0C0D8A-8F21-409B-8F39-607F41A8A233}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71D9655A-EF49-4824-8ECC-05B71AAFEEA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71D9655A-EF49-4824-8ECC-05B71AAFEEA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71D9655A-EF49-4824-8ECC-05B71AAFEEA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71D9655A-EF49-4824-8ECC-05B71AAFEEA5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

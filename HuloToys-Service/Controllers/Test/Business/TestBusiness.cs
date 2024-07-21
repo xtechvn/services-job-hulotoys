@@ -1,9 +1,9 @@
 ﻿using HuloToys_Service.Models;
 using HuloToys_Service.RedisWorker;
-using HuloToys_Service.Utilities.Contants;
 using HuloToys_Service.Utilities.Lib;
 using Newtonsoft.Json;
 using System.Reflection;
+using Utilities.Contants;
 
 // Create By: cuonglv
 namespace HuloToys_Service.Controllers.Test.Business
