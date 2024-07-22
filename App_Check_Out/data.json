@@ -1,0 +1,230 @@
+{
+  "payment_type": "2",
+  "return_url": "https://qc-api.adavigo.com/api/onepay/receiver-data",
+  "client_id": "123",
+  "bank_code": "",
+  "order_detail": {
+    "BookingId": 5894181,
+    "ListBooking": [
+      {
+        "Status": "OK",
+        "AutoIssue": false,
+        "Airline": "VJ",
+        "BookingCode": "XGP6ED",
+        "GdsCode": "XGP6ED",
+        "Flight": "0VJ152K1_ECOSGNHAN202210271950",
+        "Route": "SGNHAN",
+        "ErrorCode": "0000",
+        "ErrorMessage": "Sandbox",
+        "BookingImage": null,
+        "ExpiryDate": "2022-10-27T13:21:02.1264958+07:00",
+        "ExpiryDt": "27102022 13:21:02",
+        "ExpiryTime": 60,
+        "ResponseTime": 0,
+        "System": "LOWCOST",
+        "Price": 2138520,
+        "Difference": 0,
+        "Session": "DC12508SGNHAN271022100122042",
+        "FareData": {
+          "FareDataId": 0,
+          "Airline": "VJ",
+          "AirlineObj": {
+            "code": null,
+            "nameVi": null,
+            "nameEn": null,
+            "airLineGroup": null,
+            "logo": null
+          },
+          "Itinerary": 1,
+          "Leg": 0,
+          "Promo": false,
+          "Currency": "VND",
+          "System": "LOWCOST",
+          "FareType": "agent",
+          "CacheAge": 0,
+          "Availability": 1,
+          "Adt": 1,
+          "Chd": 0,
+          "Inf": 0,
+          "FareAdt": 1469000,
+          "FareChd": 0,
+          "FareInf": 0,
+          "TaxAdt": 669520,
+          "TaxChd": 0,
+          "TaxInf": 0,
+          "FeeAdt": 0,
+          "FeeChd": 0,
+          "FeeInf": 0,
+          "ServiceFeeAdt": 0,
+          "ServiceFeeChd": 0,
+          "ServiceFeeInf": 0,
+          "TotalNetPrice": 2138520,
+          "TotalServiceFee": 0,
+          "TotalDiscount": 0,
+          "TotalCommission": 0,
+          "TotalPrice": 2138520,
+          "AdavigoPrice": {
+            "price": 0,
+            "amount": 0
+          },
+          "ListFlight": [
+            {
+              "FlightId": 0,
+              "Airline": "VJ",
+              "Operating": "VJ",
+              "Leg": 0,
+              "StartPoint": "SGN",
+              "EndPoint": "HAN",
+              "StartDate": "2022-10-27T19:50:00",
+              "EndDate": "2022-10-27T22:00:00",
+              "StartDt": "27102022 19:50:00",
+              "EndDt": "27102022 22:00:00",
+              "FlightNumber": "VJ152",
+              "StopNum": 0,
+              "HasDownStop": false,
+              "Duration": 130,
+              "NoRefund": true,
+              "GroupClass": "Economy",
+              "GroupClassObj": {
+                "id": 0,
+                "airline": null,
+                "classCode": null,
+                "fareType": null,
+                "detailVi": null,
+                "detailEn": null
+              },
+              "FareClass": "K1_ECO",
+              "FareBasis": "",
+              "SeatRemain": 1,
+              "Promo": false,
+              "FlightValue": "0VJ152K1_ECOSGNHAN202210271950",
+              "ListSegment": [
+                {
+                  "Id": 0,
+                  "Airline": "VJ",
+                  "MarketingAirline": "VJ",
+                  "OperatingAirline": "VJ",
+                  "StartPoint": "SGN",
+                  "EndPoint": "HAN",
+                  "StartTime": "2022-10-27T19:50:00",
+                  "StartTimeZoneOffset": "+07:00",
+                  "EndTime": "2022-10-27T22:00:00",
+                  "EndTimeZoneOffset": "+07:00",
+                  "StartTm": "27102022 19:50:00",
+                  "EndTm": "27102022 22:00:00",
+                  "FlightNumber": "VJ152",
+                  "Duration": 130,
+                  "Class": "K1_ECO",
+                  "Cabin": "Economy",
+                  "FareBasis": null,
+                  "Seat": 1,
+                  "Plane": "320",
+                  "StartTerminal": null,
+                  "EndTerminal": null,
+                  "HasStop": false,
+                  "StopPoint": null,
+                  "StopTime": 0,
+                  "DayChange": false,
+                  "StopOvernight": false,
+                  "ChangeStation": false,
+                  "ChangeAirport": false,
+                  "LastItem": true,
+                  "HandBaggage": "7kg",
+                  "AllowanceBaggage": ""
+                }
+              ]
+            }
+          ]
+        },
+        "ListTicket": null,
+        "Warnings": null,
+        "ListPassenger": [
+          {
+            "Index": 0,
+            "ParentId": 0,
+            "FirstName": "sang",
+            "LastName": "nguyen tuan",
+            "Type": "ADT",
+            "Gender": true,
+            "Birthday": "",
+            "Nationality": "",
+            "PassportNumber": "",
+            "PassportExpirationDate": null,
+            "Membership": "",
+            "Wheelchair": false,
+            "Vegetarian": false,
+            "ListBaggage": [],
+            "ListSeat": []
+          }
+        ]
+      }
+    ],
+    "Status": true,
+    "ErrorCode": "000",
+    "ErrorValue": "",
+    "ErrorField": "",
+    "Message": "VJ: Sandbox",
+    "Language": "vi"
+  },
+  "booking_verify": {
+    "ListFareData": [
+      {
+        "Session": "DC12508SGNHAN271022100122042",
+        "FareDataId": 1,
+        "ListFlight": [
+          {
+            "FlightValue": "0VJ152K1_ECOSGNHAN202210271950",
+            "Leg": 0
+          }
+        ]
+      }
+    ],
+    "HeaderUser": "datacom",
+    "HeaderPass": "dtc@19860312",
+    "AgentAccount": "DC12508",
+    "AgentPassword": "3fdhyswe",
+    "ProductKey": "jl8rhr7dlqjn8et",
+    "Currency": "VND",
+    "Language": "vi",
+    "IpRequest": ""
+  },
+  "booking_order": [
+    {
+      "Airline": "VJ",
+      "BookingCode": "XGP6ED",
+      "BookingPcc": "",
+      "System": "VJ",
+      "TotalPrice": 2138520,
+      "FareQuoteSession": "",
+      "Tourcode": "",
+      "SendEmail": true,
+      "ListPassenger": [
+        {
+          "Index": 0,
+          "ParentId": 0,
+          "FirstName": "sang",
+          "LastName": "nguyen tuan",
+          "Type": "ADT",
+          "Gender": true,
+          "Birthday": "",
+          "Nationality": "",
+          "PassportNumber": "",
+          "PassportExpirationDate": null,
+          "Membership": "",
+          "Wheelchair": false,
+          "Vegetarian": false,
+          "ListBaggage": [],
+          "ListSeat": []
+        }
+      ],
+      "HeaderUser": "datacom",
+      "HeaderPass": "dtc@19860312",
+      "AgentAccount": "DC12508",
+      "AgentPassword": "3fdhyswe",
+      "ProductKey": "jl8rhr7dlqjn8et",
+      "Currency": "VND",
+      "Language": "vi",
+      "IpRequest": ""
+    }
+  ]
+}
