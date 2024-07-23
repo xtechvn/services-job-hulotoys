@@ -11,11 +11,11 @@ namespace App_Push_Consummer.Engines.Address
         private static string tele_group_id = ConfigurationManager.AppSettings["tele_group_id"];
         private static string tele_token = ConfigurationManager.AppSettings["tele_token"];
 
-        public async Task<Int32> saveAddress(AddressModel data)
+        public async Task<Int32> saveAddressClient(AddressModel data)
         {
 			try
 			{
-                int response = Repository.saveAddress(data);
+                int response = Repository.saveAddressClient(data);
 				return response;
 
 			}
@@ -24,6 +24,20 @@ namespace App_Push_Consummer.Engines.Address
                 ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "saveAddress => error queue = " + ex.ToString());
                 return -1;                
 			}
+        }
+        public async Task<Int32> updateAddressClient(AddressModel data)
+        {
+            try
+            {
+                int response = Repository.updateAddressClient(data);
+                return response;
+
+            }
+            catch (Exception ex)
+            {
+                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "saveAddress => error queue = " + ex.ToString());
+                return -1;
+            }
         }
     }
 }

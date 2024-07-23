@@ -1,5 +1,6 @@
 ﻿using App_Push_Consummer.Common;
 using App_Push_Consummer.Model.Address;
+using HuloToys_Service.Models;
 using System.Configuration;
 using System.Data.SqlClient;
 
@@ -9,19 +10,95 @@ namespace App_Push_Consummer.Model.DB_Core
     {
         private static string tele_group_id = ConfigurationManager.AppSettings["tele_group_id"];
         private static string tele_token = ConfigurationManager.AppSettings["tele_token"];
-        public static int saveAddress(AddressModel model)
+        public static int saveAddressClient(AddressModel model)
         {
             try
             {
-                SqlParameter[] objParam_order = new SqlParameter[12];
-                objParam_order[0] = new SqlParameter("@id", model.id);               
+                SqlParameter[] objParam_order = new SqlParameter[9];
+                objParam_order[0] = new SqlParameter("@ClientId", model.ClientId);
+                objParam_order[1] = new SqlParameter("@ReceiverName", model.ReceiverName);
+                objParam_order[2] = new SqlParameter("@Phone", model.Phone);
+                objParam_order[3] = new SqlParameter("@ProvinceId", model.ProvinceId);
+                objParam_order[4] = new SqlParameter("@DistrictId", model.DistrictId);
+                objParam_order[5] = new SqlParameter("@WardId", model.WardId);
+                objParam_order[6] = new SqlParameter("@Address", model.Address);
+                objParam_order[7] = new SqlParameter("@Address", model.Address);
+                objParam_order[8] = new SqlParameter("@IsActive", model.IsActive);
 
-                var id = DBWorker.ExecuteNonQuery("sp_saveAddress", objParam_order);                
+                var id = DBWorker.ExecuteNonQuery("sp_InsertAddressClient", objParam_order);                
                 return id;
             }
             catch (Exception ex)
             {
-                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "GetDataset => error queue = " + ex.ToString());
+                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "GetDataset =>saveAddressClient error queue = " + ex.ToString());
+                return -1;
+            }
+        }  
+        public static int updateAddressClient(AddressModel model)
+        {
+            try
+            {
+                SqlParameter[] objParam_order = new SqlParameter[11];
+                objParam_order[0] = new SqlParameter("@Id", model.Id);               
+                objParam_order[1] = new SqlParameter("@ClientId", model.ClientId);               
+                objParam_order[2] = new SqlParameter("@ReceiverName", model.ReceiverName);               
+                objParam_order[3] = new SqlParameter("@Phone", model.Phone);               
+                objParam_order[4] = new SqlParameter("@ProvinceId", model.ProvinceId);               
+                objParam_order[5] = new SqlParameter("@DistrictId", model.DistrictId);               
+                objParam_order[6] = new SqlParameter("@WardId", model.WardId);               
+                objParam_order[7] = new SqlParameter("@Address", model.Address);               
+                objParam_order[8] = new SqlParameter("@Address", model.Address);               
+                objParam_order[9] = new SqlParameter("@IsActive", model.IsActive);               
+                objParam_order[10] = new SqlParameter("@CreatedOn", model.CreatedOn);               
+
+                var id = DBWorker.ExecuteNonQuery("sp_UpdateAddressClient", objParam_order);                
+                return id;
+            }
+            catch (Exception ex)
+            {
+                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "GetDataset =>updateAddressClient error queue = " + ex.ToString());
+                return -1;
+            }
+        }
+        public static int saveAccountClient(AccountClientViewModel model)
+        {
+            try
+            {
+                SqlParameter[] objParam_order = new SqlParameter[8];
+                objParam_order[0] = new SqlParameter("@ClientId", model.ClientId);
+                objParam_order[1] = new SqlParameter("@ClientType", model.ClientType);
+                objParam_order[2] = new SqlParameter("@UserName", model.UserName);
+                objParam_order[3] = new SqlParameter("@Password", model.Password);
+                objParam_order[4] = new SqlParameter("@PasswordBackup", model.PasswordBackup);
+                objParam_order[5] = new SqlParameter("@ForgotPasswordToken", model.ForgotPasswordToken);
+                objParam_order[6] = new SqlParameter("@Status", model.Status);
+                objParam_order[7] = new SqlParameter("@GroupPermission", model.GroupPermission);
+             
+
+                var id = DBWorker.ExecuteNonQuery("sp_InsertAccountClient", objParam_order);
+                return id;
+            }
+            catch (Exception ex)
+            {
+                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "GetDataset =>saveAccountClient error queue = " + ex.ToString());
+                return -1;
+            }
+        }
+        public static int updateAccountClient(AccountClientViewModel model)
+        {
+            try
+            {
+                SqlParameter[] objParam_order = new SqlParameter[9];
+                objParam_order[0] = new SqlParameter("@id", model.Id);
+                objParam_order[1] = new SqlParameter("@Password", model.Password);
+                objParam_order[2] = new SqlParameter("@PasswordBackup", model.Password);
+
+                var id = DBWorker.ExecuteNonQuery("sp_UpdateAccountClient", objParam_order);
+                return id;
+            }
+            catch (Exception ex)
+            {
+                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "GetDataset =>updateAccountClient error queue = " + ex.ToString());
                 return -1;
             }
         }
