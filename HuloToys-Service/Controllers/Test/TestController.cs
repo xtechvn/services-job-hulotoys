@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Reflection;
 using Utilities.Contants;
-
+//cuonglv
 namespace HuloToys_Service.Controllers.Test
 {
     [Route("api/[controller]")]
@@ -82,7 +82,7 @@ namespace HuloToys_Service.Controllers.Test
                 var j_param = new Dictionary<string, object>
                 {
                     {"data_push","test message queue"}, // có thể là json
-                    {"type",QueueType.ADDRESS_DETAIL}
+                    {"type",QueueType.ADD_ADDRESS}
                 };
                 var _data_push = JsonConvert.SerializeObject(j_param);
 
