@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/App_Check_Out/obj/Debug/net8.0
+/HuloToys-Service/obj
+/LIB.Entities/obj
+/Utilities/obj
+/App_Check_Out/obj

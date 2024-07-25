@@ -8,4 +8,8 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = App_Push_Consummer
+<<<<<<< HEAD
 build_property.ProjectDir = /Users/lecuong/Source_Code/hulotoys-services/App_Push_Consummer/
+=======
+build_property.ProjectDir = F:\PROJECT\HULOTOYS\HuloToys-Service-Job-Git-\App_Push_Consummer\
+>>>>>>> 46b85d82cdb649653778dd142b2d8adc607bbfbe
