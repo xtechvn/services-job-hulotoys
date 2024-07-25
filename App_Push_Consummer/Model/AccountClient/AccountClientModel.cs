@@ -1,6 +1,6 @@
 ﻿namespace HuloToys_Service.Models
 {
-    public class AccountClientViewModel
+    public class AccountClientModel
     {
         public int Id { get; set; }
         public long? ClientId { get; set; }

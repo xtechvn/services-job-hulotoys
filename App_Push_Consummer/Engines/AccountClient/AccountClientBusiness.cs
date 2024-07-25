@@ -17,7 +17,7 @@ namespace App_Push_Consummer.Engines.AccountClient
         private static string tele_group_id = ConfigurationManager.AppSettings["tele_group_id"];
         private static string tele_token = ConfigurationManager.AppSettings["tele_token"];
 
-        public async Task<Int32> saveAccountClient(AccountClientViewModel data)
+        public async Task<Int32> saveAccountClient(AccountClientModel data)
         {
             try
             {
@@ -32,7 +32,7 @@ namespace App_Push_Consummer.Engines.AccountClient
                 return -1;
             }
         }
-        public async Task<Int32> updateAccountClient(AccountClientViewModel data)
+        public async Task<Int32> updateAccountClient(AccountClientModel data)
         {
             try
             {

@@ -9,7 +9,7 @@ namespace App_Push_Consummer.Interfaces
 {
     public interface IAccountClientBusiness
     {
-        Task<Int32> saveAccountClient(AccountClientViewModel data);
-        Task<Int32> updateAccountClient(AccountClientViewModel data);
+        Task<Int32> saveAccountClient(AccountClientModel data);
+        Task<Int32> updateAccountClient(AccountClientModel data);
     }
 }

@@ -54,7 +54,7 @@ namespace App_Push_Consummer.Engines
                         }
                     case QueueType.ADD_USER:
                         {
-                            var accountclient_model = JsonConvert.DeserializeObject<AccountClientViewModel>(queue_info.data_receiver);
+                            var accountclient_model = JsonConvert.DeserializeObject<AccountClientModel>(queue_info.data_receiver);
                             var address_id = await accountclient_business.saveAccountClient(accountclient_model);
                             if (address_id < 0)
                             {
@@ -64,7 +64,7 @@ namespace App_Push_Consummer.Engines
                         }
                     case QueueType.UPDATE_USER:
                         {
-                            var accountclient_model = JsonConvert.DeserializeObject<AccountClientViewModel>(queue_info.data_receiver);
+                            var accountclient_model = JsonConvert.DeserializeObject<AccountClientModel>(queue_info.data_receiver);
                             var address_id = await accountclient_business.updateAccountClient(accountclient_model);
                             if (address_id < 0)
                             {
