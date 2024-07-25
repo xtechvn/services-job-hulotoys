@@ -1,0 +1,30 @@
+﻿<Properties StartupConfiguration="{E1AAB2AB-A760-43F7-879B-89680A97BD0B}|https" GitUserInfo="UsingMD">
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints />
+  <MonoDevelop.Ide.Workbench ActiveDocument="HuloToys-Service/Controllers/AuthController.cs">
+    <Files>
+      <File FileName="HuloToys-Service/Controllers/Test/TestController.cs" Line="17" Column="49" />
+      <File FileName="HuloToys-Service/Controllers/AuthController.cs" Line="3" Column="27" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="HuloToys-Service" expanded="True">
+            <Node name="HuloToys-Service">
+              <Node name="Controllers" expanded="True">
+                <Node name="Test" expanded="True" />
+                <Node name="AuthController.cs" selected="True" />
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <DisabledProjects>
+    <String>App_Check_Out/APP_CHECKOUT.csproj</String>
+  </DisabledProjects>
+  <MonoDevelop.Ide.ItemProperties.HuloToys-Service PreferredExecutionTarget="/Users/lecuong/Desktop/Google Chrome.app" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+</Properties>
