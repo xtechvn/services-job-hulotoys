@@ -13,7 +13,7 @@ using System.Text;
 namespace App_Push_Consummer
 {
     /// <summary>
-    /// App: Xử lý các tiến trình được push về từ FRONT END
+    /// App: Xử lý các tiến trình được push về từ FRONT END.
     /// /// </summary>
     
     class Program
