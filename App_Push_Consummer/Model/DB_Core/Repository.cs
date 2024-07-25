@@ -106,7 +106,7 @@ namespace App_Push_Consummer.Model.DB_Core
                 objParam_order[1] = new SqlParameter("@ClientType", model.ClientType);
                 objParam_order[2] = new SqlParameter("@UserName", model.UserName);
                 objParam_order[3] = new SqlParameter("@Password", model.Password);
-                objParam_order[4] = new SqlParameter("@PasswordBackup", model.PasswordBackup);
+                objParam_order[4] = new SqlParameter("@PasswordBackup", model.Password);
                 objParam_order[5] = new SqlParameter("@ForgotPasswordToken", model.ForgotPasswordToken);
                 objParam_order[6] = new SqlParameter("@Status", model.Status);
                 objParam_order[7] = new SqlParameter("@GroupPermission", model.GroupPermission);
