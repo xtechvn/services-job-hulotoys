@@ -1,12 +1,8 @@
-﻿using Google.Authenticator;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
+using OtpNet;
 using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
@@ -37,7 +33,6 @@ namespace Utilities
             }
             catch (Exception ex)
             {
-                LogHelper.InsertLogTelegram("GetParamWithKey - CommonHelper: " + ex + "--Token =  " + Token);
                 return false;
             }
         }
@@ -55,8 +50,6 @@ namespace Utilities
             }
             catch (Exception ex)
             {
-                LogHelper.InsertLogTelegram("GetContentObject - CommonHelper: " + ex);
-                // ErrorWriter.WriteLog(System.Web.HttpContext.Current.Server.MapPath("~"), "GiaiMa()", ex.ToString());
                 return string.Empty;
             }
 
@@ -143,7 +136,6 @@ namespace Utilities
             }
             catch (Exception ex)
             {
-                LogHelper.InsertLogTelegram("convertToPound: value = " + value + " error:" + ex.ToString());
                 return 1; // Nếu k có đơn vị nào thỏa mãn sẽ coi như là k có cân nặng và báo mail về cho cskh
             }
 
@@ -290,8 +282,6 @@ namespace Utilities
             catch (ArgumentException ex)
             {
                 msg = regExPattern;
-                //Debug.WriteLine(ex.InnerException +     " argument exception for pattern " + msg);
-                LogHelper.InsertLogTelegram(ex.InnerException + " argument exception for pattern " + msg);
             }
 
             return result;
@@ -447,13 +437,11 @@ namespace Utilities
             catch (ArgumentException ex)
             {
                 msg = regExPattern;
-                LogHelper.InsertLogTelegram(ex.InnerException +
-                    " argument exception for pattern " + msg);
+              
             }
             catch (RegexMatchTimeoutException ex)
             {
                 msg = regExPattern;
-                LogHelper.InsertLogTelegram(ex.InnerException + " timeout exception for pattern " + msg);
             }
             return results;
 
@@ -492,34 +480,13 @@ namespace Utilities
             }
             catch (Exception ex)
             {
-                LogHelper.InsertLogTelegram("RegexPrice error" + ex.ToString());
                 return 0;
             }
         }
 
 
 
-        /// <summary>
-        /// Lấy ra tỷ giá hiện tại theo vietcombank
-        /// </summary>
-        /// <returns></returns>
-        public static double getRateCurrent(string url_api)
-        {
-            string JsonContent = string.Empty;
-            try
-            {
-                using (var webclient = new System.Net.WebClient())
-                {
-                    JsonContent = webclient.DownloadString(url_api);
-                }
-                return Convert.ToDouble(JsonContent);
-            }
-            catch (Exception ex)
-            {
-                LogHelper.InsertLogTelegram("getRateCurrent error" + ex.ToString() + "-url_api=" + url_api);
-                return ((23450 + (23450 * 2.5) / 100));// mac dinh
-            }
-        }
+        
 
         //public static string getUrlCurrent(HttpRequest request)
         //{

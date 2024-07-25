@@ -29,14 +29,14 @@ namespace HuloToys_Service.Controllers
         }
      
         [HttpPost("history")]
-        public async Task<ActionResult> OrderHistory(string token)
+        public async Task<ActionResult> OrderHistory([FromBody] APIRequestGenericModel input)
         {
             try
             {
 
 
                 JArray objParr = null;
-                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
                 {
                     var request = JsonConvert.DeserializeObject<OrderHistoryRequestModel>(objParr[0].ToString());
                     if (request == null || request.client_id <= 0)
@@ -73,14 +73,14 @@ namespace HuloToys_Service.Controllers
 
         }
         [HttpPost("history-lastest")]
-        public async Task<ActionResult> OrderHistoryLastestItem(string token)
+        public async Task<ActionResult> OrderHistoryLastestItem([FromBody] APIRequestGenericModel input)
         {
             try
             {
 
 
                 JArray objParr = null;
-                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
                 {
                     var request = JsonConvert.DeserializeObject<OrderHistoryRequestModel>(objParr[0].ToString());
                     if (request == null|| request.client_id<=0)
@@ -118,14 +118,14 @@ namespace HuloToys_Service.Controllers
 
         }
         [HttpPost("history-find")]
-        public async Task<ActionResult> OrderHistoryFind(string token)
+        public async Task<ActionResult> OrderHistoryFind([FromBody] APIRequestGenericModel input)
         {
             try
             {
 
 
                 JArray objParr = null;
-                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
                 {
                     var request = JsonConvert.DeserializeObject<OrderHistoryRequestModel>(objParr[0].ToString());
                     if (request == null || request.client_id <= 0 || request.order_no ==null || request.order_no.Trim()=="")

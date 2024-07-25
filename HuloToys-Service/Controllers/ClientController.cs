@@ -27,14 +27,14 @@ namespace HuloToys_Service.Controllers
 
         }
         [HttpPost("login")]
-        public async Task<ActionResult> ClientLogin(string token)
+        public async Task<ActionResult> ClientLogin([FromBody] APIRequestGenericModel input)
         {
             try
             {
 
 
                 JArray objParr = null;
-                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
                 {
                     var request = JsonConvert.DeserializeObject<ClientLoginRequestModel>(objParr[0].ToString());
                     if (request == null 
@@ -73,14 +73,14 @@ namespace HuloToys_Service.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult> ClientRegister(string token)
+        public async Task<ActionResult> ClientRegister([FromBody] APIRequestGenericModel input)
         {
             try
             {
                 
 
                 JArray objParr = null;
-                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
                 {
                     var request = JsonConvert.DeserializeObject<ClientRegisterRequestModel>(objParr[0].ToString());
                     if (request == null || request.user_name==null || request.user_name.Trim()==""
@@ -148,14 +148,14 @@ namespace HuloToys_Service.Controllers
         }
 
         [HttpPost("forgot-password")]
-        public async Task<ActionResult> ForgotPassword(string token)
+        public async Task<ActionResult> ForgotPassword([FromBody] APIRequestGenericModel input)
         {
             try
             {
 
 
                 JArray objParr = null;
-                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
                 {
                     var request = JsonConvert.DeserializeObject<ClientForgotPasswordRequestModel>(objParr[0].ToString());
                     if (request == null || request.name == null || request.name.Trim() == "")
@@ -219,14 +219,14 @@ namespace HuloToys_Service.Controllers
 
         }
         [HttpPost("change-password")]
-        public async Task<ActionResult> ChangePassword(string token)
+        public async Task<ActionResult> ChangePassword([FromBody] APIRequestGenericModel input)
         {
             try
             {
 
 
                 JArray objParr = null;
-                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
                 {
                     var request = JsonConvert.DeserializeObject<ClientChangePasswordRequestModel>(objParr[0].ToString());
                     if (request == null || request.id<=0

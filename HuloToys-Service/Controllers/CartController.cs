@@ -31,14 +31,14 @@ namespace HuloToys_Service.Controllers
             bookingMongodbService = new BookingMongodbService(configuration);
         }
         [HttpPost("insert")]
-        public async Task<ActionResult> InsertCartItem(string token)
+        public async Task<ActionResult> InsertCartItem([FromBody] APIRequestGenericModel input)
         {
             try
             {
 
 
                 JArray objParr = null;
-                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token !=null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
                 {
                     var request = JsonConvert.DeserializeObject<CartInsertRequestModel>(objParr[0].ToString());
                     if (request == null
@@ -99,14 +99,14 @@ namespace HuloToys_Service.Controllers
 
         }
         [HttpPost("count-item")]
-        public async Task<ActionResult> CountCartItem(string token)
+        public async Task<ActionResult> CountCartItem([FromBody] APIRequestGenericModel input)
         {
             try
             {
 
 
                 JArray objParr = null;
-                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
                 {
                     var request = JsonConvert.DeserializeObject<CartInsertRequestModel>(objParr[0].ToString());
                     if (request == null || request.client_id <= 0)
@@ -146,14 +146,14 @@ namespace HuloToys_Service.Controllers
 
         }
         [HttpPost("delete")]
-        public async Task<ActionResult> DeleteCartItem(string token)
+        public async Task<ActionResult> DeleteCartItem([FromBody] APIRequestGenericModel input)
         {
             try
             {
 
 
                 JArray objParr = null;
-                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
                 {
                     var request = JsonConvert.DeserializeObject<CartDeleteRequestModel>(objParr[0].ToString());
                     if (request == null || request.id ==null || request.id.Trim()=="")
@@ -193,14 +193,14 @@ namespace HuloToys_Service.Controllers
 
         }
         [HttpPost("get")]
-        public async Task<ActionResult> GetListCartItems(string token)
+        public async Task<ActionResult> GetListCartItems([FromBody] APIRequestGenericModel input)
         {
             try
             {
 
 
                 JArray objParr = null;
-                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
                 {
                     var request = JsonConvert.DeserializeObject<CartInsertRequestModel>(objParr[0].ToString());
                     if (request == null || request.client_id <= 0)
@@ -240,14 +240,14 @@ namespace HuloToys_Service.Controllers
 
         }
         [HttpPost("confirm")]
-        public async Task<ActionResult> ConfirmCart(string token)
+        public async Task<ActionResult> ConfirmCart([FromBody] APIRequestGenericModel input)
         {
             try
             {
 
 
                 JArray objParr = null;
-                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
                 {
                     var request = JsonConvert.DeserializeObject<CartInsertRequestModel>(objParr[0].ToString());
                     if (request == null|| request.client_id <= 0)

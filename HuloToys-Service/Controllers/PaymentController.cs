@@ -25,14 +25,14 @@ namespace HuloToys_Service.Controllers
 
         }
         [HttpPost("checkout")]
-        public async Task<ActionResult> Checkout(string token)
+        public async Task<ActionResult> Checkout([FromBody] APIRequestGenericModel  input)
         {
             try
             {
 
 
                 JArray objParr = null;
-                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
                 {
                     var request = JsonConvert.DeserializeObject<PaymentCheckoutRequestModel>(objParr[0].ToString());
                     //if (request == null || request.user_name == null || request.user_name.Trim() == ""
