@@ -1,5 +1,5 @@
-﻿using Entities.ViewModels.APIRequest;
-using Entities.ViewModels.MongoDb;
+﻿using Models.APIRequest;
+using Models.MongoDb;
 using HuloToys_Service.MongoDb;
 using HuloToys_Service.RabitMQ;
 using HuloToys_Service.Utilities.Lib;

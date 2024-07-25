@@ -1,4 +1,4 @@
-﻿using Entities.ViewModels.MongoDb;
+﻿using Models.MongoDb;
 using HuloToys_Service.Utilities.Lib;
 using MongoDB.Driver;
 using System.Collections.Concurrent;

@@ -6,10 +6,10 @@ using System.Reflection;
 using HuloToys_Service.Utilities.Lib;
 using Utilities;
 using Utilities.Contants;
-using LIB.Entities.ViewModels.APIRequest;
-using Entities.ViewModels.Queue;
+using LIB.Models.APIRequest;
+using Models.Queue;
 using HuloToys_Service.RabitMQ;
-using Entities.ViewModels.APIRequest;
+using Models.APIRequest;
 
 namespace HuloToys_Service.Controllers
 {

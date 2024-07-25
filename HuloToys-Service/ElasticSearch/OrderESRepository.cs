@@ -1,5 +1,5 @@
 ﻿using Elasticsearch.Net;
-using Entities.ViewModels.ElasticSearch;
+using Models.ElasticSearch;
 using HuloToys_Service.Elasticsearch;
 using HuloToys_Service.Utilities.Lib;
 using Nest;
