@@ -60,7 +60,7 @@ namespace App_Push_Consummer.Model.DB_Core
                 return -1;
             }
         }
-        public static int saveClient(AccountClientViewModel model)
+        public static int saveClient(AccountClientModel model)
         {
             try
             {
@@ -97,7 +97,7 @@ namespace App_Push_Consummer.Model.DB_Core
                 return -1;
             }
         }
-        public static int saveAccountClient(AccountClientViewModel model)
+        public static int saveAccountClient(AccountClientModel model)
         {
             try
             {
@@ -121,7 +121,7 @@ namespace App_Push_Consummer.Model.DB_Core
                 return -1;
             }
         }
-        public static int updateAccountClient(AccountClientViewModel model)
+        public static int updateAccountClient(AccountClientModel model)
         {
             try
             {
