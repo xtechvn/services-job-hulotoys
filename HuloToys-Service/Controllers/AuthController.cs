@@ -1,4 +1,6 @@
-﻿using HuloToys_Service.Models;
+﻿// Create by: cuonglv
+// Create date: 24-07-2024
+using HuloToys_Service.Models;
 using HuloToys_Service.Utilities.Lib;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -6,7 +8,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
-
 namespace HuloToys_Service.Controllers
 {
     public class AuthController : ControllerBase
