@@ -10,6 +10,8 @@ using System.Security.Claims;
 using System.Text;
 namespace HuloToys_Service.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly IConfiguration configuration;

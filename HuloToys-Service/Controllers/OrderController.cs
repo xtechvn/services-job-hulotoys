@@ -27,6 +27,7 @@ namespace HuloToys_Service.Controllers
             workQueueClient = new WorkQueueClient(configuration);
             orderESRepository = new OrderESRepository(configuration["DataBaseConfig:Elastic:Host"], configuration);
         }
+     
         [HttpPost("history")]
         public async Task<ActionResult> OrderHistory(string token)
         {
