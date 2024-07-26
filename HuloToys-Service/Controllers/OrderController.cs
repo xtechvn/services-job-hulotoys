@@ -19,13 +19,13 @@ namespace HuloToys_Service.Controllers
     {
         private readonly IConfiguration configuration;
         private readonly WorkQueueClient workQueueClient;
-        private readonly OrderESRepository orderESRepository;
+        private readonly OrderESService orderESRepository;
         public OrderController(IConfiguration _configuration)
         {
             configuration = _configuration;
 
             workQueueClient = new WorkQueueClient(configuration);
-            orderESRepository = new OrderESRepository(configuration["DataBaseConfig:Elastic:Host"], configuration);
+            orderESRepository = new OrderESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
         }
      
         [HttpPost("history")]
@@ -138,11 +138,12 @@ namespace HuloToys_Service.Controllers
                         });
                     }
 
-
+                    var order=orderESRepository.GetByOrderNo(request.order_no,request.client_id);
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
-                        msg = "Success"
+                        msg = "Success",
+                        data= order
                     });
 
                 }
