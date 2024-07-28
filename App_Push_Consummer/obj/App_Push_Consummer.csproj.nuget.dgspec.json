@@ -1,40 +1,33 @@
 {
   "format": 1,
   "restore": {
-    "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git-\\App_Push_Consummer\\App_Push_Consummer.csproj": {}
+    "/Users/lecuong/Source_Code/hulotoys-services/App_Push_Consummer/App_Push_Consummer.csproj": {}
   },
   "projects": {
-    "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git-\\App_Push_Consummer\\App_Push_Consummer.csproj": {
+    "/Users/lecuong/Source_Code/hulotoys-services/App_Push_Consummer/App_Push_Consummer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git-\\App_Push_Consummer\\App_Push_Consummer.csproj",
+        "projectUniqueName": "/Users/lecuong/Source_Code/hulotoys-services/App_Push_Consummer/App_Push_Consummer.csproj",
         "projectName": "App_Push_Consummer",
-        "projectPath": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git-\\App_Push_Consummer\\App_Push_Consummer.csproj",
-        "packagesPath": "C:\\Users\\cuong\\.nuget\\packages\\",
-        "outputPath": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git-\\App_Push_Consummer\\obj\\",
+        "projectPath": "/Users/lecuong/Source_Code/hulotoys-services/App_Push_Consummer/App_Push_Consummer.csproj",
+        "packagesPath": "/Users/lecuong/.nuget/packages/",
+        "outputPath": "/Users/lecuong/Source_Code/hulotoys-services/App_Push_Consummer/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\cuong\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/lecuong/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net7.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net7.0": {
             "targetAlias": "net7.0",
             "projectReferences": {
-              "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git-\\Utilities\\Utilities.csproj": {
-                "projectPath": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git-\\Utilities\\Utilities.csproj"
+              "/Users/lecuong/Source_Code/hulotoys-services/Utilities/Utilities.csproj": {
+                "projectPath": "/Users/lecuong/Source_Code/hulotoys-services/Utilities/Utilities.csproj"
               }
             }
           }
@@ -86,33 +79,26 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.202\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.410/RuntimeIdentifierGraph.json"
         }
       }
     },
-    "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git-\\Utilities\\Utilities.csproj": {
+    "/Users/lecuong/Source_Code/hulotoys-services/Utilities/Utilities.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git-\\Utilities\\Utilities.csproj",
+        "projectUniqueName": "/Users/lecuong/Source_Code/hulotoys-services/Utilities/Utilities.csproj",
         "projectName": "Utilities",
-        "projectPath": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git-\\Utilities\\Utilities.csproj",
-        "packagesPath": "C:\\Users\\cuong\\.nuget\\packages\\",
-        "outputPath": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git-\\Utilities\\obj\\",
+        "projectPath": "/Users/lecuong/Source_Code/hulotoys-services/Utilities/Utilities.csproj",
+        "packagesPath": "/Users/lecuong/.nuget/packages/",
+        "outputPath": "/Users/lecuong/Source_Code/hulotoys-services/Utilities/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\cuong\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/lecuong/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net7.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -130,6 +116,16 @@
       "frameworks": {
         "net7.0": {
           "targetAlias": "net7.0",
+          "dependencies": {
+            "Otp.NET": {
+              "target": "Package",
+              "version": "[1.4.0, )"
+            },
+            "Telegram.Bot": {
+              "target": "Package",
+              "version": "[19.0.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -146,7 +142,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.202\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.410/RuntimeIdentifierGraph.json"
         }
       }
     }

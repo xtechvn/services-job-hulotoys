@@ -86,6 +86,15 @@
           }
         }
       },
+      "Otp.NET/1.4.0": {
+        "type": "package",
+        "compile": {
+          "lib/net7.0/Otp.NET.dll": {}
+        },
+        "runtime": {
+          "lib/net7.0/Otp.NET.dll": {}
+        }
+      },
       "RabbitMQ.Client/6.8.1": {
         "type": "package",
         "dependencies": {
@@ -299,9 +308,29 @@
           "buildTransitive/net6.0/_._": {}
         }
       },
+      "Telegram.Bot/19.0.0": {
+        "type": "package",
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.1"
+        },
+        "compile": {
+          "lib/net6.0/Telegram.Bot.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/Telegram.Bot.dll": {
+            "related": ".pdb;.xml"
+          }
+        }
+      },
       "Utilities/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v7.0",
+        "dependencies": {
+          "Otp.NET": "1.4.0",
+          "Telegram.Bot": "19.0.0"
+        },
         "compile": {
           "bin/placeholder/Utilities.dll": {}
         },
@@ -468,6 +497,26 @@
         "newtonsoft.json.13.0.3.nupkg.sha512",
         "newtonsoft.json.nuspec",
         "packageIcon.png"
+      ]
+    },
+    "Otp.NET/1.4.0": {
+      "sha512": "Fk1NKc0lWmlo6LAFYpFJInRgFKt72knRNEvxndDYoQHFwYOPXav+WEUBvQA0k4lxq5xt0SymrZ+oi0F/G40bPQ==",
+      "type": "package",
+      "path": "otp.net/1.4.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.txt",
+        "README.md",
+        "icon.png",
+        "lib/net461/Otp.NET.dll",
+        "lib/net5.0/Otp.NET.dll",
+        "lib/net6.0/Otp.NET.dll",
+        "lib/net7.0/Otp.NET.dll",
+        "lib/net8.0/Otp.NET.dll",
+        "lib/netstandard2.0/Otp.NET.dll",
+        "otp.net.1.4.0.nupkg.sha512",
+        "otp.net.nuspec"
       ]
     },
     "RabbitMQ.Client/6.8.1": {
@@ -893,6 +942,24 @@
         "useSharedDesignerContext.txt"
       ]
     },
+    "Telegram.Bot/19.0.0": {
+      "sha512": "Q16IOitgjGoaJOuqgKQy0FeF+hr/ncmlX2esrhCC7aiyhSX7roYEriWaGAHkQZR8QzbImjFfl4eQh2IxcnOrPg==",
+      "type": "package",
+      "path": "telegram.bot/19.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net6.0/Telegram.Bot.dll",
+        "lib/net6.0/Telegram.Bot.pdb",
+        "lib/net6.0/Telegram.Bot.xml",
+        "lib/netstandard2.0/Telegram.Bot.dll",
+        "lib/netstandard2.0/Telegram.Bot.pdb",
+        "lib/netstandard2.0/Telegram.Bot.xml",
+        "package-icon.png",
+        "telegram.bot.19.0.0.nupkg.sha512",
+        "telegram.bot.nuspec"
+      ]
+    },
     "Utilities/1.0.0": {
       "type": "project",
       "path": "../Utilities/Utilities.csproj",
@@ -910,40 +977,32 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\cuong\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "/Users/lecuong/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git-\\App_Push_Consummer\\App_Push_Consummer.csproj",
+      "projectUniqueName": "/Users/lecuong/Source_Code/hulotoys-services/App_Push_Consummer/App_Push_Consummer.csproj",
       "projectName": "App_Push_Consummer",
-      "projectPath": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git-\\App_Push_Consummer\\App_Push_Consummer.csproj",
-      "packagesPath": "C:\\Users\\cuong\\.nuget\\packages\\",
-      "outputPath": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git-\\App_Push_Consummer\\obj\\",
+      "projectPath": "/Users/lecuong/Source_Code/hulotoys-services/App_Push_Consummer/App_Push_Consummer.csproj",
+      "packagesPath": "/Users/lecuong/.nuget/packages/",
+      "outputPath": "/Users/lecuong/Source_Code/hulotoys-services/App_Push_Consummer/obj/",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\cuong\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/Users/lecuong/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net7.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net7.0": {
           "targetAlias": "net7.0",
           "projectReferences": {
-            "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git-\\Utilities\\Utilities.csproj": {
-              "projectPath": "F:\\PROJECT\\HULOTOYS\\HuloToys-Service-Job-Git-\\Utilities\\Utilities.csproj"
+            "/Users/lecuong/Source_Code/hulotoys-services/Utilities/Utilities.csproj": {
+              "projectPath": "/Users/lecuong/Source_Code/hulotoys-services/Utilities/Utilities.csproj"
             }
           }
         }
@@ -995,7 +1054,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.202\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.410/RuntimeIdentifierGraph.json"
       }
     }
   }
