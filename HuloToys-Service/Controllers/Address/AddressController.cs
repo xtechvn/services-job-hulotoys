@@ -13,10 +13,11 @@ using System.Reflection;
 using Utilities;
 using Utilities.Contants;
 
-namespace HuloToys_Service.Controllers
+namespace HuloToys_Service.Controllers.Address
 {
     [Route("api")]
     [ApiController]
+    [Authorize]
     public class AddressController : ControllerBase
     {
         private readonly IConfiguration configuration;
@@ -27,13 +28,13 @@ namespace HuloToys_Service.Controllers
             redisService = _redisService;
         }
         [HttpGet("insert-address")]
-        [Authorize]
+
         public async Task<IActionResult> insertAddress(string token)
         {
             try
             {
                 JArray objParr = null;
-                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["KEY:FE"]))
+                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["KEY:private_key"]))
                 {
                     var request = JsonConvert.DeserializeObject<AddressViewModel>(objParr[0].ToString());
                     bool response_queue = false;
@@ -95,13 +96,12 @@ namespace HuloToys_Service.Controllers
             });
         }
         [HttpGet("update-address")]
-        [Authorize]
         public async Task<IActionResult> updateAddress(string token)
         {
             try
             {
                 JArray objParr = null;
-                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["KEY:FE"]))
+                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["KEY:private_key"]))
                 {
                     var request = JsonConvert.DeserializeObject<AddressViewModel>(objParr[0].ToString());
                     bool response_queue = false;

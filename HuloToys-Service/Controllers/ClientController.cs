@@ -38,7 +38,7 @@ namespace HuloToys_Service.Controllers
 
 
                 JArray objParr = null;
-                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
                     var request = JsonConvert.DeserializeObject<ClientLoginRequestModel>(objParr[0].ToString());
                     if (request == null 
@@ -104,7 +104,7 @@ namespace HuloToys_Service.Controllers
                 
 
                 JArray objParr = null;
-                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
                     var request = JsonConvert.DeserializeObject<ClientRegisterRequestModel>(objParr[0].ToString());
                     if (request == null || request.user_name==null || request.user_name.Trim()==""
@@ -184,7 +184,7 @@ namespace HuloToys_Service.Controllers
 
 
                 JArray objParr = null;
-                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
                     var request = JsonConvert.DeserializeObject<ClientForgotPasswordRequestModel>(objParr[0].ToString());
                     if (request == null || request.name == null || request.name.Trim() == "")
@@ -272,7 +272,7 @@ namespace HuloToys_Service.Controllers
 
 
                 JArray objParr = null;
-                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
                     var request = JsonConvert.DeserializeObject<ClientChangePasswordRequestModel>(objParr[0].ToString());
                     if (request == null || request.id<=0

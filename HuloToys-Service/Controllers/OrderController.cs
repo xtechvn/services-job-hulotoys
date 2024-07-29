@@ -36,7 +36,7 @@ namespace HuloToys_Service.Controllers
 
 
                 JArray objParr = null;
-                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
                     var request = JsonConvert.DeserializeObject<OrderHistoryRequestModel>(objParr[0].ToString());
                     if (request == null || request.client_id <= 0)
@@ -80,7 +80,7 @@ namespace HuloToys_Service.Controllers
 
 
                 JArray objParr = null;
-                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
                     var request = JsonConvert.DeserializeObject<OrderHistoryRequestModel>(objParr[0].ToString());
                     if (request == null|| request.client_id<=0)
@@ -125,7 +125,7 @@ namespace HuloToys_Service.Controllers
 
 
                 JArray objParr = null;
-                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:FE"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
                     var request = JsonConvert.DeserializeObject<OrderHistoryRequestModel>(objParr[0].ToString());
                     if (request == null || request.client_id <= 0 || request.order_no ==null || request.order_no.Trim()=="")
