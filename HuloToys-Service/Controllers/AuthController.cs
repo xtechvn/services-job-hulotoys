@@ -1,5 +1,6 @@
 ﻿// Create by: cuonglv
 // Create date: 24-07-2024-
+using Caching.Elasticsearch;
 using HuloToys_Service.Models;
 using HuloToys_Service.Utilities.Lib;
 using Microsoft.AspNetCore.Mvc;
@@ -15,21 +16,33 @@ namespace HuloToys_Service.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IConfiguration configuration;
+        private readonly AccountClientESService accountClientESService;
 
         public AuthController(IConfiguration _configuration)
         {
             configuration = _configuration;
+            accountClientESService = new AccountClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
         }
 
         [HttpPost("login")]
         public IActionResult Login([FromBody] UserLoginModel user)
         {
             try
-            {                
+            {
                 // Kiểm tra thông tin đăng nhập
                 // Check trong ES xem user này có tồn tại hay không ?
                 // đẩy data từ CMS lên Elasticsearch node accountAccessApi. Sau đó truy vấn lấy thông tin từ đó xuống
-                if (user.Username == "test" && user.Password == "password")
+                if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(user.Password))
+                {
+                    return Ok(new
+                    {
+                        msg = "Thông tin đăng nhập không đúng. Xin vui lòng thử lại"
+                    });
+                }
+
+                var accountClient= accountClientESService.GetByUsername(user.Username);
+                if(accountClient == null) { return Ok(new { msg ="Tài khoản "+ user.Username+" không tồn tại" }); }
+                if (user.Username == accountClient.username && user.Password == accountClient.password)
                 {
                     var token = GenerateJwtToken(user.Username);
                     return Ok(new { token });
