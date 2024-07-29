@@ -1,5 +1,5 @@
-﻿using Entities.ViewModels.APIRequest;
-using Entities.ViewModels.MongoDb;
+﻿using Models.APIRequest;
+using Models.MongoDb;
 using HuloToys_Service.MongoDb;
 using HuloToys_Service.RabitMQ;
 using HuloToys_Service.Utilities.Lib;
@@ -21,14 +21,12 @@ namespace HuloToys_Service.Controllers
         private readonly IConfiguration configuration;
         private readonly WorkQueueClient workQueueClient;
         private readonly CartMongodbService cartMongodbService;
-        private readonly BookingMongodbService bookingMongodbService;
         public CartController(IConfiguration _configuration)
         {
             configuration = _configuration;
 
             workQueueClient = new WorkQueueClient(configuration);
             cartMongodbService=new CartMongodbService(configuration);
-            bookingMongodbService = new BookingMongodbService(configuration);
         }
         [HttpPost("insert")]
         public async Task<ActionResult> InsertCartItem([FromBody] APIRequestGenericModel input)
@@ -260,35 +258,35 @@ namespace HuloToys_Service.Controllers
                         });
                     }
 
-                    BookingMongoDbModel model = new BookingMongoDbModel()
-                    {
-                        client_id=request.client_id,
-                        products= await cartMongodbService.GetCartItemByClientID(request.client_id),
-                    };
-                    var result = bookingMongodbService.Insert(model);
-                    if (result != null)
-                    {
-                        foreach(var item in model.products)
-                        {
-                            await cartMongodbService.DeleteCartItemByID(item._id);
-                        }
-                        return Ok(new
-                        {
-                            status = (int)ResponseType.SUCCESS,
-                            msg = "Success",
-                            data = result
-                        });
-                    }
-                    else
-                    {
-                        return Ok(new
-                        {
-                            status = (int)ResponseType.FAILED,
-                            msg = ResponseMessages.FunctionExcutionFailed,
-                            data = result
+                    //BookingMongoDbModel model = new BookingMongoDbModel()
+                    //{
+                    //    client_id=request.client_id,
+                    //    products= await cartMongodbService.GetCartItemByClientID(request.client_id),
+                    //};
+                    //var result = bookingMongodbService.Insert(model);
+                    //if (result != null)
+                    //{
+                    //    foreach(var item in model.products)
+                    //    {
+                    //        await cartMongodbService.DeleteCartItemByID(item._id);
+                    //    }
+                    //    return Ok(new
+                    //    {
+                    //        status = (int)ResponseType.SUCCESS,
+                    //        msg = "Success",
+                    //        data = result
+                    //    });
+                    //}
+                    //else
+                    //{
+                    //    return Ok(new
+                    //    {
+                    //        status = (int)ResponseType.FAILED,
+                    //        msg = ResponseMessages.FunctionExcutionFailed,
+                    //        data = result
 
-                        });
-                    }
+                    //    });
+                    //}
                 }
 
             }

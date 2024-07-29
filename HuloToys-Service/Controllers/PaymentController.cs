@@ -1,4 +1,4 @@
-﻿using Entities.ViewModels.APIRequest;
+﻿using Models.APIRequest;
 using HuloToys_Service.RabitMQ;
 using HuloToys_Service.Utilities.Lib;
 using Microsoft.AspNetCore.Authorization;

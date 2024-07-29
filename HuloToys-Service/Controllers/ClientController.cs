@@ -6,10 +6,12 @@ using System.Reflection;
 using HuloToys_Service.Utilities.Lib;
 using Utilities;
 using Utilities.Contants;
-using LIB.Entities.ViewModels.APIRequest;
-using Entities.ViewModels.Queue;
+using LIB.Models.APIRequest;
+using Models.Queue;
 using HuloToys_Service.RabitMQ;
-using Entities.ViewModels.APIRequest;
+using Models.APIRequest;
+using Caching.Elasticsearch;
+using System.Security.Cryptography;
 
 namespace HuloToys_Service.Controllers
 {
@@ -20,11 +22,13 @@ namespace HuloToys_Service.Controllers
     {
         private readonly IConfiguration configuration;
         private readonly WorkQueueClient workQueueClient;
+        private readonly AccountClientESService accountClientESService;
+        private readonly ClientESService clientESService;
         public ClientController(IConfiguration _configuration) {
             configuration= _configuration;
-
             workQueueClient=new WorkQueueClient(configuration);
-
+            accountClientESService = new AccountClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
+            clientESService = new ClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
         }
         [HttpPost("login")]
         public async Task<ActionResult> ClientLogin([FromBody] APIRequestGenericModel input)
@@ -48,13 +52,28 @@ namespace HuloToys_Service.Controllers
                             msg = "Tài khoản / Mật khẩu không chính xác, vui lòng thử lại"
                         });
                     }
-
-
-                    return Ok(new
+                    var account_client = accountClientESService.GetByUsernameAndPassword(request.user_name, request.password);
+                    if(account_client!=null && account_client.id > 0 && account_client.clientid > 0)
                     {
-                        status = (int)ResponseType.SUCCESS,
-                        msg = "Success"
-                    });
+                        var client = clientESService.GetById((long)account_client.clientid);
+                        if (client != null && client.id>0) {
+
+                            return Ok(new
+                            {
+                                status = (int)ResponseType.SUCCESS,
+                                msg = "Success",
+                                data=new
+                                {
+                                    account_client_id=account_client.id,
+                                    user_name=account_client.username,
+                                    name=client.clientname
+                                }
+                            });
+
+                        }
+                       
+                    }
+                   
 
                 }
 
@@ -63,6 +82,11 @@ namespace HuloToys_Service.Controllers
             {
                 string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                return Ok(new
+                {
+                    status = (int)ResponseType.FAILED,
+                    msg = ResponseMessages.FunctionExcutionFailed
+                });
             }
             return Ok(new
             {
@@ -138,6 +162,11 @@ namespace HuloToys_Service.Controllers
             {
                 string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                return Ok(new
+                {
+                    status = (int)ResponseType.FAILED,
+                    msg = ResponseMessages.FunctionExcutionFailed
+                });
             }
             return Ok(new
             {
@@ -167,41 +196,53 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
+                    var account_client = accountClientESService.GetByUsername(request.name);
+                    if (account_client != null&& account_client.id >0&& account_client.clientid >0) {
+                        var client = clientESService.GetById((long)account_client.clientid);
+                        if (client != null && client.id > 0)
+                        {
+                            string forgot_password_token = "";
+                            //Generate new Forgot password token:
 
-                    //AccountClientViewModel model = new AccountClientViewModel()
-                    //{
-                    //    ClientId = -1,
-                    //    ClientType = 0,
-                    //    Email = request.email == null || request.email.Trim() == "" ? "" : request.email.Trim(),
-                    //    Id = -1,
-                    //    isReceiverInfoEmail = request.is_receive_email == true ? (byte)1 : (byte)0,
-                    //    Name = request.user_name.Trim(),
-                    //    Password = request.password,
-                    //    Phone = request.phone,
-                    //    Status = 0,
-                    //    UserName = request.user_name
-                    //};
-                    //var queue_model = new ClientConsumerQueueModel()
-                    //{
-                    //    data_receiver = JsonConvert.SerializeObject(model),
-                    //    queue_type = QueueType.ADD_USER
-                    //};
-                    //bool result = workQueueClient.InsertQueueSimple(new Models.QueueSettingViewModel()
-                    //{
-                    //    host = configuration["Queue:Host"],
-                    //    port = Convert.ToInt32(configuration["Queue:Port"]),
-                    //    v_host = configuration["Queue:V_Host"],
-                    //    username = configuration["Queue:Username"],
-                    //    password = configuration["Queue:Password"],
-                    //}, JsonConvert.SerializeObject(queue_model), QueueName.queue_app_push);
-                    //if (result)
-                    //{
-                    //    return Ok(new
-                    //    {
-                    //        status = (int)ResponseType.SUCCESS,
-                    //        msg = "Success"
-                    //    });
-                    //}
+
+                            AccountClientViewModel model = new AccountClientViewModel()
+                            {
+                                ClientId =client.id,
+                                ClientType = 0,
+                                Email = null,
+                                Id = account_client.id,
+                                isReceiverInfoEmail = null,
+                                Name = null,
+                                Password = null,
+                                Phone = null,
+                                Status = 0,
+                                UserName = null,
+                                ForgotPasswordToken = forgot_password_token
+                            };
+                            var queue_model = new ClientConsumerQueueModel()
+                            {
+                                data_receiver = JsonConvert.SerializeObject(model),
+                                queue_type = QueueType.UPDATE_USER
+                            };
+                            bool result = workQueueClient.InsertQueueSimple(new Models.QueueSettingViewModel()
+                            {
+                                host = configuration["Queue:Host"],
+                                port = Convert.ToInt32(configuration["Queue:Port"]),
+                                v_host = configuration["Queue:V_Host"],
+                                username = configuration["Queue:Username"],
+                                password = configuration["Queue:Password"],
+                            }, JsonConvert.SerializeObject(queue_model), QueueName.queue_app_push);
+                            if (result)
+                            {
+                                return Ok(new
+                                {
+                                    status = (int)ResponseType.SUCCESS,
+                                    msg = "Success"
+                                });
+                            }
+                        }
+                    }
+                   
 
                 }
 
@@ -210,6 +251,11 @@ namespace HuloToys_Service.Controllers
             {
                 string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                return Ok(new
+                {
+                    status = (int)ResponseType.FAILED,
+                    msg = ResponseMessages.FunctionExcutionFailed
+                });
             }
             return Ok(new
             {
@@ -241,40 +287,53 @@ namespace HuloToys_Service.Controllers
                         });
                     }
 
-                    //AccountClientViewModel model = new AccountClientViewModel()
-                    //{
-                    //    ClientId = -1,
-                    //    ClientType = 0,
-                    //    Email = request.email == null || request.email.Trim() == "" ? "" : request.email.Trim(),
-                    //    Id = -1,
-                    //    isReceiverInfoEmail = request.is_receive_email == true ? (byte)1 : (byte)0,
-                    //    Name = request.user_name.Trim(),
-                    //    Password = request.password,
-                    //    Phone = request.phone,
-                    //    Status = 0,
-                    //    UserName = request.user_name
-                    //};
-                    //var queue_model = new ClientConsumerQueueModel()
-                    //{
-                    //    data_receiver = JsonConvert.SerializeObject(model),
-                    //    queue_type = QueueType.ADD_USER
-                    //};
-                    //bool result = workQueueClient.InsertQueueSimple(new Models.QueueSettingViewModel()
-                    //{
-                    //    host = configuration["Queue:Host"],
-                    //    port = Convert.ToInt32(configuration["Queue:Port"]),
-                    //    v_host = configuration["Queue:V_Host"],
-                    //    username = configuration["Queue:Username"],
-                    //    password = configuration["Queue:Password"],
-                    //}, JsonConvert.SerializeObject(queue_model), QueueName.queue_app_push);
-                    //if (result)
-                    //{
-                    //    return Ok(new
-                    //    {
-                    //        status = (int)ResponseType.SUCCESS,
-                    //        msg = "Success"
-                    //    });
-                    //}
+                    var account_client = accountClientESService.GetById(request.id);
+                    if (account_client != null && account_client.id > 0 && account_client.clientid > 0)
+                    {
+                        var client = clientESService.GetById((long)account_client.clientid);
+                        if (client != null && client.id > 0)
+                        {
+                            string new_password = CommonHelper.MD5Hash(request.password);
+                            //Generate new Forgot password token:
+
+
+                            AccountClientViewModel model = new AccountClientViewModel()
+                            {
+                                ClientId = client.id,
+                                ClientType = 0,
+                                Email = null,
+                                Id = account_client.id,
+                                isReceiverInfoEmail = null,
+                                Name = null,
+                                Password = new_password,
+                                Phone = null,
+                                Status = 0,
+                                UserName = null,
+                                ForgotPasswordToken = null
+                            };
+                            var queue_model = new ClientConsumerQueueModel()
+                            {
+                                data_receiver = JsonConvert.SerializeObject(model),
+                                queue_type = QueueType.UPDATE_USER
+                            };
+                            bool result = workQueueClient.InsertQueueSimple(new Models.QueueSettingViewModel()
+                            {
+                                host = configuration["Queue:Host"],
+                                port = Convert.ToInt32(configuration["Queue:Port"]),
+                                v_host = configuration["Queue:V_Host"],
+                                username = configuration["Queue:Username"],
+                                password = configuration["Queue:Password"],
+                            }, JsonConvert.SerializeObject(queue_model), QueueName.queue_app_push);
+                            if (result)
+                            {
+                                return Ok(new
+                                {
+                                    status = (int)ResponseType.SUCCESS,
+                                    msg = "Success"
+                                });
+                            }
+                        }
+                    }
 
                 }
 
