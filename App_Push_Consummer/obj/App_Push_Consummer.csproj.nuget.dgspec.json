@@ -1,0 +1,150 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/lecuong/Source_Code/hulotoys-services/App_Push_Consummer/App_Push_Consummer.csproj": {}
+  },
+  "projects": {
+    "/Users/lecuong/Source_Code/hulotoys-services/App_Push_Consummer/App_Push_Consummer.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/lecuong/Source_Code/hulotoys-services/App_Push_Consummer/App_Push_Consummer.csproj",
+        "projectName": "App_Push_Consummer",
+        "projectPath": "/Users/lecuong/Source_Code/hulotoys-services/App_Push_Consummer/App_Push_Consummer.csproj",
+        "packagesPath": "/Users/lecuong/.nuget/packages/",
+        "outputPath": "/Users/lecuong/Source_Code/hulotoys-services/App_Push_Consummer/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/lecuong/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {
+              "/Users/lecuong/Source_Code/hulotoys-services/Utilities/Utilities.csproj": {
+                "projectPath": "/Users/lecuong/Source_Code/hulotoys-services/Utilities/Utilities.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            },
+            "RabbitMQ.Client": {
+              "target": "Package",
+              "version": "[6.8.1, )"
+            },
+            "System.Configuration.ConfigurationManager": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "System.Data.SqlClient": {
+              "target": "Package",
+              "version": "[4.8.6, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.410/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/lecuong/Source_Code/hulotoys-services/Utilities/Utilities.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/lecuong/Source_Code/hulotoys-services/Utilities/Utilities.csproj",
+        "projectName": "Utilities",
+        "projectPath": "/Users/lecuong/Source_Code/hulotoys-services/Utilities/Utilities.csproj",
+        "packagesPath": "/Users/lecuong/.nuget/packages/",
+        "outputPath": "/Users/lecuong/Source_Code/hulotoys-services/Utilities/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/lecuong/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "Otp.NET": {
+              "target": "Package",
+              "version": "[1.4.0, )"
+            },
+            "Telegram.Bot": {
+              "target": "Package",
+              "version": "[19.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.410/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
