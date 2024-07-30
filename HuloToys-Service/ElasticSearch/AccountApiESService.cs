@@ -17,8 +17,6 @@ namespace HuloToys_Service.ElasticSearch
         {
             _ElasticHost = Host;
             configuration = _configuration;
-            index = _configuration["DataBaseConfig:Elastic:Index:AccountClient"];
-
         }
         public AccountESModel GetByUsername(string user_name)
         {
