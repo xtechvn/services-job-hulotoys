@@ -51,7 +51,7 @@ namespace HuloToys_Service.Controllers
                 if (accountClient.status == (int)AccountClientStatusType.BINH_THUONG) { return Ok(new { msg = "Tài khoản đã khóa" }); }
                 if (user.Username == accountClient.username && user.Password == accountClient.password)
                 {
-                    var token = GenerateJwtToken(user.Username, user.Password);
+                    var token = GenerateJwtToken(user.Username);
                     return Ok(new { token });
                 }
                 else
@@ -68,37 +68,29 @@ namespace HuloToys_Service.Controllers
             }
         }
 
-        private string GenerateJwtToken(string username, string password)
+        private string GenerateJwtToken(string username)
         {
             try
             {
-                //    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("this is my custom Secret key for authentication"));
-                //    var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-                //    var claims = new[]
-                //    {
-                //    new Claim(JwtRegisteredClaimNames.Sub, username),
-                //    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                //};
+                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("this is my custom Secret key for authentication"));
+                var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-                //    var token = new JwtSecurityToken(
-                //        issuer: null,
-                //        audience: null,
-                //        claims: claims,
-                //        expires: DateTime.Now.AddMinutes(30),
-                //        signingCredentials: credentials);
-                //        return new JwtSecurityTokenHandler().WriteToken(token);
-
-                var j_param = new Dictionary<string, object>
+                var claims = new[]
                 {
-                    {"user_name", username},
-                    {"password", password},
-
+                    new Claim(JwtRegisteredClaimNames.Sub, username),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 };
-                var data = JsonConvert.SerializeObject(j_param);
-                var token = CommonHelper.Encode(data, configuration["KEY:private_key"]);
 
-                return token;
+                var token = new JwtSecurityToken(
+                    issuer: null,
+                    audience: null,
+                    claims: claims,
+                    expires: DateTime.Now.AddMinutes(30),
+                    signingCredentials: credentials);
+                return new JwtSecurityTokenHandler().WriteToken(token);
+
+
             }
             catch (Exception ex)
             {
