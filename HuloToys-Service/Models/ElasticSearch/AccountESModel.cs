@@ -16,4 +16,12 @@ namespace Entities.Models
         public byte? status { get; set; }
         public int? grouppermission { get; set; }
     }
+    public partial class AccountApiESModel
+    {
+        public int id { get; set; }
+        public string username { get; set; }
+        public string password { get; set; }
+        public byte? status { get; set; }
+
+    }
 }
