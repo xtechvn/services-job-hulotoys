@@ -1,4 +1,5 @@
-﻿using HuloToys_Service.Models.Article;
+﻿using DAL.MongoDB;
+using HuloToys_Service.Models.Article;
 using HuloToys_Service.RedisWorker;
 using HuloToys_Service.Repro.IRepository;
 using HuloToys_Service.Utilities.Lib;
@@ -99,7 +100,82 @@ namespace HuloToys_Service.Controllers
                 });
             }
         }
+        [HttpPost("get-most-viewed-article.json")]
+        public async Task<ActionResult> GetMostViewedArticle([FromBody] APIRequestGenericModel input)
+        {
+            try
+            {
+                int status = (int)ResponseType.FAILED;
+                string msg = "No Item Found";
+                var data_list = new List<ArticleFeModel>();
+                JArray objParr = null;
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+                {
+                    string cache_name = CacheType.ARTICLE_B2C_MOST_VIEWED;
+                    string j_data = null;
+                    try
+                    {
+                        j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(configuration["Redis:Database:db_common"]));
+                    }
+                    catch (Exception ex)
+                    {
+                        LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "NewsController - GetMostViewedArticle: " + ex + "\n Token: " + input.token);
 
+                    }
+                    var detail = new ArticleFeModel();
+
+                    if (j_data != null)
+                    {
+                        data_list = JsonConvert.DeserializeObject<List<ArticleFeModel>>(j_data);
+                        msg = "Get From Cache Success";
+
+                    }
+                    else
+                    {
+                        NewsMongoService services = new NewsMongoService(configuration);
+                        var list = await services.GetMostViewedArticle();
+                        if (list != null && list.Count > 0)
+                        {
+                            foreach (var item in list)
+                            {
+                                var article = await articleRepository.GetMostViewedArticle(item.articleID);
+                                if (article != null) data_list.Add(article);
+                            }
+                            try
+                            {
+                                _redisService.Set(cache_name, JsonConvert.SerializeObject(data_list), DateTime.Now.AddMinutes(5), Convert.ToInt32(configuration["Redis:Database:db_common"]));
+                            }
+                            catch (Exception ex)
+                            {
+                                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "NewsController - GetMostViewedArticle: " + ex + "\n Token: " + input.token);
+
+                            }
+                            status = (int)ResponseType.SUCCESS;
+                            msg = "Get from DB Success";
+                        }
+                    }
+                    return Ok(new { status = (int)ResponseType.SUCCESS, msg = msg, data = data_list });
+                }
+                else
+                {
+                    return Ok(new
+                    {
+                        status = (int)ResponseType.FAILED,
+                        msg = "Token không hợp lệ"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "NewsController - GetMostViewedArticle: " + ex + " token = " + input.token);
+             
+                return Ok(new
+                {
+                    status = (int)ResponseType.ERROR,
+                    msg = "Error on Excution"
+                });
+            }
+        }
         [HttpPost("get-detail.json")]
         public async Task<ActionResult> GetArticleDetailLite([FromBody] APIRequestGenericModel input)
         {
