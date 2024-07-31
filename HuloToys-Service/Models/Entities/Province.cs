@@ -1,0 +1,19 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace HuloToys_Service.Models.Entities;
+
+public partial class Province
+{
+    public int Id { get; set; }
+
+    public string ProvinceId { get; set; } = null!;
+
+    public string Name { get; set; } = null!;
+
+    public string? NameNonUnicode { get; set; }
+
+    public string Type { get; set; } = null!;
+
+    public short? Status { get; set; }
+}
