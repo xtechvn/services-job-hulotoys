@@ -19,7 +19,7 @@ namespace HuloToys_Service.RedisWorker
         {
             try
             {
-                var configString = $"{_redisHost}:{_redisPort},connectRetry=5";
+                var configString = $"{_redisHost}:{_redisPort},connectRetry=5,allowAdmin=true";
                 _redis = ConnectionMultiplexer.Connect(configString);
             }
             catch (RedisConnectionException err)

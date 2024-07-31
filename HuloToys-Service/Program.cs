@@ -1,3 +1,7 @@
+using Entities.ConfigModels;
+using HuloToys_Service.RedisWorker;
+using HuloToys_Service.Repro.IRepository;
+using HuloToys_Service.Repro.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -28,7 +32,19 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
     };
 });
+var Configuration = builder.Configuration;
+builder.Services.Configure<DataBaseConfig>(Configuration.GetSection("DataBaseConfig"));
+builder.Services.Configure<MailConfig>(Configuration.GetSection("MailConfig"));
+builder.Services.Configure<DomainConfig>(Configuration.GetSection("DomainConfig"));
 
+
+// Register services
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddSingleton<IArticleRepository, ArticleRepository>();
+builder.Services.AddSingleton<ITagRepository, TagRepository>();
+builder.Services.AddSingleton<IGroupProductRepository, GroupProductRepository>();
+builder.Services.AddSingleton<IGroupProductRepository, GroupProductRepository>();
+builder.Services.AddSingleton<RedisConn>();
 
 var app = builder.Build();
 
