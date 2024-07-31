@@ -16,7 +16,7 @@ namespace HuloToys_Service.Controllers
 {
     [Route("api/news")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class NewsController : ControllerBase
     {
         private readonly IArticleRepository articleRepository;
@@ -227,7 +227,7 @@ namespace HuloToys_Service.Controllers
             {
                 JArray objParr = null;
                 string msg = "";
-                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY_TOKEN_API"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
                     string db_type = string.Empty;
                     int category_id = Convert.ToInt32(objParr[0]["category_id"]);
