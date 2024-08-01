@@ -2,6 +2,8 @@
 {
     public struct CacheType
     {
+        public const int REMOVE = 0;
+        public const int REMOVE_AND_RE_LOAD = 1;
         public const string USER_LIST = "USER_LIST_";// Lấy ra danh sách User
         public const string ARTICLE_CATEGORY_ID = "ARTICLE_CATEGORY_";
         public const string CATEGORY_NEWS = "CATEGORY_NEWS_";
