@@ -1,4 +1,5 @@
 ﻿using DAL.MongoDB;
+using ENTITIES.ViewModels.ArticleViewModels;
 using HuloToys_Service.Models.Article;
 using HuloToys_Service.RedisWorker;
 using HuloToys_Service.Repro.IRepository;
@@ -212,7 +213,13 @@ namespace HuloToys_Service.Controllers
                         }
 
                     }
-
+                    var view_count = new NewsViewCount()
+                    {
+                        articleID = article_id,
+                        pageview = 1
+                    };
+                    NewsMongoService services = new NewsMongoService(configuration);
+                    services.AddNewOrReplace(view_count);
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
