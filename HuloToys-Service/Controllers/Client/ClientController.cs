@@ -12,6 +12,7 @@ using HuloToys_Service.RabitMQ;
 using Models.APIRequest;
 using Caching.Elasticsearch;
 using System.Security.Cryptography;
+using HuloToys_Service.Utilities.constants;
 
 namespace HuloToys_Service.Controllers
 {
@@ -43,7 +44,8 @@ namespace HuloToys_Service.Controllers
                     var request = JsonConvert.DeserializeObject<ClientLoginRequestModel>(objParr[0].ToString());
                     if (request == null 
                         || request.user_name == null || request.user_name.Trim() == ""
-                        || request.password == null || request.password.Trim() == "")
+                        || request.password == null || request.password.Trim() == ""
+                        || request.type<0)
                     {
 
                         return Ok(new
@@ -52,27 +54,66 @@ namespace HuloToys_Service.Controllers
                             msg = "Tài khoản / Mật khẩu không chính xác, vui lòng thử lại"
                         });
                     }
-                    var account_client = accountClientESService.GetByUsernameAndPassword(request.user_name, request.password);
-                    if(account_client!=null && account_client.id > 0 && account_client.clientid > 0)
+                    switch (request.type)
                     {
-                        var client = clientESService.GetById((long)account_client.clientid);
-                        if (client != null && client.id>0) {
-
-                            return Ok(new
+                        case (int)AccountLoginType.Password:
                             {
-                                status = (int)ResponseType.SUCCESS,
-                                msg = "Success",
-                                data=new
+                                var account_client = accountClientESService.GetByUsernameAndPassword(request.user_name, request.password);
+                                if (account_client != null && account_client.id > 0 && account_client.clientid > 0)
                                 {
-                                    account_client_id=account_client.id,
-                                    user_name=account_client.username,
-                                    name=client.clientname
-                                }
-                            });
+                                    var client = clientESService.GetById((long)account_client.clientid);
+                                    if (client != null && client.id > 0)
+                                    {
 
-                        }
-                       
+                                        return Ok(new
+                                        {
+                                            status = (int)ResponseType.SUCCESS,
+                                            msg = "Success",
+                                            data = new
+                                            {
+                                                account_client_id = account_client.id,
+                                                user_name = account_client.username,
+                                                name = client.clientname
+                                            }
+                                        });
+
+                                    }
+
+                                }
+                            }
+                            break;
+                        case (int)AccountLoginType.Google:
+                            {
+                                var account_client = accountClientESService.GetByUsernameAndGoogleToken(request.user_name, request.token);
+                                if (account_client != null && account_client.id > 0 && account_client.clientid > 0)
+                                {
+                                    var client = clientESService.GetById((long)account_client.clientid);
+                                    if (client != null && client.id > 0)
+                                    {
+
+                                        return Ok(new
+                                        {
+                                            status = (int)ResponseType.SUCCESS,
+                                            msg = "Success",
+                                            data = new
+                                            {
+                                                account_client_id = account_client.id,
+                                                user_name = account_client.username,
+                                                name = client.clientname
+                                            }
+                                        });
+
+                                    }
+
+                                }
+                            }
+                            break;
+                        default:
+                            {
+
+                            }break;
                     }
+                   
                    
 
                 }
@@ -131,7 +172,8 @@ namespace HuloToys_Service.Controllers
                         Password=request.password,
                         Phone=request.phone,
                         Status=0,
-                        UserName=request.user_name
+                        UserName=request.user_name,
+                        GoogleToken=request.token
                     };
                     var queue_model = new ClientConsumerQueueModel()
                     {
@@ -203,8 +245,6 @@ namespace HuloToys_Service.Controllers
                         {
                             string forgot_password_token = "";
                             //Generate new Forgot password token:
-
-
                             AccountClientViewModel model = new AccountClientViewModel()
                             {
                                 ClientId =client.id,
