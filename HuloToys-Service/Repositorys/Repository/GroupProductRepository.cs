@@ -45,14 +45,14 @@ namespace HuloToys_Service.Repro.Repository
                 var group = _GroupProductDAL.GetByParentId(parent_id);
                 group = group.Where(x => x.IsShowHeader == true).ToList();
                 var list = new List<ArticleGroupViewModel>();
-                list.Add(new ArticleGroupViewModel()
-                {
-                    id = parent_id,
-                    name = "Mới nhất",
-                    order_no = -1,
-                    image_path = "",
-                    url_path = "tin-tuc-" + parent_id
-                });
+                //list.Add(new ArticleGroupViewModel()
+                //{
+                //    id = parent_id,
+                //    name = "Mới nhất",
+                //    order_no = -1,
+                //    image_path = "",
+                //    url_path = "tin-tuc-" + parent_id
+                //});
                 list.AddRange(group.Select(x => new ArticleGroupViewModel() { id = x.Id, image_path = x.ImagePath, name = x.Name, order_no = (int)x.OrderNo, url_path = x.Path }).OrderBy(x => x.order_no).ToList());
                 return list;
             }

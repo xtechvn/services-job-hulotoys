@@ -471,5 +471,140 @@ namespace HuloToys_Service.Controllers
                 });
             }
         }
+        [HttpPost("get-list-by-tag-order.json")]
+        public async Task<ActionResult> getListArticleByTagsOrder([FromBody] APIRequestGenericModel input)
+        {
+
+            try
+            {
+                //string j_param = "{'tag':'#adavigo','size':10, 'page': 1}";
+                //token = CommonHelper.Encode(j_param, configuration["DataBaseConfig:key_api:b2c"]);
+
+                JArray objParr = null;
+                string msg = "";
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+                {
+                    string db_type = string.Empty;
+                    string tag = objParr[0]["tag"].ToString();
+                    int page = Convert.ToInt32(objParr[0]["page"]);
+                    int size = Convert.ToInt32(objParr[0]["size"]);
+                    int take = (size <= 0) ? 10 : size;
+                    int skip = ((page - 1) <= 0) ? 0 : (page - 1) * take;
+                    string cache_key = CacheType.CATEGORY_TAG + CommonHelper.MD5Hash(tag.Trim().ToLower());
+                    string j_data = null;
+                    try
+                    {
+                        j_data = await _redisService.GetAsync(cache_key, Convert.ToInt32(configuration["Redis:Database:db_common"]));
+                    }
+                    catch (Exception ex)
+                    {
+                        LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "NewsController - getListArticleByTagsOrder: " + ex + "\n Token: " + input.token);
+
+                    }
+                    List<ArticleFeModel> data_list;
+                    List<ArticleFeModel> pinned_article;
+                    int total_count = -1;
+                    int total_page = 1;
+                    if (j_data == null || j_data == "")
+                    {
+                        var data_100 = await articleRepository.getArticleListByTags(tag, 0, 100);
+                        if (skip + take > 100)
+                        {
+                            var data = await articleRepository.getArticleListByTags(tag, skip, take);
+                            data_list = data.list_article_fe;
+                            total_count = data.total_item_count;
+                            total_page = Convert.ToInt32(total_count / take);
+                            if (total_page < ((float)total_count / take))
+                            {
+                                total_page++;
+                            }
+                        }
+                        else
+                        {
+                            data_list = data_100.list_article_fe.Skip(skip).Take(take).ToList();
+                            total_count = data_100.total_item_count;
+                            total_page = Convert.ToInt32(total_count / take);
+                            if (total_page < ((float)total_count / take))
+                            {
+                                total_page++;
+                            }
+                        }
+
+                        try
+                        {
+                            _redisService.Set(cache_key, JsonConvert.SerializeObject(data_100), DateTime.Now.AddMinutes(15), Convert.ToInt32(configuration["Redis:Database:db_common"]));
+                        }
+                        catch (Exception ex)
+                        {
+                            LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "NewsController - getListArticleByTagsOrder: " + ex + "\n Token: " + input.token);
+
+                        }
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.SUCCESS,
+                            data = data_list,
+                            total_item = total_count,
+                            total_page = total_page
+
+                        });
+
+                    }
+                    else
+                    {
+                        var data_100 = JsonConvert.DeserializeObject<ArticleFEModelPagnition>(j_data);
+                        if (skip + take > 100)
+                        {
+                            var data = await articleRepository.getArticleListByTags(tag, skip, take);
+                            data_list = data.list_article_fe;
+                            total_count = data.total_item_count;
+                            total_page = Convert.ToInt32(total_count / take);
+                            if (total_page < ((float)total_count / take))
+                            {
+                                total_page++;
+                            }
+                        }
+                        else
+                        {
+                            data_list = data_100.list_article_fe.Skip(skip).Take(take).ToList();
+                            total_count = data_100.total_item_count;
+                            total_page = Convert.ToInt32(total_count / take);
+                            if (total_page < ((float)total_count / take))
+                            {
+                                total_page++;
+                            }
+                        }
+                        _redisService.Set(cache_key, JsonConvert.SerializeObject(data_100), DateTime.Now.AddMinutes(15), Convert.ToInt32(configuration["Redis:Database:db_common"]));
+
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.SUCCESS,
+                            data = data_list,
+                            total_item = total_count,
+                            total_page = total_page
+                        });
+                    }
+
+                }
+                else
+                {
+                    msg = "Key ko hop le";
+                }
+                return Ok(new
+                {
+                    status = (int)ResponseType.FAILED,
+                    msg = msg
+                });
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "NewsController - get-list-by-categoryid-order.json: " + ex );
+                return Ok(new
+                {
+                    status = (int)ResponseType.ERROR,
+                    msg = "Error on Excution.",
+                    _token =input.token
+                });
+            }
+        }
     }
 }
