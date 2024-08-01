@@ -1,6 +1,8 @@
 ﻿using HuloToys_Service.RedisWorker;
 using HuloToys_Service.Utilities.Lib;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Models.APIRequest;
 using Newtonsoft.Json.Linq;
 using Utilities;
 using Utilities.Contants;
@@ -9,6 +11,7 @@ namespace API_CORE.Controllers.CACHE
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CachingController : Controller
     {
         private IConfiguration configuration;
@@ -29,7 +32,7 @@ namespace API_CORE.Controllers.CACHE
         /// <param name="token"></param>
         /// <returns></returns>
         [HttpPost("sync-article.json")]
-        public async Task<ActionResult> clearCacheArticle(string token)
+        public async Task<ActionResult> clearCacheArticle([FromBody] APIRequestGenericModel input)
         {
             try
             {
@@ -37,7 +40,7 @@ namespace API_CORE.Controllers.CACHE
                 //  token = CommonHelper.Encode(j_param, configuration["DataBaseConfig:key_api:api_manual"]);
 
                 JArray objParr = null;
-                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["DataBaseConfig:key_api:api_manual"]))
+                if (input != null && input.token!=null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["DataBaseConfig:key_api:api_manual"]))
                 {
 
                     long article_id = Convert.ToInt64(objParr[0]["article_id"]);
@@ -52,17 +55,17 @@ namespace API_CORE.Controllers.CACHE
                         redisService.clear(CacheType.ARTICLE_MOST_VIEWED, Convert.ToInt32(configuration["Redis:Database:db_common"]));
                     }
 
-                    return Ok(new { status = (int)ResponseType.SUCCESS, _token = token, msg = "Sync Successfully !!!", article_id = article_id, category_list_id = category_list_id });
+                    return Ok(new { status = (int)ResponseType.SUCCESS, _token = input.token, msg = "Sync Successfully !!!", article_id = article_id, category_list_id = category_list_id });
                 }
                 else
                 {
-                    return Ok(new { status = (int)ResponseType.FAILED, _token = token, msg = "Token Error !!!" });
+                    return Ok(new { status = (int)ResponseType.FAILED, _token = input.token, msg = "Token Error !!!" });
                 }
             }
             catch (Exception ex)
             {
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "sync-article.json - clearCacheArticle " + ex.Message + " token=" + token.ToString());
-                return Ok(new { status = (int)ResponseType.ERROR, _token = token, msg = "Sync error !!!" });
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "sync-article.json - clearCacheArticle " + ex.Message + " token=" + input.token.ToString());
+                return Ok(new { status = (int)ResponseType.ERROR, _token = input.token, msg = "Sync error !!!" });
             }
         }
     }
