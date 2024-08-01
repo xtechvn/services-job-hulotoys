@@ -40,7 +40,7 @@ namespace API_CORE.Controllers.CACHE
                 //  token = CommonHelper.Encode(j_param, configuration["DataBaseConfig:key_api:api_manual"]);
 
                 JArray objParr = null;
-                if (input != null && input.token!=null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["DataBaseConfig:key_api:api_manual"]))
+                if (input != null && input.token!=null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
 
                     long article_id = Convert.ToInt64(objParr[0]["article_id"]);
