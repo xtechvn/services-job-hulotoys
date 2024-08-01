@@ -111,7 +111,7 @@ namespace HuloToys_Service.Controllers
                 JArray objParr = null;
                 if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
-                    string cache_name = CacheType.ARTICLE_B2C_MOST_VIEWED;
+                    string cache_name = CacheType.ARTICLE_MOST_VIEWED;
                     string j_data = null;
                     try
                     {
@@ -392,6 +392,82 @@ namespace HuloToys_Service.Controllers
                     status = (int)ResponseType.ERROR,
                     msg = "Error on Excution.",
                     _token = input.token
+                });
+            }
+        }
+        /// <summary>
+        /// Lấy ra tất cả các chuyên mục thuộc B2C
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        [HttpPost("get-category.json")]
+        public async Task<ActionResult> GetAllCategory([FromBody] APIRequestGenericModel input)
+        {
+            try
+            {
+                //string j_param = "{'confirm':1}";
+                //token = CommonHelper.Encode(j_param, configuration["DataBaseConfig:key_api:b2c"]);
+                JArray objParr = null;
+                if (input!= null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+                {
+                    int _category_id = Convert.ToInt32(objParr[0]["category_id"]);
+                    string cache_name = CacheType.ARTICLE_CATEGORY_MENU;
+                    string j_data = null;
+                    try
+                    {
+                        j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(configuration["Redis:Database:db_common"]));
+                    }
+                    catch (Exception ex)
+                    {
+             
+                        LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "NewsController - GetMostViewedArticle: " + ex + "\n Token: " + input.token);
+                    }
+                    List<ArticleGroupViewModel> group_product = null;
+
+                    if (j_data != null)
+                    {
+                        group_product = JsonConvert.DeserializeObject<List<ArticleGroupViewModel>>(j_data);
+                    }
+                    else
+                    {
+                        group_product = await groupProductRepository.GetArticleCategoryByParentID(Convert.ToInt64(configuration["config_value:default_b2c_news_root_group"]));
+                        if (group_product.Count > 0)
+                        {
+                            try
+                            {
+                                _redisService.Set(cache_name, JsonConvert.SerializeObject(group_product), Convert.ToInt32(configuration["Redis:Database:db_common"]));
+                            }
+                            catch (Exception ex)
+                            {
+                                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "NewsController - GetAllCategory: " + ex + "\n Token: " + input.token);
+
+                            }
+                        }
+                    }
+
+                    return Ok(new
+                    {
+                        status = (int)ResponseType.SUCCESS,
+                        msg = "Success",
+                        categories = group_product
+                    });
+                }
+                else
+                {
+                    return Ok(new
+                    {
+                        status = (int)ResponseType.ERROR,
+                        msg = "Key ko hop le"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "NewsController - GetAllCategory: " + ex + "\n Token: " + input.token);
+                return Ok(new
+                {
+                    status = (int)ResponseType.FAILED,
+                    msg = "Error: " + ex.ToString(),
                 });
             }
         }

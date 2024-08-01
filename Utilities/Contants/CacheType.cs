@@ -8,5 +8,9 @@
         public const string CATEGORY_SEARCH = "CATEGORY_SEARCH_";
         public const string CATEGORY_TAG = "CATEGORY_TAG_";
         public const string ARTICLE_ID = "ARTICLE_";
+        public const string ARTICLE_MOST_VIEWED = "ARTICLE_MOST_VIEWED";
+        public const string ARTICLE_CATEGORY_MENU = "ARTICLE_CATEGORY_MENU";
+        public const string ARTICLE_FOOTER_MENU = "ARTICLE_FOOTER_MENU";
+
     }
 }
