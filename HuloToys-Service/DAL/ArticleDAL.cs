@@ -694,7 +694,7 @@ namespace HuloToys_Service.DAL
 
                             transaction.Commit();
                             var result = new ArticleFEModelPagnition();
-                            list_article = list_article.OrderByDescending(x => x.publish_date).ToList();
+                            list_article = list_article.OrderByDescending(x => x.publish_date).GroupBy(gr => gr.id).Select(x => x.First()).ToList();
                             list_pinned = list_pinned.OrderByDescending(x => x.update_last).GroupBy(gr => gr.position).Select(x => x.First()).ToList();
 
                             foreach (var pinned in list_pinned)
