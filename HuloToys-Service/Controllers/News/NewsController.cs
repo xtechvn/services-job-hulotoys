@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Models.APIRequest;
+using Nest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Reflection;
@@ -312,7 +313,10 @@ namespace HuloToys_Service.Controllers
                     string cache_key = CacheType.CATEGORY_NEWS + category_id;
                     var j_data = await _redisService.GetAsync(cache_key, Convert.ToInt32(configuration["Redis:Database:db_common"]));
                     List<ArticleFeModel> data_list;
+                    List<ArticleFeModel> pinned_article;
+                    List<ArticleFeModel> video_article;
                     int total_count = -1;
+                    int total_page = 1;
                     if (j_data == null || j_data == "")
                     {
                         var group_product = await groupProductRepository.GetGroupProductNameAsync(category_id);
@@ -322,26 +326,43 @@ namespace HuloToys_Service.Controllers
                             var data = await articleRepository.getArticleListByCategoryIdOrderByDate(category_id, skip, take, group_product);
                             data_list = data.list_article_fe;
                             total_count = data.total_item_count;
+                            pinned_article = data.list_article_pinned;
+                            total_page = Convert.ToInt32(total_count / take);
+                            if (total_page < ((float)total_count / take))
+                            {
+                                total_page++;
+                            }
                         }
                         else
                         {
                             data_list = data_100.list_article_fe.Skip(skip).Take(take).ToList();
                             total_count = data_100.total_item_count;
-
+                            pinned_article = data_100.list_article_pinned;
+                            total_page = Convert.ToInt32(total_count / take);
+                            if (total_page < ((float)total_count / take))
+                            {
+                                total_page++;
+                            }
                         }
-                        //-- If is home Category, Add Pinned Article:
-                        if (category_id == 401)
+
+
+                        try
                         {
+                            _redisService.Set(cache_key, JsonConvert.SerializeObject(data_100), DateTime.Now.AddMinutes(15), Convert.ToInt32(configuration["Redis:Database:db_common"]));
+                        }
+                        catch (Exception ex)
+                        {
+                            LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "NewsController - getListArticleByCategoryIdOrderByDate: " + ex + "\n Token: " + input.token);
 
                         }
-
-                        _redisService.Set(cache_key, JsonConvert.SerializeObject(data_100), DateTime.Now.AddMinutes(15), Convert.ToInt32(configuration["Redis:Database:db_common"]));
-
                         return Ok(new
                         {
                             status = (int)ResponseType.SUCCESS,
                             data_list = data_list,
-                            total_item = total_count
+                            pinned = pinned_article,
+                            total_item = total_count,
+                            total_page = total_page
+
                         });
 
                         //return Content(JsonConvert.SerializeObject(data_list));
@@ -355,19 +376,33 @@ namespace HuloToys_Service.Controllers
                             var data = await articleRepository.getArticleListByCategoryIdOrderByDate(category_id, skip, take, group_product);
                             data_list = data.list_article_fe;
                             total_count = data.total_item_count;
+                            pinned_article = data.list_article_pinned;
+                            total_page = Convert.ToInt32(total_count / take);
+                            if (total_page < ((float)total_count / take))
+                            {
+                                total_page++;
+                            }
                         }
                         else
                         {
                             var data_100 = JsonConvert.DeserializeObject<ArticleFEModelPagnition>(j_data);
                             data_list = data_100.list_article_fe.Skip(skip).Take(take).ToList();
                             total_count = data_100.total_item_count;
+                            pinned_article = data_100.list_article_pinned;
+                            total_page = Convert.ToInt32(total_count / take);
+                            if (total_page < ((float)total_count / take))
+                            {
+                                total_page++;
+                            }
                         }
 
                         return Ok(new
                         {
                             status = (int)ResponseType.SUCCESS,
                             data_list = data_list,
-                            total_item = total_count
+                            pinned = pinned_article,
+                            total_item = total_count,
+                            total_page = total_page
                         });
                         // return Content(JsonConvert.SerializeObject(data_list));
                     }
