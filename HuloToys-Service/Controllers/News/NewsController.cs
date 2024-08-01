@@ -430,7 +430,7 @@ namespace HuloToys_Service.Controllers
                     }
                     else
                     {
-                        group_product = await groupProductRepository.GetArticleCategoryByParentID(Convert.ToInt64(configuration["config_value:default_b2c_news_root_group"]));
+                        group_product = await groupProductRepository.GetArticleCategoryByParentID(Convert.ToInt64(configuration["config_value:default_news_root_group"]));
                         if (group_product.Count > 0)
                         {
                             try
