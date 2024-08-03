@@ -453,7 +453,7 @@ namespace HuloToys_Service.Controllers
                 if (input!= null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
                     int _category_id = Convert.ToInt32(objParr[0]["category_id"]);
-                    string cache_name = CacheType.ARTICLE_CATEGORY_MENU;
+                    string cache_name = CacheType.ARTICLE_CATEGORY_MENU+"_"+ _category_id;
                     string j_data = null;
                     try
                     {
