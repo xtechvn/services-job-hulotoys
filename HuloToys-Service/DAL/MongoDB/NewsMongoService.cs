@@ -1,6 +1,8 @@
 ﻿using ENTITIES.ViewModels.ArticleViewModels;
+using HuloToys_Service.Utilities.Lib;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
+using Nest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +14,10 @@ namespace DAL.MongoDB
     public class NewsMongoService
     {
         private IMongoCollection<NewsViewCount> newsmongoCollection;
+        private IConfiguration Configuration;
         public NewsMongoService(IConfiguration _Configuration)
         {
+            Configuration = _Configuration;
             string url = "mongodb://" + _Configuration["MongoServer:user"] + ":" + _Configuration["MongoServer:pwd"] + "@" + _Configuration["MongoServer:Host"] + ":" + _Configuration["MongoServer:Port"] + "/" + _Configuration["MongoServer:catalog_core"];
             var client = new MongoClient(url);
             IMongoDatabase db = client.GetDatabase(_Configuration["MongoServer:catalog_core"]);
@@ -43,7 +47,7 @@ namespace DAL.MongoDB
             }
             catch (Exception ex)
             {
-                //LogHelper.InsertLogTelegram("AddNewOrReplace - NewsMongoService: " + ex);
+                LogHelper.InsertLogTelegramByUrl(Configuration["telegram:log_try_catch:bot_token"], Configuration["telegram:log_try_catch:group_id"], "AddNewOrReplace - NewsMongoService: " + ex);
                 return null;
             }
         }
@@ -63,7 +67,7 @@ namespace DAL.MongoDB
             }
             catch (Exception ex)
             {
-                //LogHelper.InsertLogTelegram("GetMostViewedArticle - NewsMongoService: " + ex);
+                LogHelper.InsertLogTelegramByUrl(Configuration["telegram:log_try_catch:bot_token"], Configuration["telegram:log_try_catch:group_id"], "GetMostViewedArticle - NewsMongoService: " + ex);
             }
             return null;
         }

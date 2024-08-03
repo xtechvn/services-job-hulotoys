@@ -126,7 +126,7 @@ namespace HuloToys_Service.Controllers
                     }
                     var detail = new ArticleFeModel();
 
-                    if (j_data != null)
+                    if (j_data != null&& j_data != "[]")
                     {
                         data_list = JsonConvert.DeserializeObject<List<ArticleFeModel>>(j_data);
                         msg = "Get From Cache Success";
