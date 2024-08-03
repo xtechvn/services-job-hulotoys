@@ -37,7 +37,6 @@
 
   <ItemGroup>
     <Folder Include="Models\Cart\" />
-    <Folder Include="Models\Entities\" />
   </ItemGroup>
 
 </Project>

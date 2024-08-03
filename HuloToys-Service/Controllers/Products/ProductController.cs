@@ -1,11 +1,17 @@
 ﻿using Caching.Elasticsearch;
 using Entities.ConfigModels;
+using Entities.Models;
+using Entities.ViewModels.Products;
+using HuloToys_Service.Models.Products;
 using HuloToys_Service.RabitMQ;
+using HuloToys_Service.RedisWorker;
 using HuloToys_Service.Utilities.Lib;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.APIRequest;
+using MongoDB.Bson.IO;
 using Newtonsoft.Json.Linq;
+using Repositories.IRepositories;
 using System.Reflection;
 using Utilities;
 using Utilities.Contants;
@@ -22,13 +28,20 @@ namespace HuloToys_Service.Controllers.Products
         private readonly AccountClientESService accountClientESService;
         private readonly ClientESService clientESService;
         private readonly IProductESRepository<object> _ESRepository;
-        public ProductController(IConfiguration _configuration)
+        private readonly ILocationProductRepository _locationProductRepository;
+        private readonly RedisConn _redisService;
+
+        public ProductController(IConfiguration _configuration, RedisConn redisService, ILocationProductRepository locationProductRepository)
         {
             configuration = _configuration;
             workQueueClient = new WorkQueueClient(configuration);
             accountClientESService = new AccountClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
             clientESService = new ClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
             _ESRepository = new ProductESRepository<object>(_configuration["DataBaseConfig:Elastic:Host"]);
+            _redisService = redisService;
+            _redisService = new RedisConn(configuration);
+            _redisService.Connect();
+            _locationProductRepository = locationProductRepository;
         }
         [HttpPost("detail")]
         public async Task<ActionResult> getProductDetail([FromBody] APIRequestGenericModel input)
@@ -88,13 +101,64 @@ namespace HuloToys_Service.Controllers.Products
 
                     if (group_id != null && group_id >0)
                     {
-                        var product = _ESRepository.getProductListByGroupProductId(configuration["Elastic:Index:Product"], new List<int>() { (int)group_id }, (int)page_index, (int)page_size);
-                        return Ok(new
+                        string cache_name = CacheType.PRODUCT_BY_GROUP + group_id;
+                        var j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
+                        if (j_data != null) {
+
+                            var products = Newtonsoft.Json.JsonConvert.DeserializeObject<ProductByGroupViewModel>(j_data);    
+                            if(products!=null && products.obj_lst_product_result!=null && products.obj_lst_product_result.Count > 0)
+                            {
+                                return Ok(new
+                                {
+                                    status = (int)ResponseType.SUCCESS,
+                                    msg = ResponseMessages.FunctionExcutionFailed,
+                                    data = new SearchEsEntitiesViewModel()
+                                    {
+                                        obj_lst_product_result = products.obj_lst_product_result.Skip((int)page_index - 1).Take((int)page_size).ToList(),
+                                        total_item_store = products.total_item_store
+                                    }
+                                });
+                            }
+                        }
+
+                        var list_by_group = new List<LocationProduct>();
+                        if (list_by_group==null || list_by_group.Count <= 0)
                         {
-                            status = product != null ? (int)ResponseType.SUCCESS : (int)ResponseType.FAILED,
-                            msg = ResponseMessages.FunctionExcutionFailed,
-                            data = product
-                        });
+                            list_by_group = await _locationProductRepository.GetListByGroupId((int)group_id);
+                        }
+                        if(list_by_group!=null && list_by_group.Count > 0)
+                        {
+                            var products = new ProductByGroupViewModel()
+                            {
+                                obj_lst_product_result = new List<Entities.ViewModels.ProductViewModel>(),
+                                total_item_store = 0,
+                                locationProducts=list_by_group
+                            };
+                            foreach(var item in list_by_group)
+                            {
+                                products.obj_lst_product_result.Add( _ESRepository.getProductDetailByCode(configuration["Elastic:Index:Product"], item.ProductCode));
+                            }
+                            products.total_item_store = products.obj_lst_product_result.Count;
+                            _redisService.Set(cache_name, Newtonsoft.Json.JsonConvert.SerializeObject(products), Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
+                            return Ok(new
+                            {
+                                status = (int)ResponseType.SUCCESS,
+                                msg = ResponseMessages.FunctionExcutionFailed,
+                                data = new SearchEsEntitiesViewModel()
+                                {
+                                    obj_lst_product_result= products.obj_lst_product_result.Skip((int)page_index-1).Take((int)page_size).ToList(),
+                                    total_item_store=products.total_item_store
+                                }
+                            });
+                        }
+                        else
+                        {
+                            return Ok(new
+                            {
+                                status = (int)ResponseType.FAILED,
+                                msg = ResponseMessages.DataInvalid
+                            });
+                        }
                     }
                 }
             }

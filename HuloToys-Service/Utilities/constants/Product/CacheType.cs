@@ -45,5 +45,6 @@ namespace Utilities.Contants
         public const string ARTICLE_MOST_VIEWED = "ARTICLE_MOST_VIEWED";
         public const string ARTICLE_CATEGORY_MENU = "ARTICLE_CATEGORY_MENU";
         public const string ARTICLE_FOOTER_MENU = "ARTICLE_FOOTER_MENU";
+        public const string PRODUCT_BY_GROUP = "PRODUCTS_GROUP_";
     }
 }
