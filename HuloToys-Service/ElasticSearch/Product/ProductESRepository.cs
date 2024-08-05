@@ -287,6 +287,55 @@ namespace Caching.Elasticsearch
                 return null;
             }
         }
+        public ProductViewModel getProductDetailById(string index_name, string id)
+        {
+            try
+            {
+                var nodes = new Uri[] { new Uri(_ElasticHost) };
+                var connectionPool = new StaticConnectionPool(nodes);
+                var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
+                var elasticClient = new ElasticClient(connectionSettings);
+
+                //var search_response = eClient.Search<ProductViewModel>(s => s
+                //      .Index(index_name)
+                //      .Size(top)
+                //      .Query(q => q
+                //         .Match(m => m
+                //         .Field(f => f.product_name)
+                //         .Query(input_search)
+                //         )
+                //      ));
+
+                var search_response = elasticClient.Search<ProductViewModel>(s => s
+                                    .Index(index_name)
+                                    .Query(q => q
+                                        .Match(m => m
+                                        .Field(f => f.id)
+                                        .Query(id)
+                                        )
+
+                                    )
+                               );
+
+                if (!search_response.IsValid)
+                {
+                    // //LogHelper.InsertLogTelegram("1264151832:AAFKCM7CoaBerVhcYCHQba1AyY13X41rT5s", "-406438822", "Keyword " + input_search + " khong ton tai trong ES");
+                }
+                else
+                {
+                    if (search_response.Documents.Count > 0)
+                    {
+                        return (search_response.Documents as List<ProductViewModel>)[0];
+                    }
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                ////LogHelper.InsertLogTelegram("1264151832:AAFKCM7CoaBerVhcYCHQba1AyY13X41rT5s", "-406438822", "ex getProductDetailByCode " + ex.ToString());
+                return null;
+            }
+        }
 
         public int UpSert(TEntity entity, string indexName)
         {

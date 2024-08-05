@@ -56,7 +56,7 @@ namespace HuloToys_Service.Controllers.Products
                     string id = objParr[0]["id"].ToString();
                     if (id != null && id.Trim().Length == 0)
                     {
-                        var product = _ESRepository.getProductDetailByCode(configuration["Elastic:Index:Product"], id);
+                        var product = _ESRepository.getProductDetailById(configuration["Elastic:Index:Product"], id);
                         return Ok(new
                         {
                             status = product!=null?(int)ResponseType.SUCCESS: (int)ResponseType.FAILED,

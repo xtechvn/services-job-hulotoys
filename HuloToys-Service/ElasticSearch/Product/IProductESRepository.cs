@@ -32,5 +32,6 @@ namespace Caching.Elasticsearch
         Task<string> getListProductCodeNotExits(string index_name, List<string> lst_product_code_target,int group_id);
         int getTotalProductCrawlToday(string index_name,int label_type);
         Task<bool> DeleteProductByKey(string index_name, string product_code, int label_id);
+        public ProductViewModel getProductDetailById(string index_name, string id);
     }
 }
