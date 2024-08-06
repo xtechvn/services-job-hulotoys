@@ -1,11 +1,13 @@
 ﻿using DAL.Generic;
 using DAL.StoreProcedure;
 using HuloToys_Service.DAL.StoreProcedure;
+using HuloToys_Service.ElasticSearch.NewEs;
 using HuloToys_Service.Models.Article;
 using HuloToys_Service.Models.Entities;
 using HuloToys_Service.Utilities.Lib;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Nest;
 using System.Data;
 using System.Globalization;
 using Utilities.Contants;
@@ -14,187 +16,99 @@ namespace HuloToys_Service.DAL
 {
     public class ArticleDAL : GenericService<Article>
     {
-        private static DbWorker _DbWorker;
+
         public IConfiguration configuration;
+        public ArticleESService articleESService;
+        public ArticleTagESService articleTagESService;
+        public TagESService tagESService;
+        public ArticleCategoryESService articleCategoryESService;
+        public ArticleRelatedESService articleRelatedESService;
+        public GroupProductESService groupProductESService;
         public ArticleDAL(string connection, IConfiguration _configuration) : base(connection)
         {
-            _DbWorker = new DbWorker(connection, _configuration);
+
             configuration = _configuration;
+            articleESService = new ArticleESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
+            articleTagESService = new ArticleTagESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
+            tagESService = new TagESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
+            articleCategoryESService = new ArticleCategoryESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
+            articleRelatedESService = new ArticleRelatedESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
+            groupProductESService = new GroupProductESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
         }
 
-        public DataTable GetPagingList(ArticleSearchModel searchModel, int currentPage, int pageSize)
-        {
-            try
-            {
-                DateTime _FromDate = DateTime.MinValue;
-                DateTime _ToDate = DateTime.MinValue;
-                string _ArrCategoryId = string.Empty;
 
-                if (!string.IsNullOrEmpty(searchModel.FromDate))
-                {
-                    _FromDate = DateTime.ParseExact(searchModel.FromDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
-                }
-
-                if (!string.IsNullOrEmpty(searchModel.ToDate))
-                {
-                    _ToDate = DateTime.ParseExact(searchModel.ToDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
-                }
-
-                if (searchModel.ArrCategoryId != null && searchModel.ArrCategoryId.Length > 0)
-                {
-                    _ArrCategoryId = string.Join(",", searchModel.ArrCategoryId);
-                }
-
-                SqlParameter[] objParam = new SqlParameter[10];
-                objParam[0] = new SqlParameter("@Title", searchModel.Title ?? string.Empty);
-                objParam[1] = new SqlParameter("@ArticleId", searchModel.ArticleId);
-
-                if (_FromDate != DateTime.MinValue)
-                    objParam[2] = new SqlParameter("@FromDate", _FromDate);
-                else
-                    objParam[2] = new SqlParameter("@FromDate", DBNull.Value);
-
-                if (_ToDate != DateTime.MinValue)
-                    objParam[3] = new SqlParameter("@ToDate", _ToDate);
-                else
-                    objParam[3] = new SqlParameter("@ToDate", DBNull.Value);
-
-                objParam[4] = new SqlParameter("@AuthorId", searchModel.AuthorId);
-                objParam[5] = new SqlParameter("@Status", searchModel.ArticleStatus);
-                objParam[6] = new SqlParameter("@ArrCategoryId", _ArrCategoryId);
-                objParam[7] = new SqlParameter("@SearchType", searchModel.SearchType);
-                objParam[8] = new SqlParameter("@CurentPage", currentPage);
-                objParam[9] = new SqlParameter("@PageSize", pageSize);
-
-                return _DbWorker.GetDataTable(ProcedureConstants.ARTICLE_SEARCH, objParam);
-            }
-            catch (Exception ex)
-            {
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetPagingList - ArticleDAL: " + ex);
-             
-            }
-            return null;
-        }
-
-        public async Task<long> SaveArticle(ArticleModel model)
-        {
-            try
-            {
-                long articleId = model.Id;
-
-                if (model.Id > 0)
-                {
-                    var entity = await FindAsync(model.Id);
-
-                    entity.Title = model.Title;
-                    entity.Lead = model.Lead;
-                    entity.Body = model.Body;
-                    entity.Image11 = model.Image11 ?? string.Empty;
-                    entity.Image169 = model.Image169 ?? string.Empty;
-                    entity.Image43 = model.Image43 ?? string.Empty;
-                    entity.Status = model.Status;
-                    entity.ArticleType = model.ArticleType;
-                    entity.ModifiedOn = DateTime.Now;
-                    entity.PublishDate = model.PublishDate == DateTime.MinValue ? (DateTime?)null : model.PublishDate;
-                    entity.UpTime = model.PublishDate == DateTime.MinValue ? (DateTime?)null : model.PublishDate;
-                    entity.DownTime = model.DownTime == DateTime.MinValue ? (DateTime?)null : model.DownTime;
-                    entity.Position = (short?)model.Position;
-                    await UpdateAsync(entity);
-                }
-                else
-                {
-                    var entity = new Article
-                    {
-                        Id = model.Id,
-                        Title = model.Title,
-                        Lead = model.Lead,
-                        Body = model.Body,
-                        Status = model.Status,
-                        Image11 = model.Image11 ?? string.Empty,
-                        Image169 = model.Image169 ?? string.Empty,
-                        Image43 = model.Image43 ?? string.Empty,
-                        ArticleType = model.ArticleType,
-                        AuthorId = model.AuthorId,
-                        CreatedOn = DateTime.Now,
-                        ModifiedOn = DateTime.Now,
-                        PublishDate = model.PublishDate == DateTime.MinValue ? (DateTime?)null : model.PublishDate,
-                        UpTime = model.PublishDate == DateTime.MinValue ? (DateTime?)null : model.PublishDate,
-                        DownTime = model.DownTime == DateTime.MinValue ? (DateTime?)null : model.DownTime,
-                        Position = (short?)model.Position
-                    };
-                    articleId = await CreateAsync(entity);
-                }
-                return articleId;
-            }
-            catch(Exception ex)
-            {
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "SaveArticle - ArticleDAL: " + ex);
-
-                return 0;
-            }
-        }
 
         public async Task<ArticleModel> GetArticleDetail(long Id)
         {
             try
             {
                 var model = new ArticleModel();
-                using (var _DbContext = new EntityDataContext(_connection))
+
+                try
                 {
-                    using (var transaction = _DbContext.Database.BeginTransaction())
+                    var article = articleESService.GetDetailById(Id);
+                    model = new ArticleModel
                     {
-                        try
+                        Id = article.Id,
+                        Title = article.Title,
+                        Lead = article.Lead,
+                        Body = article.Body,
+                        Status = article.Status,
+                        ArticleType = article.ArticleType,
+                        Image11 = article.Image11,
+                        Image43 = article.Image43,
+                        Image169 = article.Image169,
+                        PublishDate = article.PublishDate ?? DateTime.MinValue,
+                        DownTime = article.DownTime ?? DateTime.MinValue,
+                        Position = article.Position ?? 0
+                    };
+                    var data_ArticleTag_By_ArticleId = articleTagESService.GetListArticleTagByArticleId(article.Id);
+                    var TagIds = data_ArticleTag_By_ArticleId.Select(s => s.TagId).ToList();
+                    var List_tag = tagESService.GetListTag();
+                    var List_articleCategory = articleCategoryESService.GetByArticleId(article.Id);
+                    var List_relatedArticleIds = articleRelatedESService.GetListArticleRelatedByArticleId(article.Id);
+                    model.Tags = List_tag.Where(s => TagIds.Contains(s.Id)).Select(s => s.TagName).ToList();
+                    model.Categories = List_articleCategory.Select(s => (int)s.CategoryId).ToList();
+                    model.MainCategory = model.Categories != null || model.Categories.Count > 0 ? model.Categories[0] : -1;
+                    model.RelatedArticleIds = List_relatedArticleIds.Select(s => (long)s.ArticleRelatedId).ToList();
+
+                    if (model.RelatedArticleIds != null && model.RelatedArticleIds.Count > 0)
+                    {
+                        foreach (var item in model.RelatedArticleIds)
                         {
-                            var article = await _DbContext.Articles.FindAsync(Id);
-                            model = new ArticleModel
+                            var groupProductName = string.Empty;
+                            var detail_article = articleESService.GetDetailById(item);
+                            var articleCategory = articleCategoryESService.GetByArticleId(detail_article.Id);
+                            if (articleCategory != null && articleCategory.Count > 0)
                             {
-                                Id = article.Id,
-                                Title = article.Title,
-                                Lead = article.Lead,
-                                Body = article.Body,
-                                Status = article.Status,
-                                ArticleType = article.ArticleType,
-                                Image11 = article.Image11,
-                                Image43 = article.Image43,
-                                Image169 = article.Image169,
-                                PublishDate = article.PublishDate ?? DateTime.MinValue,
-                                DownTime = article.DownTime ?? DateTime.MinValue,
-                                Position = article.Position ?? 0
-                            };
-
-                            var TagIds = await _DbContext.ArticleTags.Where(s => s.ArticleId == article.Id).Select(s => s.TagId).ToListAsync();
-                            model.Tags = await _DbContext.Tags.Where(s => TagIds.Contains(s.Id)).Select(s => s.TagName).ToListAsync();
-                            model.Categories = await _DbContext.ArticleCategories.Where(s => s.ArticleId == article.Id).Select(s => (int)s.CategoryId).ToListAsync();
-                            model.MainCategory = model.Categories != null || model.Categories.Count > 0 ? model.Categories[0] : -1;
-                            model.RelatedArticleIds = await _DbContext.ArticleRelateds.Where(s => s.ArticleId == article.Id).Select(s => (long)s.ArticleRelatedId).ToListAsync();
-
-                            if (model.RelatedArticleIds != null && model.RelatedArticleIds.Count > 0)
-                            {
-                                model.RelatedArticleList = await (from _article in _DbContext.Articles.AsNoTracking()
-                                                                  join a in _DbContext.Users.AsNoTracking() on _article.AuthorId equals a.Id
-                                                                  join b in _DbContext.ArticleCategories.AsNoTracking() on _article.Id equals b.ArticleId
-                                                                  join c in _DbContext.GroupProducts.AsNoTracking() on b.CategoryId equals c.Id
-                                                                  where model.RelatedArticleIds.Contains(_article.Id)
-                                                                  select new ArticleRelationModel
-                                                                  {
-                                                                      Id = _article.Id,
-                                                                      Image = _article.Image169 ?? _article.Image43 ?? _article.Image11,
-                                                                      Title = _article.Title,
-                                                                      publish_date = _article.PublishDate ?? DateTime.Now,
-                                                                      category_name = c.Name ?? "Tin tức"
-                                                                  }).ToListAsync();
-                                model.RelatedArticleList = model.RelatedArticleList.GroupBy(x => x.Id).Select(x => x.First()).ToList();
+                                foreach (var item2 in articleCategory)
+                                {
+                                    var groupProduct = groupProductESService.GetDetailGroupProductById((long)item2.CategoryId);
+                                    groupProductName += groupProduct.Name + ",";
+                                }
                             }
 
-                            transaction.Commit();
+                            var ArticleRelation = new ArticleRelationModel
+                            {
+                                Id = detail_article.Id,
+                                Image = detail_article.Image169 ?? detail_article.Image43 ?? detail_article.Image11,
+                                Title = detail_article.Title,
+                                publish_date = detail_article.PublishDate ?? DateTime.Now,
+                                category_name = groupProductName ?? "Tin tức"
+                            };
+                            model.RelatedArticleList.Add(ArticleRelation);
                         }
-                        catch
-                        {
-                            transaction.Rollback();
-                            return null;
-                        }
+                        model.RelatedArticleList = model.RelatedArticleList.GroupBy(x => x.Id).Select(x => x.First()).ToList();
                     }
+
+
                 }
+                catch
+                {
+
+                    return null;
+                }
+
                 return model;
             }
             catch
@@ -203,226 +117,6 @@ namespace HuloToys_Service.DAL
             }
         }
 
-        public async Task<int> MultipleInsertArticleTag(long ArticleId, List<long> ListTagId)
-        {
-            try
-            {
-                using (var _DbContext = new EntityDataContext(_connection))
-                {
-                    using (var transaction = _DbContext.Database.BeginTransaction())
-                    {
-                        try
-                        {
-                            var ExistList = await _DbContext.ArticleTags.Where(s => s.ArticleId == ArticleId).ToListAsync();
-                            if (ExistList != null && ExistList.Count > 0)
-                            {
-                                foreach (var item in ExistList)
-                                {
-                                    var deleteModel = await _DbContext.ArticleTags.FindAsync(item.Id);
-                                    _DbContext.ArticleTags.Remove(deleteModel);
-                                    await _DbContext.SaveChangesAsync();
-                                }
-                            }
-
-                            if (ListTagId != null && ListTagId.Count > 0)
-                            {
-                                foreach (var item in ListTagId)
-                                {
-                                    var model = new ArticleTag
-                                    {
-                                        TagId = item,
-                                        ArticleId = ArticleId
-                                    };
-                                    await _DbContext.ArticleTags.AddAsync(model);
-                                    await _DbContext.SaveChangesAsync();
-                                }
-                            }
-
-                            transaction.Commit();
-                        }
-                        catch
-                        {
-                            transaction.Rollback();
-                            return 0;
-                        }
-                    }
-                }
-                return 1;
-            }
-            catch
-            {
-                return 0;
-            }
-        }
-
-        public async Task<int> MultipleInsertArticleCategory(long ArticleId, List<int> ListCateId)
-        {
-            try
-            {
-                using (var _DbContext = new EntityDataContext(_connection))
-                {
-                    using (var transaction = _DbContext.Database.BeginTransaction())
-                    {
-                        try
-                        {
-                            var ExistList = await _DbContext.ArticleCategories.Where(s => s.ArticleId == ArticleId).ToListAsync();
-                            if (ExistList != null && ExistList.Count > 0)
-                            {
-                                foreach (var item in ExistList)
-                                {
-                                    var deleteModel = await _DbContext.ArticleCategories.FindAsync(item.Id);
-                                    _DbContext.ArticleCategories.Remove(deleteModel);
-                                    await _DbContext.SaveChangesAsync();
-                                }
-                            }
-
-                            if (ListCateId != null && ListCateId.Count > 0)
-                            {
-                                foreach (var item in ListCateId)
-                                {
-                                    var model = new ArticleCategory
-                                    {
-                                        CategoryId = item,
-                                        ArticleId = ArticleId
-                                    };
-                                    await _DbContext.ArticleCategories.AddAsync(model);
-                                    await _DbContext.SaveChangesAsync();
-                                }
-                            }
-
-                            transaction.Commit();
-                        }
-                        catch
-                        {
-                            transaction.Rollback();
-                            return 0;
-                        }
-                    }
-                }
-                return 1;
-            }
-            catch
-            {
-                return 0;
-            }
-        }
-
-        public async Task<int> MultipleInsertArticleRelation(long ArticleId, List<long> ListArticleId)
-        {
-            try
-            {
-                using (var _DbContext = new EntityDataContext(_connection))
-                {
-                    using (var transaction = _DbContext.Database.BeginTransaction())
-                    {
-                        try
-                        {
-                            var ExistList = await _DbContext.ArticleRelateds.Where(s => s.ArticleId == ArticleId).ToListAsync();
-                            if (ExistList != null && ExistList.Count > 0)
-                            {
-                                foreach (var item in ExistList)
-                                {
-                                    var deleteModel = await _DbContext.ArticleRelateds.FindAsync(item.Id);
-                                    _DbContext.ArticleRelateds.Remove(deleteModel);
-                                    await _DbContext.SaveChangesAsync();
-                                }
-                            }
-
-                            if (ListArticleId != null && ListArticleId.Count > 0)
-                            {
-                                foreach (var item in ListArticleId)
-                                {
-                                    var model = new ArticleRelated
-                                    {
-                                        ArticleRelatedId = item,
-                                        ArticleId = ArticleId
-                                    };
-                                    await _DbContext.ArticleRelateds.AddAsync(model);
-                                    await _DbContext.SaveChangesAsync();
-                                }
-                            }
-
-                            transaction.Commit();
-                        }
-                        catch
-                        {
-                            transaction.Rollback();
-                            return 0;
-                        }
-                    }
-                }
-                return 1;
-            }
-            catch (Exception ex)
-            {
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "MultipleInsertArticleRelation - ArticleDAL: " + ex);
-                return 0;
-            }
-        }
-
-        public async Task<long> DeleteArticle(long Id)
-        {
-            try
-            {
-                using (var _DbContext = new EntityDataContext(_connection))
-                {
-                    using (var transaction = _DbContext.Database.BeginTransaction())
-                    {
-                        try
-                        {
-                            var ExistCategory = await _DbContext.ArticleCategories.Where(s => s.ArticleId == Id).ToListAsync();
-                            if (ExistCategory != null && ExistCategory.Count > 0)
-                            {
-                                foreach (var item in ExistCategory)
-                                {
-                                    var deleteModel = await _DbContext.ArticleCategories.FindAsync(item.Id);
-                                    _DbContext.ArticleCategories.Remove(deleteModel);
-                                    await _DbContext.SaveChangesAsync();
-                                }
-                            }
-
-                            var ExistRelated = await _DbContext.ArticleRelateds.Where(s => s.ArticleId == Id).ToListAsync();
-                            if (ExistRelated != null && ExistRelated.Count > 0)
-                            {
-                                foreach (var item in ExistRelated)
-                                {
-                                    var deleteModel = await _DbContext.ArticleRelateds.FindAsync(item.Id);
-                                    _DbContext.ArticleRelateds.Remove(deleteModel);
-                                    await _DbContext.SaveChangesAsync();
-                                }
-                            }
-
-                            var ExistTag = await _DbContext.ArticleTags.Where(s => s.ArticleId == Id).ToListAsync();
-                            if (ExistTag != null && ExistTag.Count > 0)
-                            {
-                                foreach (var item in ExistTag)
-                                {
-                                    var deleteModel = await _DbContext.ArticleTags.FindAsync(item.Id);
-                                    _DbContext.ArticleTags.Remove(deleteModel);
-                                    await _DbContext.SaveChangesAsync();
-                                }
-                            }
-
-                            var article = await _DbContext.Articles.FindAsync(Id);
-                            _DbContext.Articles.Remove(article);
-                            await _DbContext.SaveChangesAsync();
-
-                            transaction.Commit();
-                        }
-                        catch
-                        {
-                            transaction.Rollback();
-                            return -1;
-                        }
-                    }
-                }
-                return Id;
-            }
-            catch
-            {
-                return -1;
-            }
-        }
 
         /// <summary>
         /// cuonglv
@@ -434,45 +128,41 @@ namespace HuloToys_Service.DAL
         {
             try
             {
-                var model = new ArticleModel();
-                using (var _DbContext = new EntityDataContext(_connection))
+                var list_article = new List<ArticleFeModel>();
+
+                try
                 {
-                    using (var transaction = _DbContext.Database.BeginTransaction())
+                    var List_articleCategory = articleCategoryESService.GetByCategoryId(cate_id);
+                    if (List_articleCategory != null && List_articleCategory.Count > 0)
                     {
-                        try
+                        foreach (var item in List_articleCategory)
                         {
-
-
-                            var list_article = await (from _article in _DbContext.Articles.AsNoTracking()
-                                                      join a in _DbContext.ArticleCategories.AsNoTracking() on _article.Id equals a.ArticleId into af
-                                                      from detail in af.DefaultIfEmpty()
-                                                      where detail.CategoryId == (cate_id == -1 ? detail.CategoryId : cate_id) && _article.Status == ArticleStatus.PUBLISH
-                                                      orderby _article.PublishDate descending
-                                                      select new ArticleFeModel
-                                                      {
-                                                          id = _article.Id,
-                                                          title = _article.Title,
-                                                          lead = _article.Lead,
-                                                          image_169 = _article.Image169,
-                                                          image_43 = _article.Image43,
-                                                          image_11 = _article.Image11,
-                                                          publish_date = (DateTime)_article.PublishDate,
-                                                          body = _article.Body
-                                                      }
-                                                     ).ToListAsync();
-
-                            transaction.Commit();
-                            list_article = list_article.Where(x => x.body != null && x.body.Trim() != "" && x.lead != null && x.lead.Trim() != "" && x.title != null && x.title.Trim() != "").ToList();
-
-                            return list_article;
-                        }
-                        catch
-                        {
-                            transaction.Rollback();
-                            return null;
+                            var _article = articleESService.GetDetailById((long)item.ArticleId);
+                            if (_article == null) break;
+                            var detail_model = new ArticleFeModel
+                            {
+                                id = _article.Id,
+                                title = _article.Title,
+                                lead = _article.Lead,
+                                image_169 = _article.Image169,
+                                image_43 = _article.Image43,
+                                image_11 = _article.Image11,
+                                publish_date = (DateTime)_article.PublishDate,
+                                body = _article.Body
+                            };
+                            list_article.Add(detail_model);
                         }
                     }
+                    list_article = list_article.Where(x => x.body != null && x.body.Trim() != "" && x.lead != null && x.lead.Trim() != "" && x.title != null && x.title.Trim() != "").ToList();
+
+                    return list_article;
                 }
+                catch
+                {
+
+                    return null;
+                }
+
             }
             catch (Exception ex)
             {
@@ -492,63 +182,77 @@ namespace HuloToys_Service.DAL
             try
             {
                 var model = new ArticleFeDetailModel();
-                using (var _DbContext = new EntityDataContext(_connection))
+
+                var article = articleESService.GetDetailById(article_id);
+                if (article == null) return null;
+                model = new ArticleFeDetailModel
                 {
-                    var article = await _DbContext.Articles.FirstOrDefaultAsync(x => x.Status == ArticleStatus.PUBLISH && x.Id == article_id);
-                    if (article == null) return null;
-                    model = new ArticleFeDetailModel
-                    {
-                        id = article.Id,
-                        title = article.Title,
-                        lead = article.Lead,
-                        body = article.Body,
-                        status = article.Status,
-                        article_type = article.ArticleType,
-                        image_11 = article.Image11,
-                        image_43 = article.Image43,
-                        image_169 = article.Image169,
-                        publish_date = article.PublishDate ?? DateTime.Now,
-                        author_id = (int)article.AuthorId
-                    };
+                    id = article.Id,
+                    title = article.Title,
+                    lead = article.Lead,
+                    body = article.Body,
+                    status = article.Status,
+                    article_type = article.ArticleType,
+                    image_11 = article.Image11,
+                    image_43 = article.Image43,
+                    image_169 = article.Image169,
+                    publish_date = article.PublishDate ?? DateTime.Now,
+                    author_id = (int)article.AuthorId
+                };
 
-                    model.Categories = await _DbContext.ArticleCategories.Where(s => s.ArticleId == article.Id).Select(s => (int)s.CategoryId).ToListAsync();
-                    model.category_id = model.Categories != null || model.Categories.Count > 0 ? model.Categories[0] : -1;
-                    model.MainCategory = model.Categories != null || model.Categories.Count > 0 ? model.Categories[0] : -1;
-                    var group_product = await _DbContext.GroupProducts.Where(x => x.Status == 0 && x.Id == model.MainCategory).FirstOrDefaultAsync();
-                    if (group_product == null || group_product.Id < 0) return null;
-                    var author = await _DbContext.Users.FirstOrDefaultAsync(x => x.Id == (int)article.AuthorId);
-                    if (author != null)
-                    {
-                        model.AuthorName = author.FullName == null ? author.UserName : author.FullName;
-                    }
-                    if (model.MainCategory > 0)
-                    {
-                        model.category_name = await _DbContext.GroupProducts.Where(s => s.Id == model.MainCategory).Select(x => x.Name).FirstOrDefaultAsync();
-                    }
-                    else
-                    {
-                        model.category_name = "Tin tức";
-                    }
-                    model.RelatedArticleIds = await _DbContext.ArticleRelateds.Where(s => s.ArticleId == article.Id).Select(s => (long)s.ArticleRelatedId).ToListAsync();
+                var data_ArticleTag_By_ArticleId = articleTagESService.GetListArticleTagByArticleId(article.Id);
+                var TagIds = data_ArticleTag_By_ArticleId.Select(s => s.TagId).ToList();
+                var List_tag = tagESService.GetListTag();
+                var List_articleCategory = articleCategoryESService.GetByArticleId(article.Id);
+                var List_relatedArticleIds = articleRelatedESService.GetListArticleRelatedByArticleId(article.Id);
 
-                    if (model.RelatedArticleIds != null && model.RelatedArticleIds.Count > 0)
-                    {
-                        model.RelatedArticleList = await (from _article in _DbContext.Articles.AsNoTracking()
-                                                          join a in _DbContext.Users.AsNoTracking() on _article.AuthorId equals a.Id
-                                                          join b in _DbContext.ArticleCategories.AsNoTracking() on _article.Id equals b.ArticleId
-                                                          join c in _DbContext.GroupProducts.AsNoTracking() on b.CategoryId equals c.Id
-                                                          where model.RelatedArticleIds.Contains(_article.Id)
-                                                          select new ArticleRelationModel
-                                                          {
-                                                              Id = _article.Id,
-                                                              Image = _article.Image169 ?? _article.Image43 ?? _article.Image11,
-                                                              Title = _article.Title,
-                                                              publish_date = _article.PublishDate ?? DateTime.Now,
-                                                              category_name = c.Name ?? "Tin tức"
-                                                          }).ToListAsync();
-                        model.RelatedArticleList = model.RelatedArticleList.GroupBy(x => x.Id).Select(x => x.First()).ToList();
-                    }
+
+
+                model.Categories = List_articleCategory.Select(s => (int)s.CategoryId).ToList();
+                model.category_id = model.Categories != null || model.Categories.Count > 0 ? model.Categories[0] : -1;
+                model.MainCategory = model.Categories != null || model.Categories.Count > 0 ? model.Categories[0] : -1;
+                var group_product = groupProductESService.GetDetailGroupProductById(model.MainCategory);
+                if (group_product == null || group_product.Id < 0) return null;
+
+                if (model.MainCategory > 0)
+                {
+                    model.category_name = group_product.Name;
                 }
+                else
+                {
+                    model.category_name = "Tin tức";
+                }
+                model.RelatedArticleIds = List_relatedArticleIds.Select(s => (long)s.ArticleRelatedId).ToList();
+
+                if (model.RelatedArticleIds != null && model.RelatedArticleIds.Count > 0)
+                {
+                    foreach (var item in model.RelatedArticleIds)
+                    {
+                        var groupProductName = string.Empty;
+                        var detail_article = articleESService.GetDetailById(item);
+                        var articleCategory = articleCategoryESService.GetByArticleId(detail_article.Id);
+                        if (articleCategory != null && articleCategory.Count > 0)
+                        {
+                            foreach (var item2 in articleCategory)
+                            {
+                                var groupProduct = groupProductESService.GetDetailGroupProductById((long)item2.CategoryId);
+                                groupProductName += groupProduct.Name + ",";
+                            }
+                        }
+
+                        var ArticleRelation = new ArticleRelationModel
+                        {
+                            Id = detail_article.Id,
+                            Image = detail_article.Image169 ?? detail_article.Image43 ?? detail_article.Image11,
+                            Title = detail_article.Title,
+                            publish_date = detail_article.PublishDate ?? DateTime.Now,
+                            category_name = groupProductName ?? "Tin tức"
+                        };
+                        model.RelatedArticleList.Add(ArticleRelation);
+                    }
+                    model.RelatedArticleList = model.RelatedArticleList.GroupBy(x => x.Id).Select(x => x.First()).ToList();
+                }
+
                 return model;
             }
             catch (Exception ex)
@@ -569,46 +273,62 @@ namespace HuloToys_Service.DAL
             try
             {
                 var list_article = new List<ArticleRelationModel>();
-                using (var _DbContext = new EntityDataContext(_connection))
+
+                try
                 {
-                    using (var transaction = _DbContext.Database.BeginTransaction())
+                    var arr_cate_child_help_id = new List<int>();
+                    var group_product_detail = groupProductESService.GetDetailGroupProductById(parent_cate_faq_id);
+                    if (group_product_detail == null)
                     {
-                        try
-                        {
-                            var arr_cate_child_help_id = _DbContext.GroupProducts.Where(n => n.Id == parent_cate_faq_id || n.ParentId == parent_cate_faq_id).Select(x => x.Id).ToArray();
-
-                            if (arr_cate_child_help_id.Count() > 0)
-                            {
-                                list_article = await (from _article in _DbContext.Articles.AsNoTracking()
-                                                      join a in _DbContext.ArticleCategories on _article.Id equals a.ArticleId
-                                                      join c in _DbContext.GroupProducts.AsNoTracking() on a.CategoryId equals c.Id
-                                                      where arr_cate_child_help_id.Contains(a.CategoryId ?? -1) && _article.Status == ArticleStatus.PUBLISH && _article.Title.ToUpper().Contains(title.ToUpper())
-                                                      select new ArticleRelationModel
-                                                      {
-                                                          Id = _article.Id,
-                                                          Image = _article.Image169 ?? _article.Image43 ?? _article.Image11,
-                                                          Title = _article.Title,
-                                                          publish_date = _article.PublishDate ?? DateTime.Now,
-                                                          category_name = c.Name ?? "Tin tức"
-                                                      }).ToListAsync();
-                                if (list_article.Count > 0)
-                                    list_article = list_article.GroupBy(x => x.Id).Select(x => x.First()).OrderByDescending(x => x.publish_date).ToList();
-
-                            }
-                            else
-                            {
-                                return null;
-                            }
-                            transaction.Commit();
-                        }
-                        catch (Exception ex)
-                        {
-                            transaction.Rollback();
-                            LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "[title = " + title + "]FindArticleByTitle - ArticleDAL: transaction.Commit " + ex);
-                            return null;
-                        }
+                        var group_product_list = groupProductESService.GetListGroupProductByParentId(parent_cate_faq_id);
+                        arr_cate_child_help_id = group_product_list.Select(x => x.Id).ToList();
                     }
+                    arr_cate_child_help_id.Add(group_product_detail.Id);
+
+
+
+                    if (arr_cate_child_help_id.Count() > 0)
+                    {
+                        foreach (var item in arr_cate_child_help_id)
+                        {
+                            var groupProductName = string.Empty;
+                            var DetailGroupProductById = groupProductESService.GetDetailGroupProductById(item);
+                            var List_articleCategory = articleCategoryESService.GetByArticleId(DetailGroupProductById.Id);
+                            if (List_articleCategory != null && List_articleCategory.Count > 0)
+                            {
+                                foreach (var item2 in List_articleCategory)
+                                {
+                                    var detail_article = articleESService.GetDetailById((long)item2.ArticleId);
+                                    var ArticleRelation = new ArticleRelationModel
+                                    {
+                                        Id = detail_article.Id,
+                                        Image = detail_article.Image169 ?? detail_article.Image43 ?? detail_article.Image11,
+                                        Title = detail_article.Title,
+                                        publish_date = detail_article.PublishDate ?? DateTime.Now,
+                                        category_name = DetailGroupProductById.Name ?? "Tin tức"
+                                    };
+                                    list_article.Add(ArticleRelation);
+                                }
+                            }
+
+                        }
+                        if (list_article.Count > 0)
+                            list_article = list_article.GroupBy(x => x.Id).Select(x => x.First()).OrderByDescending(x => x.publish_date).ToList();
+
+                    }
+                    else
+                    {
+                        return null;
+                    }
+      
                 }
+                catch (Exception ex)
+                {
+
+                    LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "[title = " + title + "]FindArticleByTitle - ArticleDAL: transaction.Commit " + ex);
+                    return null;
+                }
+
                 return list_article;
             }
             catch (Exception ex)
@@ -618,22 +338,7 @@ namespace HuloToys_Service.DAL
                 return null;
             }
         }
-        public async Task<List<int>> GetArticleCategoriesIdList(long ArticleId)
-        {
-            var ListRs = new List<int>();
-            try
-            {
-                using (var _DbContext = new EntityDataContext(_connection))
-                {
-                    ListRs = await _DbContext.ArticleCategories.Where(s => s.ArticleId == ArticleId).Select(s => (int)s.CategoryId).ToListAsync();
-                }
-            }
-            catch
-            {
 
-            }
-            return ListRs;
-        }
         /// <summary>
         /// minh.nq
         /// Lấy ra danh sách các bài thuộc 1 chuyên mục, phân trang+ sắp xếp theo ngày mới nhất
@@ -644,80 +349,85 @@ namespace HuloToys_Service.DAL
         {
             try
             {
-                var model = new ArticleModel();
+
                 var list_postion_pinned = new List<short?> { 1, 2, 3, 4, 5, 6, 7 };
-                using (var _DbContext = new EntityDataContext(_connection))
+
+                try
                 {
-                    using (var transaction = _DbContext.Database.BeginTransaction())
+                    var list_article = new List<ArticleFeModel>();
+                    var list_pinned = new List<ArticleFeModel>();
+                    var data = articleCategoryESService.GetByCategoryId(cate_id);
+                    if (data != null && data.Count > 0)
                     {
-                        try
+                        data = data.GroupBy(s => s.ArticleId).Select(s => s.First()).ToList();
+                        foreach (var item in data)
                         {
-
-                            var list_article = await (from _article in _DbContext.Articles.AsNoTracking()
-                                                      join a in _DbContext.ArticleCategories.AsNoTracking() on _article.Id equals a.ArticleId into af
-                                                      from detail in af.DefaultIfEmpty()
-                                                      where detail.CategoryId == cate_id && _article.Status == ArticleStatus.PUBLISH && _article.PublishDate <= DateTime.Now
-                                                      orderby _article.PublishDate descending
-                                                      select new ArticleFeModel
-                                                      {
-                                                          id = _article.Id,
-                                                          category_name = category_name,
-                                                          title = _article.Title,
-                                                          lead = _article.Lead,
-                                                          image_169 = _article.Image169,
-                                                          image_43 = _article.Image43,
-                                                          image_11 = _article.Image11,
-                                                          publish_date = (DateTime)_article.PublishDate,
-                                                          article_type = _article.ArticleType,
-                                                          update_last = (DateTime)_article.ModifiedOn
-                                                      }
-                                                     ).ToListAsync();
-                            var list_pinned = await (from a in _DbContext.ArticleCategories.AsNoTracking()
-                                                     join _article in _DbContext.Articles.AsNoTracking() on a.ArticleId equals _article.Id
-                                                     where _article.Status == ArticleStatus.PUBLISH && _article.PublishDate <= DateTime.Now /*&& _article.DownTime > DateTime.Now*/ && _article.Position != null && _article.Position > 0
-                                                     orderby _article.Position ascending
-                                                     select new ArticleFeModel
-                                                     {
-                                                         id = _article.Id,
-                                                         category_name = category_name,
-                                                         title = _article.Title,
-                                                         lead = _article.Lead,
-                                                         image_169 = _article.Image169,
-                                                         image_43 = _article.Image43,
-                                                         image_11 = _article.Image11,
-                                                         publish_date = (DateTime)_article.PublishDate,
-                                                         position = _article.Position,
-                                                         article_type = _article.ArticleType,
-                                                         update_last = (DateTime)_article.ModifiedOn
-
-                                                     }).ToListAsync();
-
-                            transaction.Commit();
-                            var result = new ArticleFEModelPagnition();
-                            list_article = list_article.OrderByDescending(x => x.publish_date).GroupBy(gr => gr.id).Select(x => x.First()).ToList();
-                            list_pinned = list_pinned.OrderByDescending(x => x.update_last).GroupBy(gr => gr.position).Select(x => x.First()).ToList();
-
-                            foreach (var pinned in list_pinned)
+                            var _article = articleESService.GetDetailById((long)item.ArticleId);
+                            var model = new ArticleFeModel
                             {
-                                if (pinned.position != null && pinned.position > 0)
-                                {
-                                    list_article.RemoveAll(x => x.title == pinned.title && x.lead == pinned.lead);
-                                    //list_article.Insert(((int)pinned.position - 1), pinned);
-                                }
-                            }
-
-                            result.list_article_fe = list_article.Skip(skip).Take(take).ToList();
-                            result.list_article_pinned = list_pinned;
-                            result.total_item_count = list_article.Count;
-                            return result;
-                        }
-                        catch
-                        {
-                            transaction.Rollback();
-                            return null;
+                                id = _article.Id,
+                                category_name = category_name,
+                                title = _article.Title,
+                                lead = _article.Lead,
+                                image_169 = _article.Image169,
+                                image_43 = _article.Image43,
+                                image_11 = _article.Image11,
+                                publish_date = (DateTime)_article.PublishDate,
+                                article_type = _article.ArticleType,
+                                update_last = (DateTime)_article.ModifiedOn
+                            };
+                            list_article.Add(model);
                         }
                     }
+
+
+                    var article = articleESService.GetListArticlePosition();
+                    if (article != null && article.Count > 0)
+                    {
+                        foreach (var _article in article)
+                        {
+                            var model = new ArticleFeModel
+                            {
+                                id = _article.Id,
+                                category_name = category_name,
+                                title = _article.Title,
+                                lead = _article.Lead,
+                                image_169 = _article.Image169,
+                                image_43 = _article.Image43,
+                                image_11 = _article.Image11,
+                                publish_date = (DateTime)_article.PublishDate,
+                                position = _article.Position,
+                                article_type = _article.ArticleType,
+                                update_last = (DateTime)_article.ModifiedOn
+
+                            };
+                            list_pinned.Add(model);
+                        }
+                    }
+
+                    var result = new ArticleFEModelPagnition();
+                    list_article = list_article.OrderByDescending(x => x.publish_date).GroupBy(gr => gr.id).Select(x => x.First()).ToList();
+                    list_pinned = list_pinned.OrderByDescending(x => x.update_last).GroupBy(gr => gr.position).Select(x => x.First()).ToList();
+
+                    foreach (var pinned in list_pinned)
+                    {
+                        if (pinned.position != null && pinned.position > 0)
+                        {
+                            list_article.RemoveAll(x => x.title == pinned.title && x.lead == pinned.lead);
+                            //list_article.Insert(((int)pinned.position - 1), pinned);
+                        }
+                    }
+
+                    result.list_article_fe = list_article.Skip(skip).Take(take).ToList();
+                    result.list_article_pinned = list_pinned;
+                    result.total_item_count = list_article.Count;
+                    return result;
                 }
+                catch
+                {
+                    return null;
+                }
+
             }
             catch (Exception ex)
             {
@@ -735,34 +445,47 @@ namespace HuloToys_Service.DAL
         {
             try
             {
-                var model = new ArticleModel();
-                using (var _DbContext = new EntityDataContext(_connection))
+
+
+                var list_article = new List<ArticleFeModel>();
+                var ListTag = tagESService.GetListTagByTagName(tag);
+                if (ListTag != null && ListTag.Count > 0)
                 {
-                    var list_article = await (from _article in _DbContext.Articles.AsNoTracking()
-                                              join b in _DbContext.ArticleTags.AsNoTracking() on _article.Id equals b.ArticleId
-                                              join c in _DbContext.Tags.AsNoTracking() on b.TagId equals c.Id
-                                              where c.TagName.ToLower().Replace("#", "") == tag.ToLower().Replace("#", "") && _article.Status == ArticleStatus.PUBLISH
-                                              orderby _article.PublishDate descending
-                                              select new ArticleFeModel
-                                              {
-                                                  id = _article.Id,
-                                                  category_name = "",
-                                                  title = _article.Title,
-                                                  lead = _article.Lead,
-                                                  image_169 = _article.Image169,
-                                                  image_43 = _article.Image43,
-                                                  image_11 = _article.Image11,
-                                                  publish_date = (DateTime)_article.PublishDate,
-                                                  article_type = _article.ArticleType,
-                                                  position = _article.Position
-                                              }).ToListAsync();
+                    foreach (var item in ListTag)
+                    {
+                        var articleTag = articleTagESService.GetListArticleTagByTagid(item.Id);
+                        if (articleTag != null && articleTag.Count > 0)
+                        {
+                            articleTag = articleTag.GroupBy(s => s.ArticleId).Select(s => s.First()).ToList();
+                            foreach (var item2 in articleTag)
+                            {
+                                var _article = articleESService.GetDetailById((long)item2.ArticleId);
+                                var model = new ArticleFeModel
+                                {
+                                    id = _article.Id,
+                                    category_name = "",
+                                    title = _article.Title,
+                                    lead = _article.Lead,
+                                    image_169 = _article.Image169,
+                                    image_43 = _article.Image43,
+                                    image_11 = _article.Image11,
+                                    publish_date = (DateTime)_article.PublishDate,
+                                    article_type = _article.ArticleType,
+                                    position = _article.Position
+                                };
+                                list_article.Add(model);
+                            }
+                        }
+                    }
 
-
-                    var result = new ArticleFEModelPagnition();
-                    result.list_article_fe = list_article.Skip(skip).Take(take).ToList();
-                    result.total_item_count = list_article.Count;
-                    return result;
                 }
+
+
+                var result = new ArticleFEModelPagnition();
+                result.list_article_fe = list_article.Skip(skip).Take(take).ToList();
+                result.total_item_count = list_article.Count;
+                return result;
+
             }
             catch (Exception ex)
             {
@@ -770,131 +493,6 @@ namespace HuloToys_Service.DAL
                 return null;
             }
         }
-        /// <summary>
-        /// Minh: Lấy ra bài viết được pinn trong time
-        /// </summary>
-        /// <param name="cate_id"></param>
-        /// <param name="skip"></param>
-        /// <param name="take"></param>
-        /// <param name="category_name"></param>
-        /// <returns></returns>
-        public async Task<ArticleFeModel> getPinnedArticleByposition(int cate_id, string category_name, int position)
-        {
-            try
-            {
-                var model = new ArticleModel();
-                using (var _DbContext = new EntityDataContext(_connection))
-                {
-                    using (var transaction = _DbContext.Database.BeginTransaction())
-                    {
-                        try
-                        {
 
-                            var article = await (from _article in _DbContext.Articles.AsNoTracking()
-                                                 join a in _DbContext.ArticleCategories.AsNoTracking() on _article.Id equals a.ArticleId into af
-                                                 from detail in af.DefaultIfEmpty()
-                                                 where detail.CategoryId == cate_id && _article.Status == ArticleStatus.PUBLISH && _article.UpTime <= DateTime.Now && _article.Position == position
-                                                 select new ArticleFeModel
-                                                 {
-                                                     category_name = category_name,
-                                                     title = _article.Title,
-                                                     lead = _article.Lead,
-                                                     image_169 = _article.Image169,
-                                                     image_43 = _article.Image43,
-                                                     image_11 = _article.Image11,
-                                                     publish_date = (DateTime)_article.PublishDate,
-                                                 }
-                                                     ).FirstOrDefaultAsync();
-
-
-                            transaction.Commit();
-                            return article;
-                        }
-                        catch
-                        {
-                            transaction.Rollback();
-                            return null;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "getPinnedArticleByposition - ArticleDAL:" + ex);
-                return null;
-            }
-        }
-        /// <summary>
-        /// minh.nq
-        /// Lấy ra danh sách các bài thuộc 1 chuyên mục footer, phân trang+ sắp xếp theo ngày mới nhất
-        /// </summary>
-        /// <param name="cate_id"></param>
-        /// <returns></returns>
-        public async Task<ArticleFEModelPagnition> getFooterArticleListByCategory(int cate_id, int skip, int take, string category_name)
-        {
-            try
-            {
-                var model = new ArticleModel();
-                using (var _DbContext = new EntityDataContext(_connection))
-                {
-                    using (var transaction = _DbContext.Database.BeginTransaction())
-                    {
-                        var group = await _DbContext.GroupProducts.Where(x => x.Id == cate_id && x.IsShowFooter == true).FirstOrDefaultAsync();
-                        if (group == null || group.Id <= 0)
-                        {
-                            var result = new ArticleFEModelPagnition();
-                            result.list_article_fe = new List<ArticleFeModel>();
-                            result.total_item_count = 0;
-                            return result;
-                        }
-                        try
-                        {
-
-                            var list_article = await (from _article in _DbContext.Articles.AsNoTracking()
-                                                      join a in _DbContext.ArticleCategories.AsNoTracking() on _article.Id equals a.ArticleId into af
-                                                      from detail in af.DefaultIfEmpty()
-                                                      where detail.CategoryId == cate_id && _article.Status == ArticleStatus.PUBLISH
-                                                      orderby _article.PublishDate descending
-                                                      select new ArticleFeModel
-                                                      {
-                                                          id = _article.Id,
-                                                          category_name = category_name,
-                                                          title = _article.Title,
-                                                          lead = _article.Lead,
-                                                          image_169 = _article.Image169,
-                                                          image_43 = _article.Image43,
-                                                          image_11 = _article.Image11,
-                                                          publish_date = (DateTime)_article.PublishDate,
-                                                          article_type = _article.ArticleType,
-                                                          update_last = (DateTime)_article.ModifiedOn
-                                                      }
-                                                     ).ToListAsync();
-
-                            transaction.Commit();
-                            var result = new ArticleFEModelPagnition();
-                            list_article = list_article.OrderByDescending(x => x.publish_date).ToList();
-                            result.list_article_fe = list_article.Skip(skip).Take(take).ToList();
-                            result.total_item_count = list_article.Count;
-                            return result;
-                        }
-                        catch
-                        {
-                            transaction.Rollback();
-                            return null;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "getFooterArticleListByCategory - ArticleDAL:" + ex);
-                return null;
-            }
-        }
-
-        internal async Task<List<int>> GetArticleCategoryIdList(long id)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

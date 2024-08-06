@@ -13,8 +13,8 @@ namespace HuloToys_Service.Repro.Repository
 
         public TagRepository(IOptions<DataBaseConfig> dataBaseConfig, IConfiguration _configuration)
         {
-            articleTagDAL = new ArticleTagDAL(dataBaseConfig.Value.SqlServer.ConnectionString,_configuration);
-            _tagDAL = new TagDAL(dataBaseConfig.Value.SqlServer.ConnectionString,_configuration);
+            articleTagDAL = new ArticleTagDAL("",_configuration);
+            _tagDAL = new TagDAL("",_configuration);
             configuration = _configuration;
         }
         public async Task<List<string>> GetAllTagByArticleID(long articleID)

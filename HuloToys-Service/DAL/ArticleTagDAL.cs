@@ -1,8 +1,11 @@
 ﻿using DAL.Generic;
 using DAL.StoreProcedure;
 using HuloToys_Service.DAL.StoreProcedure;
+using HuloToys_Service.ElasticSearch.NewEs;
 using HuloToys_Service.Models.Entities;
+using HuloToys_Service.Utilities.Lib;
 using Newtonsoft.Json;
+using System.Reflection;
 
 namespace HuloToys_Service.DAL
 {
@@ -10,27 +13,30 @@ namespace HuloToys_Service.DAL
     {
         private static DbWorker _DbWorker;
         public IConfiguration configuration;
+        public ArticleTagESService articleTagESService;
         public ArticleTagDAL(string connection, IConfiguration _configuration) : base(connection)
         {
-            _DbWorker = new DbWorker(connection, _configuration);
             configuration = _configuration;
+            articleTagESService = new ArticleTagESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
         }
         public List<long> GetTagIDByArticleID(long articleID)
         {
             try
             {
-                using (var _DbContext = new EntityDataContext(_connection))
-                {
-                    var a = _DbContext.ArticleTags.Where(s => s.ArticleId == articleID).Select(s => s.TagId);
-                    if (a != null && a.Count() > 0)
+   
+                    var data= articleTagESService.GetListArticleTagByArticleId(articleID);
+                    var List_TagId= data.Select(s => s.TagId);
+                    if (List_TagId != null && List_TagId.Count() > 0)
                     {
-                        var json = JsonConvert.SerializeObject(a.Distinct().ToList());
+                        var json = JsonConvert.SerializeObject(List_TagId.Distinct().ToList());
                         return JsonConvert.DeserializeObject<List<long>>(json);
                     }
-                }
+                
             }
-            catch
+            catch(Exception ex)
             {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
         }

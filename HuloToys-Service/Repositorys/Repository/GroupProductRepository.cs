@@ -15,7 +15,7 @@ namespace HuloToys_Service.Repro.Repository
 
         public GroupProductRepository(IOptions<DataBaseConfig> dataBaseConfig, IConfiguration _configuration)
         {
-            _GroupProductDAL = new GroupProductDAL(dataBaseConfig.Value.SqlServer.ConnectionString, _configuration);
+            _GroupProductDAL = new GroupProductDAL("", _configuration);
             configuration = _configuration;
         }
 

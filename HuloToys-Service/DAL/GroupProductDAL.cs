@@ -1,5 +1,7 @@
-﻿using DAL.Generic;
+﻿using Caching.Elasticsearch;
+using DAL.Generic;
 using HuloToys_Service.DAL.StoreProcedure;
+using HuloToys_Service.ElasticSearch.NewEs;
 using HuloToys_Service.Models.Entities;
 using HuloToys_Service.Utilities.Lib;
 using Utilities.Contants;
@@ -9,19 +11,20 @@ namespace HuloToys_Service.DAL
     public class GroupProductDAL : GenericService<GroupProduct>
     {
         public IConfiguration configuration;
+        private readonly GroupProductESService groupProductESService;
+
         public GroupProductDAL(string connection, IConfiguration _configuration) : base(connection)
         {
             configuration = _configuration;
+            groupProductESService = new GroupProductESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
         }
 
         public List<GroupProduct> GetByParentId(long parent_id)
         {
             try
             {
-                using (var _DbContext = new EntityDataContext(_connection))
-                {
-                    return _DbContext.GroupProducts.Where(s => s.ParentId == parent_id && s.Status == (int)ArticleStatus.PUBLISH).ToList();
-                }
+                var data = groupProductESService.GetListGroupProductByParentId(parent_id);
+                return data;
             }
             catch (Exception ex)
             {
@@ -33,10 +36,9 @@ namespace HuloToys_Service.DAL
         {
             try
             {
-                using (var _DbContext = new EntityDataContext(_connection))
-                {
-                    return _DbContext.GroupProducts.Where(s => s.Id == id && s.Status == (int)ArticleStatus.PUBLISH).FirstOrDefault();
-                }
+                var data = groupProductESService.GetDetailGroupProductById(id);
+                return data;
+               
             }
             catch (Exception ex)
             {

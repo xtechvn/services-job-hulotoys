@@ -13,9 +13,11 @@ namespace Repositories.Repositories
     public class LocationProductRepository : ILocationProductRepository
     {
         private readonly LocationProductDAL _locationProductDAL;
-        public LocationProductRepository(IOptions<DataBaseConfig> dataBaseConfig)
+        private readonly IConfiguration configuration;
+        public LocationProductRepository(IOptions<DataBaseConfig> dataBaseConfig, IConfiguration _configuration)
         {
-            _locationProductDAL = new LocationProductDAL(dataBaseConfig.Value.SqlServer.ConnectionString);
+            _locationProductDAL = new LocationProductDAL(dataBaseConfig.Value.SqlServer.ConnectionString, _configuration);
+            configuration = _configuration;
         }
 
         public async Task<long> Addnew(LocationProduct model)

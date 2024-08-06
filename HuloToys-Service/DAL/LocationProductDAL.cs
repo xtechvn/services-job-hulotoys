@@ -1,7 +1,10 @@
 ﻿using DAL.Generic;
 using Entities.Models;
 using HuloToys_Service.DAL.StoreProcedure;
+using HuloToys_Service.ElasticSearch.LocationProduct;
+using HuloToys_Service.ElasticSearch.NewEs;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -14,8 +17,12 @@ namespace DAL
 {
     public class LocationProductDAL : GenericService<LocationProduct>
     {
-        public LocationProductDAL(string connection) : base(connection)
+        private readonly IConfiguration configuration;
+        public LocationProductESService locationProductESService;
+        public LocationProductDAL(string connection, IConfiguration _configuration) : base(connection)
         {
+            locationProductESService = new LocationProductESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
+            configuration = _configuration;
         }
         public async Task<LocationProduct> GetById(int id)
         {
@@ -55,7 +62,7 @@ namespace DAL
                 return null;
             }
         }
-        public async Task<LocationProduct> SearchIfExists(string product_code,int group_id, int order_no)
+        public async Task<LocationProduct> SearchIfExists(string product_code, int group_id, int order_no)
         {
             try
             {
@@ -78,13 +85,10 @@ namespace DAL
         {
             try
             {
-                using (var _DbContext = new EntityDataContext(_connection))
-                {
-                   return await _DbContext.LocationProduct.AsNoTracking().Where(x => x.GroupProductId == group_id).ToListAsync();
-                  
-                }
+                var data = locationProductESService.GetListByGroupId(group_id);
+                return data;
             }
-            catch (Exception )
+            catch (Exception)
             {
             }
             return null;

@@ -2,7 +2,10 @@
 using DAL.Generic;
 using DAL.StoreProcedure;
 using HuloToys_Service.DAL.StoreProcedure;
+using HuloToys_Service.ElasticSearch.NewEs;
+using HuloToys_Service.Utilities.Lib;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace HuloToys_Service.DAL
 {
@@ -10,86 +13,34 @@ namespace HuloToys_Service.DAL
     {
         private static DbWorker _DbWorker;
         private readonly IConfiguration configuration;
+        public TagESService tagESService;
         public TagDAL(string connection, IConfiguration _configuration) : base(connection)
         {
             _DbWorker = new DbWorker(connection, _configuration);
             configuration = _configuration;
-        }
-        public async Task<List<long>> MultipleInsertTag(List<string> TagList)
-        {
-            var ListResult = new List<long>();
-            try
-            {
-                using (var _DbContext = new EntityDataContext(_connection))
-                {
-                    using (var transaction = _DbContext.Database.BeginTransaction())
-                    {
-                        try
-                        {
-                            if (TagList != null && TagList.Count >= 0)
-                            {
-                                foreach (var item in TagList)
-                                {
-                                    var tagItemModel = await _DbContext.Tags.FirstOrDefaultAsync(s => s.TagName == item.Trim());
-                                    if (tagItemModel == null)
-                                    {
-                                        var tagModel = new Models.Entities.Tag()
-                                        {
-                                            TagName = item,
-                                            CreatedOn = DateTime.Now
-                                        };
-                                        await _DbContext.Tags.AddAsync(tagModel);
-                                        await _DbContext.SaveChangesAsync();
-                                        ListResult.Add(tagModel.Id);
-                                    }
-                                    else
-                                    {
-                                        ListResult.Add(tagItemModel.Id);
-                                    }
-                                }
-                            }
-                            transaction.Commit();
-                        }
-                        catch (Exception ex)
-                        {
-                            transaction.Rollback();
-                            return null;
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                return null;
-            }
-            return ListResult;
+            tagESService = new TagESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
         }
 
-        public async Task<List<string>> GetSuggestionTag(string name)
-        {
-            try
-            {
-                using (var _DbContext = new EntityDataContext(_connection))
-                {
-                    return await _DbContext.Tags.Where(s => s.TagName.Trim().ToLower().Contains(name.ToLower())).Select(s => s.TagName).Take(10).ToListAsync();
-                }
-            }
-            catch
-            {
-                return null;
-            }
-        }
         public async Task<List<string>> GetTagByListID(List<long> tag_id_list)
         {
             try
             {
-                using (var _DbContext = new EntityDataContext(_connection))
+                var list_name = new List<string>();
+               if(tag_id_list!= null && tag_id_list.Count > 0)
                 {
-                    return await _DbContext.Tags.Where(s => tag_id_list.Contains(s.Id)).Select(s => s.TagName).ToListAsync();
+                    foreach(var item in tag_id_list)
+                    {
+                        var tag = tagESService.GetListTagById(item);
+                        if(tag !=null) { list_name.Add(tag.TagName); }
+                    }
                 }
+                    return list_name;
+                
             }
-            catch
+            catch(Exception ex)
             {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
                 return null;
             }
         }
