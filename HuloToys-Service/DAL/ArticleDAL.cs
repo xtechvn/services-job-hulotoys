@@ -314,7 +314,7 @@ namespace HuloToys_Service.DAL
 
                         }
                         if (list_article.Count > 0)
-                            list_article = list_article.GroupBy(x => x.Id).Select(x => x.First()).OrderByDescending(x => x.publish_date).ToList();
+                            list_article = list_article.Where(s=>s.Title.Contains(title.ToUpper())).GroupBy(x => x.Id).Select(x => x.First()).OrderByDescending(x => x.publish_date).ToList();
 
                     }
                     else
