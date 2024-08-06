@@ -56,6 +56,7 @@
         public string Image { get; set; }
         public DateTime publish_date { get; set; }
         public string category_name { get; set; }
+        public string Lead { get; set; }
 
     }
     public class ArticleFeModel

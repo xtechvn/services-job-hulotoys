@@ -302,6 +302,7 @@ namespace HuloToys_Service.DAL
                                     var ArticleRelation = new ArticleRelationModel
                                     {
                                         Id = detail_article.Id,
+                                        Lead = detail_article.Lead,
                                         Image = detail_article.Image169 ?? detail_article.Image43 ?? detail_article.Image11,
                                         Title = detail_article.Title,
                                         publish_date = detail_article.PublishDate ?? DateTime.Now,
@@ -362,21 +363,26 @@ namespace HuloToys_Service.DAL
                         data = data.GroupBy(s => s.ArticleId).Select(s => s.First()).ToList();
                         foreach (var item in data)
                         {
+                            var groupProduct = groupProductESService.GetDetailGroupProductById((long)item.CategoryId);
                             var _article = articleESService.GetDetailById((long)item.ArticleId);
-                            var model = new ArticleFeModel
+                            if(_article != null)
                             {
-                                id = _article.Id,
-                                category_name = category_name,
-                                title = _article.Title,
-                                lead = _article.Lead,
-                                image_169 = _article.Image169,
-                                image_43 = _article.Image43,
-                                image_11 = _article.Image11,
-                                publish_date = (DateTime)_article.PublishDate,
-                                article_type = _article.ArticleType,
-                                update_last = (DateTime)_article.ModifiedOn
-                            };
-                            list_article.Add(model);
+                                var model = new ArticleFeModel
+                                {
+                                    id = _article.Id,
+                                    category_name = category_name==null? groupProduct.Name: category_name,
+                                    title = _article.Title,
+                                    lead = _article.Lead,
+                                    image_169 = _article.Image169,
+                                    image_43 = _article.Image43,
+                                    image_11 = _article.Image11,
+                                    publish_date = (DateTime)_article.PublishDate,
+                                    article_type = _article.ArticleType,
+                                    update_last = (DateTime)_article.ModifiedOn
+                                };
+                                list_article.Add(model);
+                            }
+                           
                         }
                     }
 
@@ -389,7 +395,7 @@ namespace HuloToys_Service.DAL
                             var model = new ArticleFeModel
                             {
                                 id = _article.Id,
-                                category_name = category_name,
+                                category_name = category_name==null?"tin tức": category_name,
                                 title = _article.Title,
                                 lead = _article.Lead,
                                 image_169 = _article.Image169,
