@@ -133,7 +133,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
                 var query = elasticClient.Search<ArticleESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Range(m => m.Field("id").GreaterThanOrEquals(0)
+                                   .Range(m => m.Field("position").GreaterThanOrEquals(1).LessThanOrEquals(7)
                                )));
                 if (query.IsValid)
                 {
