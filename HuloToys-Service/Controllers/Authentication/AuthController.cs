@@ -48,7 +48,7 @@ namespace HuloToys_Service.Controllers
 
                 var accountClient = accountApiESService.GetByUsername(user.Username);
                 if (accountClient == null) { return Ok(new { msg = "Tài khoản " + user.Username + " không tồn tại" }); }
-                if (accountClient.status == (int)AccountClientStatusType.BINH_THUONG) { return Ok(new { msg = "Tài khoản đã khóa" }); }
+                if (accountClient.status != (int)AccountClientStatusType.BINH_THUONG) { return Ok(new { msg = "Tài khoản đã khóa" }); }
                 if (user.Username == accountClient.username && user.Password == accountClient.password)
                 {
                     var token = GenerateJwtToken(user.Username);
