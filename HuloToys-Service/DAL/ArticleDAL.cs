@@ -293,28 +293,32 @@ namespace HuloToys_Service.DAL
                         {
                             var groupProductName = string.Empty;
                             var DetailGroupProductById = groupProductESService.GetDetailGroupProductById(item);
-                            var List_articleCategory = articleCategoryESService.GetByArticleId(DetailGroupProductById.Id);
+                            var List_articleCategory = articleCategoryESService.GetByCategoryId(DetailGroupProductById.Id);
                             if (List_articleCategory != null && List_articleCategory.Count > 0)
                             {
                                 foreach (var item2 in List_articleCategory)
                                 {
                                     var detail_article = articleESService.GetDetailById((long)item2.ArticleId);
-                                    var ArticleRelation = new ArticleRelationModel
+                                    if(detail_article!= null)
                                     {
-                                        Id = detail_article.Id,
-                                        Lead = detail_article.Lead,
-                                        Image = detail_article.Image169 ?? detail_article.Image43 ?? detail_article.Image11,
-                                        Title = detail_article.Title,
-                                        publish_date = detail_article.PublishDate ?? DateTime.Now,
-                                        category_name = DetailGroupProductById.Name ?? "Tin tức"
-                                    };
-                                    list_article.Add(ArticleRelation);
+                                        var ArticleRelation = new ArticleRelationModel
+                                        {
+                                            Id = detail_article.Id,
+                                            Lead = detail_article.Lead,
+                                            Image = detail_article.Image169 ?? detail_article.Image43 ?? detail_article.Image11,
+                                            Title = detail_article.Title,
+                                            publish_date = detail_article.PublishDate ?? DateTime.Now,
+                                            category_name = DetailGroupProductById.Name ?? "Tin tức"
+                                        };
+                                        list_article.Add(ArticleRelation);
+                                    }
+                                   
                                 }
                             }
 
                         }
                         if (list_article.Count > 0)
-                            list_article = list_article.Where(s=>s.Title.Contains(title.ToUpper())).GroupBy(x => x.Id).Select(x => x.First()).OrderByDescending(x => x.publish_date).ToList();
+                            list_article = list_article.Where(s=>s.Title.ToUpper().Contains(title.ToUpper())).GroupBy(x => x.Id).Select(x => x.First()).OrderByDescending(x => x.publish_date).ToList();
 
                     }
                     else
