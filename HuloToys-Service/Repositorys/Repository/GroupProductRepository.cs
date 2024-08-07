@@ -26,8 +26,7 @@ namespace HuloToys_Service.Repro.Repository
             string group_name = null;
             try
             {
-                var _groupList = await _GroupProductDAL.GetAllAsync();
-                var dataModel = _groupList.Where(s => s.Id == cateID).FirstOrDefault();
+                var dataModel = _GroupProductDAL.GetById(cateID);
                 if (dataModel == null || dataModel.Name == null) return "";
                 group_name = dataModel.Name;
             }

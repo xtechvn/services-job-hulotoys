@@ -367,14 +367,25 @@ namespace HuloToys_Service.DAL
                         data = data.GroupBy(s => s.ArticleId).Select(s => s.First()).ToList();
                         foreach (var item in data)
                         {
-                            var groupProduct = groupProductESService.GetDetailGroupProductById((long)item.CategoryId);
+                            var groupProductName = string.Empty;
+                            var article_Category = articleCategoryESService.GetByArticleId((long)item.ArticleId);
+                            if(article_Category != null)
+                            {
+                                foreach(var item2 in article_Category)
+                                {
+                                    var groupProduct = groupProductESService.GetDetailGroupProductById((long)item2.CategoryId);
+                                    if(groupProduct!= null && groupProduct.ParentId > 0)
+                                    groupProductName += groupProduct.Name + ",";
+                                } 
+                            }
+                     
                             var _article = articleESService.GetDetailById((long)item.ArticleId);
                             if(_article != null)
                             {
                                 var model = new ArticleFeModel
                                 {
                                     id = _article.Id,
-                                    category_name = category_name==null? groupProduct.Name: category_name,
+                                    category_name = groupProductName,
                                     title = _article.Title,
                                     lead = _article.Lead,
                                     image_169 = _article.Image169,
@@ -396,10 +407,21 @@ namespace HuloToys_Service.DAL
                     {
                         foreach (var _article in article)
                         {
+                            var groupProductName = string.Empty;
+                            var article_Category = articleCategoryESService.GetByArticleId(_article.Id);
+                            if (article_Category != null)
+                            {
+                                foreach (var item2 in article_Category)
+                                {
+                                    var groupProduct = groupProductESService.GetDetailGroupProductById((long)item2.CategoryId);
+                                    if (groupProduct != null && groupProduct.ParentId > 0)
+                                        groupProductName += groupProduct.Name + ",";
+                                }
+                            }
                             var model = new ArticleFeModel
                             {
                                 id = _article.Id,
-                                category_name = category_name==null?"tin tức": category_name,
+                                category_name =  groupProductName ,
                                 title = _article.Title,
                                 lead = _article.Lead,
                                 image_169 = _article.Image169,
