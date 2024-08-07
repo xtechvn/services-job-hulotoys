@@ -16,7 +16,7 @@ namespace Repositories.Repositories
         private readonly IConfiguration configuration;
         public LocationProductRepository(IOptions<DataBaseConfig> dataBaseConfig, IConfiguration _configuration)
         {
-            _locationProductDAL = new LocationProductDAL(dataBaseConfig.Value.SqlServer.ConnectionString, _configuration);
+            _locationProductDAL = new LocationProductDAL("", _configuration);
             configuration = _configuration;
         }
 

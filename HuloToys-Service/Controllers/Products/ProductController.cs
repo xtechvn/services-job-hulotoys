@@ -20,7 +20,7 @@ namespace HuloToys_Service.Controllers.Products
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    //[Authorize]
     public class ProductController : ControllerBase
     {
         private readonly IConfiguration configuration;
@@ -111,7 +111,7 @@ namespace HuloToys_Service.Controllers.Products
                                 return Ok(new
                                 {
                                     status = (int)ResponseType.SUCCESS,
-                                    msg = ResponseMessages.FunctionExcutionFailed,
+                                    //msg = ResponseMessages.FunctionExcutionFailed,
                                     data = new SearchEsEntitiesViewModel()
                                     {
                                         obj_lst_product_result = products.obj_lst_product_result.Skip((int)page_index - 1).Take((int)page_size).ToList(),
@@ -143,7 +143,7 @@ namespace HuloToys_Service.Controllers.Products
                             return Ok(new
                             {
                                 status = (int)ResponseType.SUCCESS,
-                                msg = ResponseMessages.FunctionExcutionFailed,
+                                //msg = ResponseMessages.FunctionExcutionFailed,
                                 data = new SearchEsEntitiesViewModel()
                                 {
                                     obj_lst_product_result= products.obj_lst_product_result.Skip((int)page_index-1).Take((int)page_size).ToList(),
