@@ -294,7 +294,7 @@ namespace HuloToys_Service.DAL
                         {
                             var groupProductName = string.Empty;
                             var DetailGroupProductById = groupProductESService.GetDetailGroupProductById(item);
-                            if (DetailGroupProductById.IsShowHeader==true)
+                            if (DetailGroupProductById.IsShowHeader == true)
                             {
                                 groupProductName += DetailGroupProductById.Name + ",";
                             }
@@ -304,7 +304,7 @@ namespace HuloToys_Service.DAL
                                 foreach (var item2 in List_articleCategory)
                                 {
                                     var detail_article = articleESService.GetDetailById((long)item2.ArticleId);
-                                    if(detail_article!= null)
+                                    if (detail_article != null)
                                     {
                                         var ArticleRelation = new ArticleRelationModel
                                         {
@@ -317,20 +317,20 @@ namespace HuloToys_Service.DAL
                                         };
                                         list_article.Add(ArticleRelation);
                                     }
-                                   
+
                                 }
                             }
 
                         }
                         if (list_article.Count > 0)
-                            list_article = list_article.Where(s=>s.Title.ToUpper().Contains(title.ToUpper())).GroupBy(x => x.Id).Select(x => x.First()).OrderByDescending(x => x.publish_date).ToList();
+                            list_article = list_article.Where(s => s.Title.ToUpper().Contains(title.ToUpper())).GroupBy(x => x.Id).Select(x => x.First()).OrderByDescending(x => x.publish_date).ToList();
 
                     }
                     else
                     {
                         return null;
                     }
-      
+
                 }
                 catch (Exception ex)
                 {
@@ -360,7 +360,7 @@ namespace HuloToys_Service.DAL
             try
             {
 
-                var list_postion_pinned = new List<short?> { 1, 2, 3};
+                var list_postion_pinned = new List<short?> { 1, 2, 3 };
 
                 try
                 {
@@ -375,18 +375,18 @@ namespace HuloToys_Service.DAL
                         {
                             var groupProductName = string.Empty;
                             var article_Category = articleCategoryESService.GetByArticleId((long)item.ArticleId);
-                            if(article_Category != null)
+                            if (article_Category != null)
                             {
-                                foreach(var item2 in article_Category)
+                                foreach (var item2 in article_Category)
                                 {
                                     var groupProduct = groupProductESService.GetDetailGroupProductById((long)item2.CategoryId);
-                                    if(groupProduct!= null && groupProduct.ParentId > 0)
-                                    groupProductName += groupProduct.Name + ",";
-                                } 
+                                    if (groupProduct != null && groupProduct.ParentId > 0)
+                                        groupProductName += groupProduct.Name + ",";
+                                }
                             }
-                     
+
                             var _article = articleESService.GetDetailById((long)item.ArticleId);
-                            if(_article != null)
+                            if (_article != null)
                             {
                                 var model = new ArticleFeModel
                                 {
@@ -399,11 +399,12 @@ namespace HuloToys_Service.DAL
                                     image_11 = _article.Image11,
                                     publish_date = (DateTime)_article.PublishDate,
                                     article_type = _article.ArticleType,
-                                    update_last = (DateTime)_article.ModifiedOn
+                                    update_last = (DateTime)_article.ModifiedOn,
+                                    position = _article.Position,
                                 };
-                                list_article.Add(model);
+                                    list_article.Add(model);
                             }
-                           
+
                         }
                     }
 
@@ -427,7 +428,7 @@ namespace HuloToys_Service.DAL
                             var model = new ArticleFeModel
                             {
                                 id = _article.Id,
-                                category_name =  groupProductName ,
+                                category_name = groupProductName,
                                 title = _article.Title,
                                 lead = _article.Lead,
                                 image_169 = _article.Image169,
@@ -446,49 +447,52 @@ namespace HuloToys_Service.DAL
                     var result = new ArticleFEModelPagnition();
                     list_article = list_article.OrderByDescending(x => x.publish_date).GroupBy(gr => gr.id).Select(x => x.First()).ToList();
                     list_pinned = list_pinned.OrderByDescending(x => x.update_last).GroupBy(gr => gr.position).Select(x => x.First()).ToList();
-                    if (list_pinned==null|| list_pinned.Count < 3)
-                    {
-                        
-                        foreach (var item in list_article)
-                        {
-                            
-                         
-                            list_pinned.Add(item);
-                            list_article2.Add(item);
-                            if (list_pinned.Count == 3) break;
-                        }
-                        foreach (var item in list_article2)
-                        {
-                            
-                            list_article.Remove(item);
-                        }
-
-                    }
+                   
                     foreach (var pinned in list_pinned)
                     {
-                        if (list_postion_pinned.Contains(pinned.position))
-                        {
-                            list_postion_pinned.Remove(pinned.position);
-                        }
-                        else
-                        {
-                            if(list_postion_pinned.Count>0)
-                            pinned.position = list_postion_pinned[0];
-                            list_postion_pinned.Remove(list_postion_pinned[0]);
-                        }
+
                         if (pinned.position != null && pinned.position > 0)
                         {
                             list_article.RemoveAll(x => x.title == pinned.title && x.lead == pinned.lead);
                             //list_article.Insert(((int)pinned.position - 1), pinned);
                         }
                     }
+                    if (list_pinned == null || list_pinned.Count < 3)
+                    {
 
+                        foreach (var item in list_article)
+                        {
+                            list_pinned.Add(item);
+                            list_article2.Add(item);
+                            if (list_pinned.Count == 3) break;
+                        }
+                        foreach (var item in list_article2)
+                        {
+
+                            list_article.Remove(item);
+                        }
+                        foreach (var pinned in list_pinned)
+                        {
+                            if (list_postion_pinned.Contains(pinned.position))
+                            {
+                                list_postion_pinned.Remove(pinned.position);
+                            }
+                            else
+                            {
+                                if (list_postion_pinned.Count > 0)
+                                    pinned.position = list_postion_pinned[0];
+                                list_postion_pinned.Remove(list_postion_pinned[0]);
+                            }
+                        }
+                    }
+
+                   
                     result.list_article_fe = list_article.Skip(skip).Take(take).ToList();
                     result.list_article_pinned = list_pinned;
                     result.total_item_count = list_article.Count;
                     return result;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     return null;
                 }
