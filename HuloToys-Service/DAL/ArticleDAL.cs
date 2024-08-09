@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Nest;
 using System.Data;
 using System.Globalization;
+using System.Linq;
 using Utilities.Contants;
 
 namespace HuloToys_Service.DAL
@@ -359,7 +360,7 @@ namespace HuloToys_Service.DAL
             try
             {
 
-                var list_postion_pinned = new List<short?> { 1, 2, 3, 4, 5, 6, 7 };
+                var list_postion_pinned = new List<short?> { 1, 2, 3};
 
                 try
                 {
@@ -450,18 +451,30 @@ namespace HuloToys_Service.DAL
                         
                         foreach (var item in list_article)
                         {
+                            
+                         
                             list_pinned.Add(item);
                             list_article2.Add(item);
                             if (list_pinned.Count == 3) break;
                         }
                         foreach (var item in list_article2)
                         {
+                            
                             list_article.Remove(item);
                         }
 
                     }
                     foreach (var pinned in list_pinned)
                     {
+                        if (list_postion_pinned.Contains(pinned.position))
+                        {
+                            list_postion_pinned.Remove(pinned.position);
+                        }
+                        else
+                        {
+                            if(list_postion_pinned.Count>0)
+                            pinned.position = list_postion_pinned[0];
+                        }
                         if (pinned.position != null && pinned.position > 0)
                         {
                             list_article.RemoveAll(x => x.title == pinned.title && x.lead == pinned.lead);
