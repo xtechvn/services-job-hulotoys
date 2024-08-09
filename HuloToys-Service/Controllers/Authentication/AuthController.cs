@@ -42,13 +42,14 @@ namespace HuloToys_Service.Controllers
                 {
                     return Ok(new
                     {
+                        status = (int)ResponseType.ERROR,
                         msg = "Thông tin đăng nhập không đúng. Xin vui lòng thử lại"
                     });
                 }
 
                 var accountClient = accountApiESService.GetByUsername(user.Username);
-                if (accountClient == null) { return Ok(new { msg = "Tài khoản " + user.Username + " không tồn tại" }); }
-                if (accountClient.status != (int)AccountClientStatusType.BINH_THUONG) { return Ok(new { msg = "Tài khoản đã khóa" }); }
+                if (accountClient == null) { return Ok(new { status = (int)ResponseType.ERROR, msg = "Tài khoản " + user.Username + " không tồn tại" }); }
+                if (accountClient.status != (int)AccountClientStatusType.BINH_THUONG) { return Ok(new { status = (int)ResponseType.ERROR, msg = "Tài khoản đã khóa" }); }
                 if (user.Username == accountClient.username && user.Password == accountClient.password)
                 {
                     var token = GenerateJwtToken(user.Username);
@@ -56,7 +57,7 @@ namespace HuloToys_Service.Controllers
                 }
                 else
                 {
-                    return Ok(new { msg = "Thông tin đăng nhập không hợp lệ" });
+                    return Ok(new { status = (int)ResponseType.ERROR, msg = "Thông tin đăng nhập không hợp lệ" });
                 }
 
             }
@@ -64,7 +65,7 @@ namespace HuloToys_Service.Controllers
             {
                 string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
-                return Ok(new { msg = "Thông tin đăng nhập không hợp lệ. Vui lòng liên hệ với Admin" });
+                return Ok(new { status = (int)ResponseType.ERROR, msg = "Thông tin đăng nhập không hợp lệ. Vui lòng liên hệ với Admin" });
             }
         }
 
