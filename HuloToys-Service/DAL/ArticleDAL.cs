@@ -449,6 +449,7 @@ namespace HuloToys_Service.DAL
                         foreach(var item in list_article)
                         {
                             list_pinned.Add(item);
+                            list_article.Remove(item);
                             if (list_pinned.Count == 3) break;
                         }
                     }
