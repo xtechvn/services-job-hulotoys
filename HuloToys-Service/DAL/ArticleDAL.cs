@@ -293,6 +293,10 @@ namespace HuloToys_Service.DAL
                         {
                             var groupProductName = string.Empty;
                             var DetailGroupProductById = groupProductESService.GetDetailGroupProductById(item);
+                            if (DetailGroupProductById.IsShowHeader==true)
+                            {
+                                groupProductName += DetailGroupProductById.Name + ",";
+                            }
                             var List_articleCategory = articleCategoryESService.GetByCategoryId(DetailGroupProductById.Id);
                             if (List_articleCategory != null && List_articleCategory.Count > 0)
                             {
@@ -308,7 +312,7 @@ namespace HuloToys_Service.DAL
                                             Image = detail_article.Image169 ?? detail_article.Image43 ?? detail_article.Image11,
                                             Title = detail_article.Title,
                                             publish_date = detail_article.PublishDate ?? DateTime.Now,
-                                            category_name = DetailGroupProductById.Name ?? "Tin tức"
+                                            category_name = groupProductName ?? "Tin tức"
                                         };
                                         list_article.Add(ArticleRelation);
                                     }
@@ -440,7 +444,14 @@ namespace HuloToys_Service.DAL
                     var result = new ArticleFEModelPagnition();
                     list_article = list_article.OrderByDescending(x => x.publish_date).GroupBy(gr => gr.id).Select(x => x.First()).ToList();
                     list_pinned = list_pinned.OrderByDescending(x => x.update_last).GroupBy(gr => gr.position).Select(x => x.First()).ToList();
-
+                    if(list_pinned==null|| list_pinned.Count < 3)
+                    {
+                        foreach(var item in list_article)
+                        {
+                            list_pinned.Add(item);
+                            if (list_pinned.Count == 3) break;
+                        }
+                    }
                     foreach (var pinned in list_pinned)
                     {
                         if (pinned.position != null && pinned.position > 0)
