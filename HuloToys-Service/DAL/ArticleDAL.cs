@@ -364,6 +364,7 @@ namespace HuloToys_Service.DAL
                 try
                 {
                     var list_article = new List<ArticleFeModel>();
+                    var list_article2 = new List<ArticleFeModel>();
                     var list_pinned = new List<ArticleFeModel>();
                     var data = articleCategoryESService.GetByCategoryId(cate_id);
                     if (data != null && data.Count > 0)
@@ -444,14 +445,20 @@ namespace HuloToys_Service.DAL
                     var result = new ArticleFEModelPagnition();
                     list_article = list_article.OrderByDescending(x => x.publish_date).GroupBy(gr => gr.id).Select(x => x.First()).ToList();
                     list_pinned = list_pinned.OrderByDescending(x => x.update_last).GroupBy(gr => gr.position).Select(x => x.First()).ToList();
-                    if(list_pinned==null|| list_pinned.Count < 3)
+                    if (list_pinned==null|| list_pinned.Count < 3)
                     {
-                        foreach(var item in list_article)
+                        
+                        foreach (var item in list_article)
                         {
                             list_pinned.Add(item);
-                            list_article.Remove(item);
+                            list_article2.Add(item);
                             if (list_pinned.Count == 3) break;
                         }
+                        foreach (var item in list_article2)
+                        {
+                            list_article.Remove(item);
+                        }
+
                     }
                     foreach (var pinned in list_pinned)
                     {
@@ -467,7 +474,7 @@ namespace HuloToys_Service.DAL
                     result.total_item_count = list_article.Count;
                     return result;
                 }
-                catch
+                catch(Exception ex)
                 {
                     return null;
                 }
