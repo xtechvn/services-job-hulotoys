@@ -474,6 +474,7 @@ namespace HuloToys_Service.DAL
                         {
                             if(list_postion_pinned.Count>0)
                             pinned.position = list_postion_pinned[0];
+                            list_postion_pinned.Remove(list_postion_pinned[0]);
                         }
                         if (pinned.position != null && pinned.position > 0)
                         {
