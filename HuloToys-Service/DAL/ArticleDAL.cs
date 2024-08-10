@@ -380,7 +380,7 @@ namespace HuloToys_Service.DAL
                                 foreach (var item2 in article_Category)
                                 {
                                     var groupProduct = groupProductESService.GetDetailGroupProductById((long)item2.CategoryId);
-                                    if (groupProduct != null && groupProduct.ParentId > 0)
+                                    if (groupProduct != null && groupProduct.ParentId > 0 && groupProductName.Contains(groupProduct.Name) == false)
                                         groupProductName += groupProduct.Name + ",";
                                 }
                             }
@@ -421,7 +421,7 @@ namespace HuloToys_Service.DAL
                                 foreach (var item2 in article_Category)
                                 {
                                     var groupProduct = groupProductESService.GetDetailGroupProductById((long)item2.CategoryId);
-                                    if (groupProduct != null && groupProduct.ParentId > 0)
+                                    if (groupProduct != null && groupProduct.ParentId > 0 && groupProductName.Contains(groupProduct.Name)==false)
                                         groupProductName += groupProduct.Name + ",";
                                 }
                             }
