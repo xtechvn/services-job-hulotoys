@@ -223,7 +223,7 @@ namespace HuloToys_Service.DAL
                 {
                     model.category_name = "Tin tức";
                 }
-                model.RelatedArticleIds = List_relatedArticleIds.Select(s => (long)s.ArticleRelatedId).ToList();
+                model.RelatedArticleIds = List_relatedArticleIds!= null? List_relatedArticleIds.Select(s => (long)s.ArticleRelatedId).ToList():null;
 
                 if (model.RelatedArticleIds != null && model.RelatedArticleIds.Count > 0)
                 {
