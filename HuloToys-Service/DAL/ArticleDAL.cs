@@ -386,7 +386,7 @@ namespace HuloToys_Service.DAL
                             }
 
                             var _article = articleESService.GetDetailById((long)item.ArticleId);
-                            if (_article != null)
+                            if (_article != null && _article.Status== ArticleStatus.PUBLISH)
                             {
                                 var model = new ArticleFeModel
                                 {
@@ -410,6 +410,7 @@ namespace HuloToys_Service.DAL
 
 
                     var article = articleESService.GetListArticlePosition();
+                    article = article.Where(S => S.Status == ArticleStatus.PUBLISH).ToList();
                     if (article != null && article.Count > 0)
                     {
                         foreach (var _article in article)

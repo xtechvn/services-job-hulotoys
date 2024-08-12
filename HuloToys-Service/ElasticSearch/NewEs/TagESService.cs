@@ -32,6 +32,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
 
                 var query = elasticClient.Search<TagESModel>(sd => sd
                                .Index(index)
+                               .Size(4000)
                                .Query(q => q.MatchAll()
                                ));
 
@@ -65,6 +66,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
 
                 var query = elasticClient.Search<TagESModel>(sd => sd
                                .Index(index)
+                               .Size(4000)
                                .Query(q => q.
                                         QueryString(m => m.Fields("tagname").Query(TagName.ToLower().Replace("#", "").ToString()))
                                ));
