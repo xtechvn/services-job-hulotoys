@@ -396,14 +396,14 @@ namespace HuloToys_Service.Controllers
                             var i = 0;
                             var data_100 = JsonConvert.DeserializeObject<ArticleFEModelPagnition>(j_data);
                             var data_pinned_1 = data_100.list_article_pinned.Where(s => s.position == 1).Skip(skip == 1 ? 0 : (skip - 1) * take).Take(take).ToList();
-                            if (data_pinned_1 != null)
+                            if (data_pinned_1 != null && data_pinned_1.Count > 0)
                             {
                                 data_pinned.AddRange(data_pinned_1);
                             }
                             else
                             {
                                 var data = data_100.list_article_fe.Skip(skip == 1 ? 0 : (skip - 1) * take).Take(take).ToList();
-                                if (data != null)
+                                if (data != null && data.Count > 0)
                                 {
                                     data[0].position = 1;
                                     data_pinned.Add(data[0]);
@@ -411,7 +411,7 @@ namespace HuloToys_Service.Controllers
                                 }
                             }
                             var data_pinned_2 = data_100.list_article_pinned.Where(s => s.position == 2).Skip(skip == 1 ? 0 : (skip - 1) * take).Take(take).ToList();
-                            if (data_pinned_2 != null)
+                            if (data_pinned_2 != null && data_pinned_2.Count > 0)
                             {
                                 data_pinned.AddRange(data_pinned_2);
 
@@ -419,7 +419,7 @@ namespace HuloToys_Service.Controllers
                             else
                             {
                                 var data = data_100.list_article_fe.Skip(skip == 1 ? 0 : (skip - 1) * (take + 1)).Take(take).ToList();
-                                if (data != null)
+                                if (data != null && data.Count > 0)
                                 {
                                     data[0].position = 2;
                                     data_pinned.Add(data[0]);
@@ -427,14 +427,14 @@ namespace HuloToys_Service.Controllers
                                 }
                             }
                             var data_pinned_3 = data_100.list_article_pinned.Where(s => s.position == 3).Skip(skip == 1 ? 0 : (skip - 1) * take).Take(take).ToList();
-                            if (data_pinned_3 != null)
+                            if (data_pinned_3 != null && data_pinned_3.Count > 0)
                             {
                                 data_pinned.AddRange(data_pinned_3);
                             }
                             else
                             {
                                 var data = data_100.list_article_fe.Skip(skip == 1 ? 0 : (skip - 1) * (take + 2)).Take(take).ToList();
-                                if (data != null)
+                                if (data != null && data.Count > 0)
                                 {
                                     data[0].position = 3;
                                     data_pinned.Add(data[0]);
