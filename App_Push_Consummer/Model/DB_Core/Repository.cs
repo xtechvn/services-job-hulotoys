@@ -60,7 +60,44 @@ namespace App_Push_Consummer.Model.DB_Core
                 return -1;
             }
         }
-        public static int saveAccountClient(AccountClientViewModel model)
+        public static int saveClient(AccountClientModel model)
+        {
+            try
+            {
+                SqlParameter[] objParam_order = new SqlParameter[20];
+                objParam_order[0] = new SqlParameter("@ClientMapId", DBNull.Value);
+                objParam_order[1] = new SqlParameter("@SaleMapId", DBNull.Value);
+                objParam_order[2] = new SqlParameter("@ClientType", model.ClientType);
+                objParam_order[3] = new SqlParameter("@ClientName", model.ClientName);
+                objParam_order[4] = new SqlParameter("@Email", model.Email);
+                objParam_order[5] = new SqlParameter("@Gender", DBNull.Value);
+                objParam_order[6] = new SqlParameter("@Status", model.Status);
+                objParam_order[7] = new SqlParameter("@Note", DBNull.Value);
+                objParam_order[8] = new SqlParameter("@Avartar", DBNull.Value);
+                objParam_order[9] = new SqlParameter("@JoinDate", DBNull.Value);
+                objParam_order[10] = new SqlParameter("@isReceiverInfoEmail", model.isReceiverInfoEmail);
+                objParam_order[11] = new SqlParameter("@Phone", model.Phone);
+                objParam_order[12] = new SqlParameter("@Birthday", DBNull.Value);
+                objParam_order[13] = new SqlParameter("@UpdateTime", DBNull.Value);
+                objParam_order[14] = new SqlParameter("@TaxNo", DBNull.Value);
+                objParam_order[15] = new SqlParameter("@AgencyType", 0);
+                objParam_order[16] = new SqlParameter("@PermisionType", 0);
+                objParam_order[17] = new SqlParameter("@BusinessAddress", DBNull.Value);
+                objParam_order[18] = new SqlParameter("@ExportBillAddress", DBNull.Value);
+                objParam_order[19] = new SqlParameter("@ClientCode", model.ClientCode);
+            
+
+
+                var id = DBWorker.ExecuteNonQuery("SP_InsertClient", objParam_order);
+                return id;
+            }
+            catch (Exception ex)
+            {
+                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "GetDataset =>saveAccountClient error queue = " + ex.ToString());
+                return -1;
+            }
+        }
+        public static int saveAccountClient(AccountClientModel model)
         {
             try
             {
@@ -69,7 +106,7 @@ namespace App_Push_Consummer.Model.DB_Core
                 objParam_order[1] = new SqlParameter("@ClientType", model.ClientType);
                 objParam_order[2] = new SqlParameter("@UserName", model.UserName);
                 objParam_order[3] = new SqlParameter("@Password", model.Password);
-                objParam_order[4] = new SqlParameter("@PasswordBackup", model.PasswordBackup);
+                objParam_order[4] = new SqlParameter("@PasswordBackup", model.Password);
                 objParam_order[5] = new SqlParameter("@ForgotPasswordToken", model.ForgotPasswordToken);
                 objParam_order[6] = new SqlParameter("@Status", model.Status);
                 objParam_order[7] = new SqlParameter("@GroupPermission", model.GroupPermission);
@@ -84,7 +121,7 @@ namespace App_Push_Consummer.Model.DB_Core
                 return -1;
             }
         }
-        public static int updateAccountClient(AccountClientViewModel model)
+        public static int updateAccountClient(AccountClientModel model)
         {
             try
             {

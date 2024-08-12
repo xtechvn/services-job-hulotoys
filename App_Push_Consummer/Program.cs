@@ -13,8 +13,9 @@ using System.Text;
 namespace App_Push_Consummer
 {
     /// <summary>
-    /// App: Xử lý các tiến trình cho đơn hàng của các loại dịch vụ ADAVIGO
-    /// </summary>
+    /// App: Xử lý các tiến trình được push về từ FRONT END.
+    /// /// </summary>
+    
     class Program
     {
         private static string queue_checkout_order = ConfigurationManager.AppSettings["queue_name"];
