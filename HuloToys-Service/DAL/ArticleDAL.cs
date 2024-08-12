@@ -371,6 +371,7 @@ namespace HuloToys_Service.DAL
                     if (data != null && data.Count > 0)
                     {
                         data = data.GroupBy(s => s.ArticleId).Select(s => s.First()).ToList();
+                        data = data.Where(s => s.CategoryId == cate_id).ToList();
                         foreach (var item in data)
                         {
                             var groupProductName = string.Empty;
