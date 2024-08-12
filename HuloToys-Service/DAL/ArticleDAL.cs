@@ -419,7 +419,7 @@ namespace HuloToys_Service.DAL
                             var article_Category = articleCategoryESService.GetByArticleId(_article.Id);
                             if (article_Category != null)
                             {
-                                foreach (var item2 in article_Category)
+                                foreach (var item2 in article_Category.Where(s=>s.CategoryId==cate_id).ToList())
                                 {
                                     var groupProduct = groupProductESService.GetDetailGroupProductById((long)item2.CategoryId);
                                     if (groupProduct != null && groupProduct.ParentId > 0 && groupProductName.Contains(groupProduct.Name)==false)
