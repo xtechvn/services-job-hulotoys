@@ -32,6 +32,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
 
                 var query = elasticClient.Search<ArticleRelatedESmodel>(sd => sd
                                .Index(index)
+                               .Size(4000)
                                .Query(q => q
                                    .Match(m => m.Field("articleid").Query(articleid.ToString())
                                )));

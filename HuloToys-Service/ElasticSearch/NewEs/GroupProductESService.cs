@@ -34,6 +34,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
 
                 var query = elasticClient.Search<GroupProductESModel>(sd => sd
                                .Index(index)
+                               .Size(4000)
                           .Query(q =>
                            q.Bool(
                                qb => qb.Must(

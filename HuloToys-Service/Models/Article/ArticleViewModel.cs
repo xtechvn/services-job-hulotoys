@@ -74,6 +74,7 @@
         public int article_type { get; set; }
         public short? position { get; set; }
         public int status { get; set; }
+        public string category_id { get; set; }
     }
     public class ArticleFEModelPagnition
     {

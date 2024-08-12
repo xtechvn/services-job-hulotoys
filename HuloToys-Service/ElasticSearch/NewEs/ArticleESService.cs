@@ -83,6 +83,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
 
                 var query = elasticClient.Search<ArticleESModel>(sd => sd
                                .Index(index)
+                               .Size(4000)
                                .Query(q => q.MatchAll()
                                ));
 
@@ -132,6 +133,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
 
                 var query = elasticClient.Search<ArticleESModel>(sd => sd
                                .Index(index)
+                               .Size(4000)
                                .Query(q => q
                                    .Range(m => m.Field("position").GreaterThanOrEquals(1).LessThanOrEquals(7)
                                )));

@@ -33,6 +33,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
 
                 var query = elasticClient.Search<ArticleCategoryESModel>(sd => sd
                                .Index(index)
+                               .Size(4000)
                                .Query(q => q
                                    .Match(m => m.Field("articleid").Query(id.ToString())
                                )));
@@ -70,6 +71,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
 
                 var query = elasticClient.Search<ArticleCategoryESModel>(sd => sd
                                .Index(index)
+                               .Size(4000)
                                .Query(q => q.MatchAll()
                                ));
 
@@ -106,6 +108,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
 
                 var query = elasticClient.Search<ArticleCategoryESModel>(sd => sd
                                .Index(index)
+                               .Size(4000)
                                .Query(q => q
                                    .Match(m => m.Field("categoryid").Query(CategoryId.ToString())
                                )));
