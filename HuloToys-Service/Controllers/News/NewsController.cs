@@ -126,7 +126,7 @@ namespace HuloToys_Service.Controllers
                     }
                     var detail = new ArticleFeModel();
 
-                    if (j_data != null&& j_data != "[]")
+                    if (j_data != null && j_data != "[]")
                     {
                         data_list = JsonConvert.DeserializeObject<List<ArticleFeModel>>(j_data);
                         msg = "Get From Cache Success";
@@ -170,7 +170,7 @@ namespace HuloToys_Service.Controllers
             catch (Exception ex)
             {
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "NewsController - GetMostViewedArticle: " + ex + " token = " + input.token);
-             
+
                 return Ok(new
                 {
                     status = (int)ResponseType.ERROR,
@@ -342,7 +342,7 @@ namespace HuloToys_Service.Controllers
                         }
                         else
                         {
-                            data_list = data_100.list_article_fe.Skip(skip == 1 ? 0 : (skip-1)* take).Take(take).ToList();
+                            data_list = data_100.list_article_fe.Skip(skip == 1 ? 0 : skip).Take(take).ToList();
                             total_count = data_100.total_item_count;
                             pinned_article = data_100.list_article_pinned;
                             total_page = Convert.ToInt32(total_count / take);
@@ -392,10 +392,59 @@ namespace HuloToys_Service.Controllers
                         }
                         else
                         {
+                            var data_pinned = new List<ArticleFeModel>();
+                            var i = 0;
                             var data_100 = JsonConvert.DeserializeObject<ArticleFEModelPagnition>(j_data);
-                            data_list = data_100.list_article_fe.Skip(skip==1? 0: (skip - 1) * take).Take(take).ToList();
+                            var data_pinned_1 = data_100.list_article_pinned.Where(s => s.position == 1).Skip(skip == 1 ? 0 : (skip - 1) * take).Take(take).ToList();
+                            if (data_pinned_1 != null)
+                            {
+                                data_pinned.AddRange(data_pinned_1);
+                            }
+                            else
+                            {
+                                var data = data_100.list_article_fe.Skip(skip == 1 ? 0 : (skip - 1) * take).Take(take).ToList();
+                                if (data != null)
+                                {
+                                    data[0].position = 1;
+                                    data_pinned.Add(data[0]);
+                                    i++;
+                                }
+                            }
+                            var data_pinned_2 = data_100.list_article_pinned.Where(s => s.position == 2).Skip(skip == 1 ? 0 : (skip - 1) * take).Take(take).ToList();
+                            if (data_pinned_2 != null)
+                            {
+                                data_pinned.AddRange(data_pinned_2);
+
+                            }
+                            else
+                            {
+                                var data = data_100.list_article_fe.Skip(skip == 1 ? 0 : (skip - 1) * (take + 1)).Take(take).ToList();
+                                if (data != null)
+                                {
+                                    data[0].position = 2;
+                                    data_pinned.Add(data[0]);
+                                    i++;
+                                }
+                            }
+                            var data_pinned_3 = data_100.list_article_pinned.Where(s => s.position == 3).Skip(skip == 1 ? 0 : (skip - 1) * take).Take(take).ToList();
+                            if (data_pinned_3 != null)
+                            {
+                                data_pinned.AddRange(data_pinned_3);
+                            }
+                            else
+                            {
+                                var data = data_100.list_article_fe.Skip(skip == 1 ? 0 : (skip - 1) * (take + 2)).Take(take).ToList();
+                                if (data != null)
+                                {
+                                    data[0].position = 3;
+                                    data_pinned.Add(data[0]);
+                                    i++;
+                                }
+                            }
+
+                            data_list = data_100.list_article_fe.Skip(skip == 1 ? 0 : (skip - 1) * (take + i)).Take(take).ToList();
                             total_count = data_100.total_item_count;
-                            pinned_article = data_100.list_article_pinned;
+                            pinned_article = data_pinned;
                             total_page = Convert.ToInt32(total_count / take);
                             if (total_page < ((float)total_count / take))
                             {
@@ -450,10 +499,10 @@ namespace HuloToys_Service.Controllers
                 //string j_param = "{'confirm':1}";
                 //token = CommonHelper.Encode(j_param, configuration["DataBaseConfig:key_api:b2c"]);
                 JArray objParr = null;
-                if (input!= null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
                     int _category_id = Convert.ToInt32(objParr[0]["category_id"]);
-                    string cache_name = CacheType.ARTICLE_CATEGORY_MENU+"_"+ _category_id;
+                    string cache_name = CacheType.ARTICLE_CATEGORY_MENU + "_" + _category_id;
                     string j_data = null;
                     try
                     {
@@ -461,7 +510,7 @@ namespace HuloToys_Service.Controllers
                     }
                     catch (Exception ex)
                     {
-             
+
                         LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "NewsController - GetMostViewedArticle: " + ex + "\n Token: " + input.token);
                     }
                     List<ArticleGroupViewModel> group_product = null;
@@ -639,12 +688,12 @@ namespace HuloToys_Service.Controllers
             }
             catch (Exception ex)
             {
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "NewsController - get-list-by-categoryid-order.json: " + ex );
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "NewsController - get-list-by-categoryid-order.json: " + ex);
                 return Ok(new
                 {
                     status = (int)ResponseType.ERROR,
                     msg = "Error on Excution.",
-                    _token =input.token
+                    _token = input.token
                 });
             }
         }
