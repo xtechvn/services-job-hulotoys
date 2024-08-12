@@ -342,7 +342,7 @@ namespace HuloToys_Service.Controllers
                         }
                         else
                         {
-                            data_list = data_100.list_article_fe.Skip(skip == 1 ? 0 : skip).Take(take).ToList();
+                            data_list = data_100.list_article_fe.Skip(skip == 1 ? 0 : (skip-1)* take).Take(take).ToList();
                             total_count = data_100.total_item_count;
                             pinned_article = data_100.list_article_pinned;
                             total_page = Convert.ToInt32(total_count / take);
@@ -393,7 +393,7 @@ namespace HuloToys_Service.Controllers
                         else
                         {
                             var data_100 = JsonConvert.DeserializeObject<ArticleFEModelPagnition>(j_data);
-                            data_list = data_100.list_article_fe.Skip(skip==1? 0: skip).Take(take).ToList();
+                            data_list = data_100.list_article_fe.Skip(skip==1? 0: (skip - 1) * take).Take(take).ToList();
                             total_count = data_100.total_item_count;
                             pinned_article = data_100.list_article_pinned;
                             total_page = Convert.ToInt32(total_count / take);
