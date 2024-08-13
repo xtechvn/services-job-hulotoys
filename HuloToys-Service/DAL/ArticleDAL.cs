@@ -379,6 +379,7 @@ namespace HuloToys_Service.DAL
                             var article_Category = articleCategoryESService.GetByArticleId((long)item.ArticleId);
                             if (article_Category != null)
                             {
+                                article_Category = article_Category.GroupBy(s => s.CategoryId).Select(s => s.First()).ToList();
                                 foreach (var item2 in article_Category)
                                 {
                                     var groupProduct = groupProductESService.GetDetailGroupProductById((long)item2.CategoryId);
