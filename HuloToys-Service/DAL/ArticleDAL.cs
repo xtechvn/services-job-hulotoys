@@ -451,8 +451,7 @@ namespace HuloToys_Service.DAL
                                 article_type = _article.ArticleType,
                                 update_last = (DateTime)_article.ModifiedOn,
                                 category_id = groupProductId,
-                            };
-                            if(groupProductId.Contains((char)cate_id))
+                            };                      
                             list_pinned.Add(model);
                         }
                     }
