@@ -1,5 +1,6 @@
 ﻿using Entities.ViewModels.Products;
 using HuloToys_Front_End.Models.Products;
+using HuloToys_Service.RedisWorker;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.APIRequest;
@@ -20,12 +21,14 @@ namespace WEB.CMS.Controllers
     {
         private readonly ProductDetailMongoAccess _productDetailMongoAccess;
         private readonly IConfiguration _configuration;
+        private readonly RedisConn _redisService;
 
-        public ProductController(IConfiguration configuration)
+        public ProductController(IConfiguration configuration, RedisConn redisService)
         {
             _productDetailMongoAccess = new ProductDetailMongoAccess(configuration);
             _configuration=configuration;
-
+            _redisService = new RedisConn(configuration);
+            _redisService.Connect();
         }
        
         [HttpPost("get-list")]
@@ -45,13 +48,33 @@ namespace WEB.CMS.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
+                    var cache_name = CacheType.PRODUCT_LISTING + (request.keyword ?? "") + request.group_id + request.page_index + request.page_size;
+                    var j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
+                    if (j_data != null && j_data.Trim()!="")
+                    {
+                        ProductListResponseModel result = JsonConvert.DeserializeObject<ProductListResponseModel>(j_data);
+                        if(result!=null && result.items != null)
+                        {
+                            return Ok(new
+                            {
+                                status = (int)ResponseType.SUCCESS,
+                                msg = ResponseMessages.Success,
+                                data = result
+                            });
+                        }
+                    }
                     if (request.page_size <= 0) request.page_size = 10;
                     if (request.page_index < 1) request.page_index = 1;
+                    var data = await _productDetailMongoAccess.Listing(request.keyword, request.group_id, request.page_index, request.page_size);
+                    if (data != null && data.items != null)
+                    {
+                        _redisService.Set(cache_name,JsonConvert.SerializeObject(data), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
+                    }
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
                         msg = ResponseMessages.Success,
-                        data = await _productDetailMongoAccess.Listing(request.keyword, request.group_id, request.page_index, request.page_size)
+                        data = data
                     });
                 }
                   
@@ -64,7 +87,7 @@ namespace WEB.CMS.Controllers
             return Ok(new
             {
                 status = (int)ResponseType.FAILED,
-                msg = "Failed",
+                msg = ResponseMessages.DataInvalid,
             });
         }
         [HttpPost("get-list-sub")]
@@ -84,12 +107,31 @@ namespace WEB.CMS.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                   
+                    var cache_name = CacheType.PRODUCT_SUB_LISTING +  request.id;
+                    var j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
+                    if (j_data != null && j_data.Trim() != "")
+                    {
+                        ProductListResponseModel result = JsonConvert.DeserializeObject<ProductListResponseModel>(j_data);
+                        if (result != null && result.items != null)
+                        {
+                            return Ok(new
+                            {
+                                status = (int)ResponseType.SUCCESS,
+                                msg = ResponseMessages.Success,
+                                data = result
+                            });
+                        }
+                    }
+                    var data = await _productDetailMongoAccess.SubListing(new List<string>() { request.id });
+                    if (data != null && data.items != null)
+                    {
+                        _redisService.Set(cache_name, JsonConvert.SerializeObject(data), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
+                    }
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
                         msg = "Success",
-                        data = await _productDetailMongoAccess.SubListing(new List<string>() { request.id })
+                        data = data
                     });
 
                 }
@@ -122,11 +164,31 @@ namespace WEB.CMS.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
+                    var cache_name = CacheType.PRODUCT_SUB_LISTING + request.id;
+                    var j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
+                    if (j_data != null && j_data.Trim() != "")
+                    {
+                        ProductMongoDbModel result = JsonConvert.DeserializeObject<ProductMongoDbModel>(j_data);
+                        if (result != null )
+                        {
+                            return Ok(new
+                            {
+                                status = (int)ResponseType.SUCCESS,
+                                msg = ResponseMessages.Success,
+                                data = result
+                            });
+                        }
+                    }
+                    var data = await _productDetailMongoAccess.GetByID(request.id);
+                    if (data != null)
+                    {
+                        _redisService.Set(cache_name, JsonConvert.SerializeObject(data), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
+                    }
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
                         msg = "Success",
-                        data = await _productDetailMongoAccess.GetByID(request.id)
+                        data = data
                     });
 
                 }
