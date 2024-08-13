@@ -382,7 +382,7 @@ namespace HuloToys_Service.DAL
                                 foreach (var item2 in article_Category)
                                 {
                                     var groupProduct = groupProductESService.GetDetailGroupProductById((long)item2.CategoryId);
-                                    if (groupProduct != null && groupProduct.ParentId > 0 && groupProductName.Contains(groupProduct.Name) == false)
+                                    if (groupProduct != null && groupProduct.ParentId > 0)
                                     {
                                         groupProductName += groupProduct.Name + ",";
                                         groupProductId += groupProduct.Id + ",";
@@ -426,12 +426,17 @@ namespace HuloToys_Service.DAL
                             var article_Category = articleCategoryESService.GetByArticleId(_article.Id);
                             if (article_Category != null)
                             {
+                                article_Category = article_Category.GroupBy(s => s.CategoryId).Select(s => s.First()).ToList();
                                 foreach (var item2 in article_Category)
                                 {
                                     var groupProduct = groupProductESService.GetDetailGroupProductById((long)item2.CategoryId);
-                                    if (groupProduct != null && groupProduct.ParentId > 0 && groupProductName.Contains(groupProduct.Name) == false)
+                                    if (groupProduct != null && groupProduct.ParentId > 0 )
                                     {
                                         groupProductName += groupProduct.Name + ",";
+                                        groupProductId += groupProduct.Id + ",";
+                                    }
+                                    else
+                                    {
                                         groupProductId += groupProduct.Id + ",";
                                     }
                                         
@@ -451,7 +456,8 @@ namespace HuloToys_Service.DAL
                                 article_type = _article.ArticleType,
                                 update_last = (DateTime)_article.ModifiedOn,
                                 category_id = groupProductId,
-                            };                      
+                            };
+                            if(groupProductId.Contains(cate_id.ToString()))
                             list_pinned.Add(model);
                         }
                     }
