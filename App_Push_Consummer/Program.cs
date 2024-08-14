@@ -1,7 +1,9 @@
 ﻿using App_Push_Consummer.Behaviors;
 using App_Push_Consummer.Common;
 using App_Push_Consummer.Engines;
+using App_Push_Consummer.Engines.AccountClient;
 using App_Push_Consummer.Engines.Address;
+using App_Push_Consummer.Engines.Comments;
 using App_Push_Consummer.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -48,7 +50,7 @@ namespace App_Push_Consummer
                     try
                     {
                         channel.QueueDeclare(queue: queue_checkout_order,
-                                             durable: true,
+                                             durable: false,
                                              exclusive: false,
                                              autoDelete: false,
                                              arguments: null);
@@ -69,6 +71,8 @@ namespace App_Push_Consummer
                                 var serviceProvider = new ServiceCollection();
                                 serviceProvider.AddSingleton<IAddressBusiness, AddressBusiness>();                                
                                 serviceProvider.AddSingleton<IFactory, Factory>();
+                                serviceProvider.AddSingleton<IAccountClientBusiness, AccountClientBusiness>();
+                                serviceProvider.AddSingleton<ICommentsBusiness, CommentsBusiness>();
                                 var Service_Provider = serviceProvider.BuildServiceProvider();
 
                                 var factory = Service_Provider.GetService<IFactory>();

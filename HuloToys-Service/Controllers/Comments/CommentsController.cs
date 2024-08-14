@@ -46,14 +46,14 @@ namespace HuloToys_Service.Controllers.Comments
                         username = configuration["Queue:Username"],
                         password = configuration["Queue:Password"]
                     };
-                    var address_model = JsonConvert.SerializeObject(request);
-                    if (address_model != null)
+                    var comment_model = JsonConvert.SerializeObject(request);
+                    if (comment_model != null)
                     {
 
-                        var j_param = new Dictionary<string, object>
+                        var j_param = new Dictionary<string, string>
                     {
-                        {"data_push", JsonConvert.SerializeObject(address_model)}, // có thể là json
-                        {"type",QueueType.ADDRESS_COMMENT}
+                        {"data_push", comment_model}, // có thể là json
+                        {"type",QueueType.ADDRESS_COMMENT.ToString()}
                     };
                         var _data_push = JsonConvert.SerializeObject(j_param);
 

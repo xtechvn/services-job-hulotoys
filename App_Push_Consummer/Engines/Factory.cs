@@ -21,10 +21,11 @@ namespace App_Push_Consummer.Engines
         private readonly IAccountClientBusiness accountclient_business;
         private readonly ICommentsBusiness comments_business;
 
-        public Factory(IAddressBusiness _address_business, IAccountClientBusiness _accountclient_business)
+        public Factory(IAddressBusiness _address_business, IAccountClientBusiness _accountclient_business, ICommentsBusiness _comments_business)
         {
             address_business = _address_business;
             accountclient_business = _accountclient_business;
+            comments_business = _comments_business;
         }
 
         public async void DoSomeRealWork(string data_queue)
@@ -32,11 +33,11 @@ namespace App_Push_Consummer.Engines
             try
             {
                 var queue_info = JsonConvert.DeserializeObject<QueueModel>(data_queue);
-                switch (queue_info.queue_type)
+                switch (queue_info.type)
                 {
                     case QueueType.ADD_ADDRESS:
                         {
-                            var address_model = JsonConvert.DeserializeObject<AddressModel>(queue_info.data_receiver);
+                            var address_model = JsonConvert.DeserializeObject<AddressModel>(queue_info.data_push);
                             var address_id = await address_business.saveAddressClient(address_model);
                             if (address_id < 0)
                             {
@@ -46,7 +47,7 @@ namespace App_Push_Consummer.Engines
                         }
                     case QueueType.UPDATE_ADDRESS:
                         {
-                            var address_model = JsonConvert.DeserializeObject<AddressModel>(queue_info.data_receiver);
+                            var address_model = JsonConvert.DeserializeObject<AddressModel>(queue_info.data_push);
                             var address_id = await address_business.updateAddressClient(address_model);
                             if (address_id < 0)
                             {
@@ -56,7 +57,7 @@ namespace App_Push_Consummer.Engines
                         }
                     case QueueType.ADD_USER:
                         {
-                            var accountclient_model = JsonConvert.DeserializeObject<AccountClientModel>(queue_info.data_receiver);
+                            var accountclient_model = JsonConvert.DeserializeObject<AccountClientModel>(queue_info.data_push);
                             var address_id = await accountclient_business.saveAccountClient(accountclient_model);
                             if (address_id < 0)
                             {
@@ -66,7 +67,7 @@ namespace App_Push_Consummer.Engines
                         }
                     case QueueType.UPDATE_USER:
                         {
-                            var accountclient_model = JsonConvert.DeserializeObject<AccountClientModel>(queue_info.data_receiver);
+                            var accountclient_model = JsonConvert.DeserializeObject<AccountClientModel>(queue_info.data_push);
                             var address_id = await accountclient_business.updateAccountClient(accountclient_model);
                             if (address_id < 0)
                             {
@@ -76,7 +77,7 @@ namespace App_Push_Consummer.Engines
                         }
                     case QueueType.ADDRESS_COMMENT:
                         {
-                            var comments_model = JsonConvert.DeserializeObject<CommentsModel>(queue_info.data_receiver);
+                            var comments_model = JsonConvert.DeserializeObject<CommentsModel>(queue_info.data_push.Replace('/',' '));
                             var comments_id = await comments_business.saveComments(comments_model);
                             if (comments_id < 0)
                             {
