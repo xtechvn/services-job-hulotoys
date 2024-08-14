@@ -1,6 +1,6 @@
-﻿using DAL;
-using Entities.ConfigModels;
+﻿using Entities.ConfigModels;
 using Entities.Models;
+using HuloToys_Service.ElasticSearch.DAL;
 using Microsoft.Extensions.Options;
 using Repositories.IRepositories;
 using System;

@@ -1,5 +1,5 @@
 ﻿using Entities.ConfigModels;
-using HuloToys_Service.DAL;
+using HuloToys_Service.ElasticSearch.DAL;
 using HuloToys_Service.Models.Article;
 using HuloToys_Service.Repro.IRepository;
 using HuloToys_Service.Utilities.Lib;

@@ -9,8 +9,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Utilities;
 
-namespace DAL.MongoDB
-{ 
+namespace HuloToys_Service.Models.MongoDb
+{
     public class NewsMongoService
     {
         private IMongoCollection<NewsViewCount> newsmongoCollection;
@@ -21,7 +21,7 @@ namespace DAL.MongoDB
             string url = "mongodb://" + _Configuration["MongoServer:user"] + ":" + _Configuration["MongoServer:pwd"] + "@" + _Configuration["MongoServer:Host"] + ":" + _Configuration["MongoServer:Port"] + "/" + _Configuration["MongoServer:catalog_core"];
             var client = new MongoClient(url);
             IMongoDatabase db = client.GetDatabase(_Configuration["MongoServer:catalog_core"]);
-            this.newsmongoCollection = db.GetCollection<NewsViewCount>("ArticlePageView");
+            newsmongoCollection = db.GetCollection<NewsViewCount>("ArticlePageView");
 
         }
         public async Task<string> AddNewOrReplace(NewsViewCount model)
@@ -30,9 +30,9 @@ namespace DAL.MongoDB
             {
                 var filter = Builders<NewsViewCount>.Filter;
                 var filterDefinition = filter.Empty;
-                filterDefinition &= Builders<NewsViewCount>.Filter.Eq(x => x.articleID,model.articleID); 
+                filterDefinition &= Builders<NewsViewCount>.Filter.Eq(x => x.articleID, model.articleID);
                 var exists_model = await newsmongoCollection.Find(filterDefinition).FirstOrDefaultAsync();
-                if(exists_model!=null && exists_model.articleID == model.articleID)
+                if (exists_model != null && exists_model.articleID == model.articleID)
                 {
                     exists_model.pageview = exists_model.pageview + model.pageview;
                     await newsmongoCollection.FindOneAndReplaceAsync(filterDefinition, exists_model);
@@ -58,7 +58,7 @@ namespace DAL.MongoDB
                 var filter = Builders<NewsViewCount>.Filter;
                 var filterDefinition = filter.Empty;
                 var list = await newsmongoCollection.Find(filterDefinition).SortByDescending(x => x.pageview).ToListAsync();
-                if(list!=null && list.Count > 0)
+                if (list != null && list.Count > 0)
                 {
                     if (list.Count < 10) return list;
                     else return list.Skip(0).Take(10).ToList();
@@ -71,6 +71,6 @@ namespace DAL.MongoDB
             }
             return null;
         }
-        
+
     }
 }

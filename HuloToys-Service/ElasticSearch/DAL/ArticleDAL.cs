@@ -1,21 +1,12 @@
-﻿using DAL.Generic;
-using DAL.StoreProcedure;
-using HuloToys_Service.DAL.StoreProcedure;
-using HuloToys_Service.ElasticSearch.NewEs;
+﻿using HuloToys_Service.ElasticSearch.NewEs;
 using HuloToys_Service.Models.Article;
-using HuloToys_Service.Models.Entities;
 using HuloToys_Service.Utilities.Lib;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using Nest;
 using System.Data;
-using System.Globalization;
-using System.Linq;
 using Utilities.Contants;
 
-namespace HuloToys_Service.DAL
+namespace HuloToys_Service.ElasticSearch.DAL
 {
-    public class ArticleDAL : GenericService<Article>
+    public class ArticleDAL
     {
 
         public IConfiguration configuration;
@@ -25,7 +16,7 @@ namespace HuloToys_Service.DAL
         public ArticleCategoryESService articleCategoryESService;
         public ArticleRelatedESService articleRelatedESService;
         public GroupProductESService groupProductESService;
-        public ArticleDAL(string connection, IConfiguration _configuration) : base(connection)
+        public ArticleDAL(string connection, IConfiguration _configuration)
         {
 
             configuration = _configuration;
@@ -223,7 +214,7 @@ namespace HuloToys_Service.DAL
                 {
                     model.category_name = "Tin tức";
                 }
-                model.RelatedArticleIds = List_relatedArticleIds!= null? List_relatedArticleIds.Select(s => (long)s.ArticleRelatedId).ToList():null;
+                model.RelatedArticleIds = List_relatedArticleIds != null ? List_relatedArticleIds.Select(s => (long)s.ArticleRelatedId).ToList() : null;
 
                 if (model.RelatedArticleIds != null && model.RelatedArticleIds.Count > 0)
                 {
@@ -386,12 +377,12 @@ namespace HuloToys_Service.DAL
                                     {
                                         groupProductName += groupProduct.Name + ",";
                                         groupProductId += groupProduct.Id + ",";
-                                    }    
+                                    }
                                 }
                             }
 
                             var _article = articleESService.GetDetailById((long)item.ArticleId);
-                            if (_article != null && _article.Status== ArticleStatus.PUBLISH)
+                            if (_article != null && _article.Status == ArticleStatus.PUBLISH)
                             {
                                 var model = new ArticleFeModel
                                 {
@@ -406,9 +397,9 @@ namespace HuloToys_Service.DAL
                                     article_type = _article.ArticleType,
                                     update_last = (DateTime)_article.ModifiedOn,
                                     position = _article.Position,
-                                    category_id= groupProductId,
+                                    category_id = groupProductId,
                                 };
-                                    list_article.Add(model);
+                                list_article.Add(model);
                             }
 
                         }
@@ -434,7 +425,7 @@ namespace HuloToys_Service.DAL
                                         groupProductName += groupProduct.Name + ",";
                                         groupProductId += groupProduct.Id + ",";
                                     }
-                                        
+
                                 }
                             }
                             var model = new ArticleFeModel
@@ -452,15 +443,15 @@ namespace HuloToys_Service.DAL
                                 update_last = (DateTime)_article.ModifiedOn,
                                 category_id = groupProductId,
                             };
-                            if(groupProductId.Contains((char)cate_id))
-                            list_pinned.Add(model);
+                            if (groupProductId.Contains((char)cate_id))
+                                list_pinned.Add(model);
                         }
                     }
 
                     var result = new ArticleFEModelPagnition();
                     list_article = list_article.OrderByDescending(x => x.publish_date).GroupBy(gr => gr.id).Select(x => x.First()).ToList();
                     list_pinned = list_pinned.OrderByDescending(x => x.update_last).GroupBy(gr => gr.position).Select(x => x.First()).ToList();
-                   
+
                     foreach (var pinned in list_pinned)
                     {
 
@@ -499,7 +490,7 @@ namespace HuloToys_Service.DAL
                         }
                     }
 
-                   
+
                     result.list_article_fe = list_article.Skip(skip).Take(take).ToList();
                     result.list_article_pinned = list_pinned;
                     result.total_item_count = list_article.Count;

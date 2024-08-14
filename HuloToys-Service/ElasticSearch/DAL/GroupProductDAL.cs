@@ -6,7 +6,7 @@ using HuloToys_Service.Models.Entities;
 using HuloToys_Service.Utilities.Lib;
 using Utilities.Contants;
 
-namespace HuloToys_Service.DAL
+namespace HuloToys_Service.ElasticSearch.DAL
 {
     public class GroupProductDAL : GenericService<GroupProduct>
     {
@@ -38,7 +38,7 @@ namespace HuloToys_Service.DAL
             {
                 var data = groupProductESService.GetDetailGroupProductById(id);
                 return data;
-               
+
             }
             catch (Exception ex)
             {

@@ -7,7 +7,7 @@ using HuloToys_Service.Utilities.Lib;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
-namespace HuloToys_Service.DAL
+namespace HuloToys_Service.ElasticSearch.DAL
 {
     public class TagDAL : GenericService<Tag>
     {
@@ -26,18 +26,18 @@ namespace HuloToys_Service.DAL
             try
             {
                 var list_name = new List<string>();
-               if(tag_id_list!= null && tag_id_list.Count > 0)
+                if (tag_id_list != null && tag_id_list.Count > 0)
                 {
-                    foreach(var item in tag_id_list)
+                    foreach (var item in tag_id_list)
                     {
                         var tag = tagESService.GetListTagById(item);
-                        if(tag !=null) { list_name.Add(tag.TagName); }
+                        if (tag != null) { list_name.Add(tag.TagName); }
                     }
                 }
-                    return list_name;
-                
+                return list_name;
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
