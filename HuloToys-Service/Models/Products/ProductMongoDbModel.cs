@@ -1,12 +1,8 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using HuloToys_Service.Models.Products;
 
-namespace Entities.ViewModels.Products.V2
+namespace Entities.ViewModels.Products
 {
     public class ProductMongoDbModel
     {
@@ -33,6 +29,8 @@ namespace Entities.ViewModels.Products.V2
         public int condition_of_product { get; set; }
         public string sku { get; set; }
         public string parent_product_id { get; set; }
+        public DateTime created_date { get; set; }
+        public DateTime updated_last { get; set; }
 
 
     }
