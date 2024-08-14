@@ -250,5 +250,62 @@ namespace App_Push_Consummer.Model.DB_Core
             }
             return _dataSet;
         }
+        public static DataTable GetDataTable(string procedureName, SqlParameter[] parameters = null)
+        {
+            DataTable _dataTable = new DataTable();
+            try
+            {
+                using (SqlConnection oConnection = new SqlConnection(connection))
+                {
+                    SqlCommand oCommand = new SqlCommand(procedureName, oConnection);
+                    oCommand.CommandType = CommandType.StoredProcedure;
+
+                    if (parameters != null)
+                    {
+                        oCommand.Parameters.AddRange(parameters);
+                    }
+
+                    SqlDataAdapter oAdapter = new SqlDataAdapter();
+                    oAdapter.SelectCommand = oCommand;
+                    oConnection.Open();
+
+                    using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                    {
+                        try
+                        {
+                            oAdapter.SelectCommand.Transaction = oTransaction;
+                            oAdapter.Fill(_dataTable);
+                            oTransaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            oTransaction.Rollback();
+                            string data_log = "";
+                            if (parameters != null && parameters.Length > 0)
+                            {
+                                data_log = string.Join(",", parameters.Select(x => x.ParameterName)) + ":" + string.Join(",", parameters.Select(x => x.Value == null ? "NULL" : x.Value.ToString()));
+
+                            }
+                            ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "SP Name: " + procedureName + "\n" + "Params: " + data_log + "\nGetDataTable - Transaction Rollback - DbWorker: " + ex);
+                            throw;
+                        }
+                        finally
+                        {
+                            if (oConnection.State == ConnectionState.Open)
+                            {
+                                oConnection.Close();
+                            }
+                            oConnection.Dispose();
+                            oAdapter.Dispose();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "GetDataTable - DbWorker: " + ex);
+            }
+            return _dataTable;
+        }
     }
 }
