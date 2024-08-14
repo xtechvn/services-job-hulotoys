@@ -427,15 +427,11 @@ namespace HuloToys_Service.ElasticSearch.DAL
                                         groupProductName += groupProduct.Name + ",";
                                         groupProductId += groupProduct.Id + ",";
                                     }
-<<<<<<< HEAD:HuloToys-Service/ElasticSearch/DAL/ArticleDAL.cs
-
-=======
                                     else
                                     {
                                         groupProductId += groupProduct.Id + ",";
                                     }
                                         
->>>>>>> a5c73cfe17a88cc6339e41d42c0126ffe230dc52:HuloToys-Service/DAL/ArticleDAL.cs
                                 }
                             }
                             var model = new ArticleFeModel
@@ -453,13 +449,10 @@ namespace HuloToys_Service.ElasticSearch.DAL
                                 update_last = (DateTime)_article.ModifiedOn,
                                 category_id = groupProductId,
                             };
-<<<<<<< HEAD:HuloToys-Service/ElasticSearch/DAL/ArticleDAL.cs
-                            if (groupProductId.Contains((char)cate_id))
-                                list_pinned.Add(model);
-=======
+
                             if(groupProductId.Contains(cate_id.ToString()))
                             list_pinned.Add(model);
->>>>>>> a5c73cfe17a88cc6339e41d42c0126ffe230dc52:HuloToys-Service/DAL/ArticleDAL.cs
+
                         }
                     }
 

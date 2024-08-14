@@ -1,19 +1,15 @@
-﻿using Caching.Elasticsearch;
-using DAL.Generic;
-using HuloToys_Service.DAL.StoreProcedure;
-using HuloToys_Service.ElasticSearch.NewEs;
-using HuloToys_Service.Models.Entities;
+﻿using HuloToys_Service.ElasticSearch.NewEs;
+using HuloToys_Service.Models.Products;
 using HuloToys_Service.Utilities.Lib;
-using Utilities.Contants;
 
 namespace HuloToys_Service.ElasticSearch.DAL
 {
-    public class GroupProductDAL : GenericService<GroupProduct>
+    public class GroupProductDAL 
     {
         public IConfiguration configuration;
         private readonly GroupProductESService groupProductESService;
 
-        public GroupProductDAL(string connection, IConfiguration _configuration) : base(connection)
+        public GroupProductDAL(string connection, IConfiguration _configuration) 
         {
             configuration = _configuration;
             groupProductESService = new GroupProductESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);

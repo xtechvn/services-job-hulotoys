@@ -1,22 +1,16 @@
-﻿using Amazon.SecurityToken.Model;
-using DAL.Generic;
-using DAL.StoreProcedure;
-using HuloToys_Service.DAL.StoreProcedure;
-using HuloToys_Service.ElasticSearch.NewEs;
+﻿using HuloToys_Service.ElasticSearch.NewEs;
 using HuloToys_Service.Utilities.Lib;
-using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 namespace HuloToys_Service.ElasticSearch.DAL
 {
-    public class TagDAL : GenericService<Tag>
+    public class TagDAL 
     {
-        private static DbWorker _DbWorker;
+      
         private readonly IConfiguration configuration;
         public TagESService tagESService;
-        public TagDAL(string connection, IConfiguration _configuration) : base(connection)
+        public TagDAL(string connection, IConfiguration _configuration) 
         {
-            _DbWorker = new DbWorker(connection, _configuration);
             configuration = _configuration;
             tagESService = new TagESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
         }
