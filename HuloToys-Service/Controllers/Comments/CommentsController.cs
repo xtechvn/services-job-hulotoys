@@ -26,7 +26,7 @@ namespace HuloToys_Service.Controllers.Comments
             configuration = _configuration;
             redisService = _redisService;
         }
-        [HttpGet("insert-comments")]
+        [HttpPost("insert-comments")]
         public async Task<IActionResult> insertComments(string token)
         {
             try
