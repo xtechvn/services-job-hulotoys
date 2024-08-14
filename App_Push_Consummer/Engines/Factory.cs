@@ -3,6 +3,7 @@ using App_Push_Consummer.Common;
 using App_Push_Consummer.Engines.Address;
 using App_Push_Consummer.Interfaces;
 using App_Push_Consummer.Model.Address;
+using App_Push_Consummer.Model.Comments;
 using App_Push_Consummer.Model.Queue;
 using HuloToys_Service.Models;
 using Newtonsoft.Json;
@@ -18,6 +19,7 @@ namespace App_Push_Consummer.Engines
 
         private readonly IAddressBusiness address_business;
         private readonly IAccountClientBusiness accountclient_business;
+        private readonly ICommentsBusiness comments_business;
 
         public Factory(IAddressBusiness _address_business, IAccountClientBusiness _accountclient_business)
         {
@@ -69,6 +71,16 @@ namespace App_Push_Consummer.Engines
                             if (address_id < 0)
                             {
                                 ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "Lưu thông tin xác nhận quên mật khẩu thất bại");
+                            }
+                            break;
+                        }
+                    case QueueType.ADDRESS_COMMENT:
+                        {
+                            var comments_model = JsonConvert.DeserializeObject<CommentsModel>(queue_info.data_receiver);
+                            var comments_id = await comments_business.saveComments(comments_model);
+                            if (comments_id < 0)
+                            {
+                                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "Lưu thông tin comment thất bại");
                             }
                             break;
                         }
