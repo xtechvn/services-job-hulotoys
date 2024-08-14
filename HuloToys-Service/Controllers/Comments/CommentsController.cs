@@ -6,6 +6,7 @@ using HuloToys_Service.Utilities.Lib;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Models.APIRequest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Reflection;
@@ -27,12 +28,12 @@ namespace HuloToys_Service.Controllers.Comments
             redisService = _redisService;
         }
         [HttpPost("insert-comments")]
-        public async Task<IActionResult> insertComments(string token)
+        public async Task<IActionResult> insertComments([FromBody] APIRequestGenericModel input)
         {
             try
             {
                 JArray objParr = null;
-                if (CommonHelper.GetParamWithKey(token, out objParr, configuration["KEY:private_key"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
                     var request = JsonConvert.DeserializeObject<CommentsModel>(objParr[0].ToString());
                     bool response_queue = false;
