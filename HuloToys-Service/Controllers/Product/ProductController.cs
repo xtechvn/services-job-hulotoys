@@ -66,7 +66,7 @@ namespace WEB.CMS.Controllers
                     if (request.page_size <= 0) request.page_size = 10;
                     if (request.page_index < 1) request.page_index = 1;
                     var data = await _productDetailMongoAccess.Listing(request.keyword, request.group_id, request.page_index, request.page_size);
-                    if (data != null && data.items != null)
+                    if (data != null && data.items != null && data.items.Count > 0)
                     {
                         _redisService.Set(cache_name,JsonConvert.SerializeObject(data), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
                     }
@@ -123,7 +123,7 @@ namespace WEB.CMS.Controllers
                         }
                     }
                     var data = await _productDetailMongoAccess.SubListing(new List<string>() { request.id });
-                    if (data != null && data.items != null)
+                    if (data != null && data.items != null && data.items.Count>0)
                     {
                         _redisService.Set(cache_name, JsonConvert.SerializeObject(data), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
                     }
