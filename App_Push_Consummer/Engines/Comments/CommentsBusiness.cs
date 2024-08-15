@@ -26,7 +26,7 @@ namespace App_Push_Consummer.Engines.Comments
                     ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "không tìm thấy client AccountClientId=" + data.AccountClientId.ToString());
                     return -1;
                 }
-                int response = Repository.saveComments(client.Id,data.Content);
+                int response = Repository.saveComments(client.ClientId, data.Content);
                 return response;
 
             }

@@ -8,7 +8,7 @@ namespace App_Push_Consummer.Model.Client
 {
     public class ClientModel
     {
-        public long Id { get; set; }
+        public long ClientId { get; set; }
         public int? ClientMapId { get; set; }
         public int? SaleMapId { get; set; }
         public int? ClientType { get; set; }
