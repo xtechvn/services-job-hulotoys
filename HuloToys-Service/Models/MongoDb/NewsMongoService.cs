@@ -1,13 +1,6 @@
 ﻿using ENTITIES.ViewModels.ArticleViewModels;
 using HuloToys_Service.Utilities.Lib;
-using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
-using Nest;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Utilities;
 
 namespace HuloToys_Service.Models.MongoDb
 {
@@ -18,9 +11,9 @@ namespace HuloToys_Service.Models.MongoDb
         public NewsMongoService(IConfiguration _Configuration)
         {
             Configuration = _Configuration;
-            string url = "mongodb://" + _Configuration["MongoServer:user"] + ":" + _Configuration["MongoServer:pwd"] + "@" + _Configuration["MongoServer:Host"] + ":" + _Configuration["MongoServer:Port"] + "/" + _Configuration["MongoServer:catalog_core"];
+            string url = "mongodb://" + _Configuration["DataBaseConfig:MongoServer:user"] + ":" + _Configuration["DataBaseConfig:MongoServer:pwd"] + "@" + _Configuration["DataBaseConfig:MongoServer:Host"] + ":" + _Configuration["DataBaseConfig:MongoServer:Port"] + "/" + _Configuration["DataBaseConfig:MongoServer:catalog_core"];
             var client = new MongoClient(url);
-            IMongoDatabase db = client.GetDatabase(_Configuration["MongoServer:catalog_core"]);
+            IMongoDatabase db = client.GetDatabase(_Configuration["DataBaseConfig:MongoServer:catalog_core"]);
             newsmongoCollection = db.GetCollection<NewsViewCount>("ArticlePageView");
 
         }
