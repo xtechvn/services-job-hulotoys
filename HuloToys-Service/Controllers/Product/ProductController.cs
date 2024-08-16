@@ -1,8 +1,10 @@
 ﻿using Entities.ViewModels.Products;
 using HuloToys_Front_End.Models.Products;
+using HuloToys_Service.ElasticSearch.NewEs;
 using HuloToys_Service.RedisWorker;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Models.APIRequest;
 using Nest;
 using Newtonsoft.Json;
@@ -22,11 +24,14 @@ namespace WEB.CMS.Controllers
         private readonly ProductDetailMongoAccess _productDetailMongoAccess;
         private readonly IConfiguration _configuration;
         private readonly RedisConn _redisService;
+        private readonly GroupProductESService groupProductESService;
 
         public ProductController(IConfiguration configuration, RedisConn redisService)
         {
             _productDetailMongoAccess = new ProductDetailMongoAccess(configuration);
-            _configuration=configuration;
+            groupProductESService = new GroupProductESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
+
+            _configuration = configuration;
             _redisService = new RedisConn(configuration);
             _redisService.Connect();
         }
@@ -202,6 +207,44 @@ namespace WEB.CMS.Controllers
             {
                 status = (int)ResponseType.FAILED,
                 msg = "Failed",
+            });
+        }
+        [HttpPost("group-product")]
+        public async Task<IActionResult> GroupProduct([FromBody] APIRequestGenericModel input)
+        {
+            try
+            {
+                JArray objParr = null;
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, _configuration["KEY:private_key"]))
+                {
+                    var request = JsonConvert.DeserializeObject<ProductListRequestModel>(objParr[0].ToString());
+                    if (request == null || request.group_id <=0)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    var data = groupProductESService.GetListGroupProductByParentId(request.group_id);
+                    return Ok(new
+                    {
+                        status = (int)ResponseType.SUCCESS,
+                        msg = ResponseMessages.Success,
+                        data = data
+                    });
+                }
+
+
+            }
+            catch
+            {
+
+            }
+            return Ok(new
+            {
+                status = (int)ResponseType.FAILED,
+                msg = ResponseMessages.DataInvalid,
             });
         }
     }
