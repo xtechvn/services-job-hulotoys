@@ -75,7 +75,7 @@ namespace App_Push_Consummer.Engines
                             }
                             break;
                         }
-                    case QueueType.ADDRESS_COMMENT:
+                    case QueueType.ADD_COMMENT:
                         {
                             var comments_model = JsonConvert.DeserializeObject<CommentsModel>(queue_info.data_push);
                             var comments_id = await comments_business.saveComments(comments_model);
