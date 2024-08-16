@@ -1,5 +1,6 @@
 ﻿using HuloToys_Service.ElasticSearch.NewEs;
 using HuloToys_Service.Models.Article;
+using HuloToys_Service.Models.Entities;
 using HuloToys_Service.Utilities.Lib;
 using System.Data;
 using Utilities.Contants;
@@ -142,7 +143,8 @@ namespace HuloToys_Service.ElasticSearch.DAL
                                 publish_date = (DateTime)_article.PublishDate,
                                 body = _article.Body
                             };
-                            list_article.Add(detail_model);
+                            if (_article.Status == ArticleStatus.PUBLISH)
+                                list_article.Add(detail_model);
                         }
                     }
                     list_article = list_article.Where(x => x.body != null && x.body.Trim() != "" && x.lead != null && x.lead.Trim() != "" && x.title != null && x.title.Trim() != "").ToList();
@@ -422,7 +424,7 @@ namespace HuloToys_Service.ElasticSearch.DAL
                                 foreach (var item2 in article_Category)
                                 {
                                     var groupProduct = groupProductESService.GetDetailGroupProductById((long)item2.CategoryId);
-                                    if (groupProduct != null && groupProduct.ParentId > 0 )
+                                    if (groupProduct != null && groupProduct.ParentId > 0)
                                     {
                                         groupProductName += groupProduct.Name + ",";
                                         groupProductId += groupProduct.Id + ",";
@@ -431,7 +433,7 @@ namespace HuloToys_Service.ElasticSearch.DAL
                                     {
                                         groupProductId += groupProduct.Id + ",";
                                     }
-                                        
+
                                 }
                             }
                             var model = new ArticleFeModel
@@ -450,8 +452,8 @@ namespace HuloToys_Service.ElasticSearch.DAL
                                 category_id = groupProductId,
                             };
 
-                            if(groupProductId.Contains(cate_id.ToString()))
-                            list_pinned.Add(model);
+                            if (groupProductId.Contains(cate_id.ToString()))
+                                list_pinned.Add(model);
 
                         }
                     }
