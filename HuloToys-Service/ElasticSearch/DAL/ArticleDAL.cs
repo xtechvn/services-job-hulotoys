@@ -131,7 +131,7 @@ namespace HuloToys_Service.ElasticSearch.DAL
                         foreach (var item in List_articleCategory)
                         {
                             var _article = articleESService.GetDetailById((long)item.ArticleId);
-                            if (_article == null) break;
+                            if (_article == null) continue;
                             var detail_model = new ArticleFeModel
                             {
                                 id = _article.Id,
