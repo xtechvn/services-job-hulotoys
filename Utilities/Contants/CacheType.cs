@@ -14,5 +14,8 @@
         public const string ARTICLE_CATEGORY_MENU = "ARTICLE_CATEGORY_MENU";
         public const string ARTICLE_FOOTER_MENU = "ARTICLE_FOOTER_MENU";
 
+        public const string PRODUCT_LISTING = "PRODUCT_LISTING_";
+        public const string PRODUCT_SUB_LISTING = "PRODUCT_SUB_LISTING_";
+
     }
 }

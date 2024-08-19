@@ -9,7 +9,7 @@ using HuloToys_Service.Models.Entities;
 
 namespace HuloToys_Service.ElasticSearch.LocationProduct
 {
-    public class LocationProductESService : ESRepository<Entities.Models.LocationProduct>
+    public class LocationProductESService : ESRepository<Models.LocationProduct.LocationProduct>
     {
         public string index = "location_product_hulotoys_store";
         private readonly IConfiguration configuration;
@@ -22,7 +22,7 @@ namespace HuloToys_Service.ElasticSearch.LocationProduct
             index = _configuration["DataBaseConfig:Elastic:Index:LocationProduct"];
         }
 
-        public List<Entities.Models.LocationProduct> GetListByGroupId(long groupproductid)
+        public List<Models.LocationProduct.LocationProduct> GetListByGroupId(long groupproductid)
         {
             try
             {
@@ -41,7 +41,7 @@ namespace HuloToys_Service.ElasticSearch.LocationProduct
                 {
                     var data = query.Documents as List<LocationProductESModel>;
 
-                    var result = data.Select(a => new Entities.Models.LocationProduct
+                    var result = data.Select(a => new Models.LocationProduct.LocationProduct
                     {
 
                         LocationProductId = a.locationproductid,

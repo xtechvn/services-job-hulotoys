@@ -2,6 +2,7 @@
 using HuloToys_Service.Elasticsearch;
 using HuloToys_Service.Models.ElasticSearch;
 using HuloToys_Service.Models.Entities;
+using HuloToys_Service.Models.Products;
 using HuloToys_Service.Utilities.Lib;
 using Nest;
 using System.Linq;
