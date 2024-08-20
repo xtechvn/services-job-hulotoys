@@ -21,8 +21,10 @@ namespace App_Push_Consummer.Engines.AccountClient
         {
             try
             {
-                int response = Repository.saveAccountClient(data);
                 int InsertClient = Repository.saveClient(data);
+                data.ClientId = InsertClient;
+                int response = Repository.saveAccountClient(data);
+              
                 return response;
 
             }
