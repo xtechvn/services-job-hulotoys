@@ -261,8 +261,8 @@ namespace HuloToys_Service.Controllers
                             };
                             var queue_model = new ClientConsumerQueueModel()
                             {
-                                data_receiver = JsonConvert.SerializeObject(model),
-                                queue_type = QueueType.UPDATE_USER
+                                data_push = JsonConvert.SerializeObject(model),
+                                type = QueueType.UPDATE_USER
                             };
                             bool result = workQueueClient.InsertQueueSimple(new Models.QueueSettingViewModel()
                             {
@@ -353,8 +353,8 @@ namespace HuloToys_Service.Controllers
                             };
                             var queue_model = new ClientConsumerQueueModel()
                             {
-                                data_receiver = JsonConvert.SerializeObject(model),
-                                queue_type = QueueType.UPDATE_USER
+                                data_push = JsonConvert.SerializeObject(model),
+                                type = QueueType.UPDATE_USER
                             };
                             bool result = workQueueClient.InsertQueueSimple(new Models.QueueSettingViewModel()
                             {
