@@ -169,6 +169,7 @@ namespace HuloToys_Service.Controllers
                         Id=-1,
                         isReceiverInfoEmail=request.is_receive_email==true?(byte)1: (byte)0,
                         Name=request.user_name.Trim(),
+                        ClientName=request.user_name.Trim(),
                         Password=request.password,
                         Phone=request.phone,
                         Status=0,
