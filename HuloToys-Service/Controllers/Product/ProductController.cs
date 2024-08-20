@@ -29,7 +29,7 @@ namespace WEB.CMS.Controllers
         public ProductController(IConfiguration configuration, RedisConn redisService)
         {
             _productDetailMongoAccess = new ProductDetailMongoAccess(configuration);
-            groupProductESService = new GroupProductESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
+            groupProductESService = new GroupProductESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
 
             _configuration = configuration;
             _redisService = new RedisConn(configuration);
@@ -95,63 +95,8 @@ namespace WEB.CMS.Controllers
                 msg = ResponseMessages.DataInvalid,
             });
         }
-        [HttpPost("get-list-sub")]
-        public async Task<IActionResult> ProductSubListing([FromBody] APIRequestGenericModel input)
-        {
-            try
-            {
-                JArray objParr = null;
-                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, _configuration["KEY:private_key"]))
-                {
-                    var request = JsonConvert.DeserializeObject<ProductDetailRequestModel>(objParr[0].ToString());
-                    if (request == null||request.id == null|| request.id.Trim()=="")
-                    {
-                        return Ok(new
-                        {
-                            status = (int)ResponseType.FAILED,
-                            msg = ResponseMessages.DataInvalid
-                        });
-                    }
-                    var cache_name = CacheType.PRODUCT_SUB_LISTING +  request.id;
-                    var j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
-                    if (j_data != null && j_data.Trim() != "")
-                    {
-                        ProductListResponseModel result = JsonConvert.DeserializeObject<ProductListResponseModel>(j_data);
-                        if (result != null && result.items != null)
-                        {
-                            return Ok(new
-                            {
-                                status = (int)ResponseType.SUCCESS,
-                                msg = ResponseMessages.Success,
-                                data = result
-                            });
-                        }
-                    }
-                    var data = await _productDetailMongoAccess.SubListing(new List<string>() { request.id });
-                    if (data != null && data.items != null && data.items.Count>0)
-                    {
-                        _redisService.Set(cache_name, JsonConvert.SerializeObject(data), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
-                    }
-                    return Ok(new
-                    {
-                        status = (int)ResponseType.SUCCESS,
-                        msg = "Success",
-                        data = data
-                    });
+      
 
-                }
-                   
-            }
-            catch
-            {
-
-            }
-            return Ok(new
-            {
-                status = (int)ResponseType.FAILED,
-                msg = "Failed",
-            });
-        }
         [HttpPost("detail")]
         public async Task<IActionResult> ProductDetail([FromBody] APIRequestGenericModel input)
         {

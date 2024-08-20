@@ -16,7 +16,7 @@ namespace WEB.CMS.Models.Product
             _configuration = configuration;
             string url = "mongodb://" + configuration["DataBaseConfig:MongoServer:Host"] + "";
             var client = new MongoClient("mongodb://" + configuration["DataBaseConfig:MongoServer:Host"] + "");
-            IMongoDatabase db = client.GetDatabase(configuration["DataBaseConfig:MongoServer:catalog"]);
+            IMongoDatabase db = client.GetDatabase(configuration["DataBaseConfig:MongoServer:catalog_core"]);
             _productDetailCollection = db.GetCollection<ProductMongoDbModel>("ProductDetail");
         }
         public async Task<string> AddNewAsync(ProductMongoDbModel model)
@@ -85,11 +85,10 @@ namespace WEB.CMS.Models.Product
             {
                 var filter = Builders<ProductMongoDbModel>.Filter;
                 var filterDefinition = filter.Empty;
-                filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.parent_product_id, "-1"); 
                 filterDefinition &= Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, keyword);
                 if (group_id > 0)
                 {
-                    filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.group_product_id, group_id);
+                    filterDefinition &= Builders<ProductMongoDbModel>.Filter.Regex(x => x.group_product_id, group_id.ToString());
                 }
                 var sort_filter = Builders<ProductMongoDbModel>.Sort;
                 var sort_filter_definition = sort_filter.Descending(x=>x.updated_last);
@@ -109,27 +108,7 @@ namespace WEB.CMS.Models.Product
                 return null;
             }
         }
-        public async Task<ProductListResponseModel> SubListing(List<string> ids)
-        {
-            try
-            {
-                var filter = Builders<ProductMongoDbModel>.Filter;
-                var filterDefinition = filter.Empty;
-                filterDefinition &= Builders<ProductMongoDbModel>.Filter.In(x => x.parent_product_id, ids);
-                var model = _productDetailCollection.Find(filterDefinition);
-                return new ProductListResponseModel()
-                {
-                    items = await model.ToListAsync(),
-                    count = 0
-                };
-            }
-            catch (Exception ex)
-            {
-
-                return null;
-            }
-        }
-
+       
 
     }
 }

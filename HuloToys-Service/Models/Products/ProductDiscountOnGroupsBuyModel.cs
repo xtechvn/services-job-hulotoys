@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HuloToys_Service.Models.Products
+namespace Entities.ViewModels.Products
 {
     public class ProductDiscountOnGroupsBuyModel
     {
