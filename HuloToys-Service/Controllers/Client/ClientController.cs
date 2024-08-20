@@ -177,8 +177,8 @@ namespace HuloToys_Service.Controllers
                     };
                     var queue_model = new ClientConsumerQueueModel()
                     {
-                        data_receiver = JsonConvert.SerializeObject(model),
-                        queue_type = QueueType.ADD_USER
+                        data_push = JsonConvert.SerializeObject(model),
+                        type = QueueType.ADD_USER
                     };
                     bool result= workQueueClient.InsertQueueSimple(new Models.QueueSettingViewModel()
                     {

@@ -8,8 +8,8 @@ namespace Models.Queue
 {
     public class ClientConsumerQueueModel
     {
-        public int queue_type { get; set; } // phân biệt các data nhận về lấy từ queue
-        public string data_receiver { get; set; }   // data queue từ nơi khác push về
+        public int type { get; set; } // phân biệt các data nhận về lấy từ queue
+        public string data_push { get; set; }   // data queue từ nơi khác push về
     }
     public class AccountClientViewModel
     {

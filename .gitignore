@@ -21,3 +21,5 @@
 .vs/HuloToys-Service/v17/.futdcache.v2
 .vs/HuloToys-Service/v17/.suo
 .vs/HuloToys-Service/DesignTimeBuild/.dtbcache.v2
+/.vs
+/App_Push_Consummer/Properties

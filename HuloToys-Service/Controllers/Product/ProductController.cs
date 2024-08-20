@@ -114,7 +114,7 @@ namespace WEB.CMS.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var cache_name = CacheType.PRODUCT_SUB_LISTING + request.id;
+                    var cache_name = CacheType.PRODUCT_DETAIL + request.id;
                     var j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
                     if (j_data != null && j_data.Trim() != "")
                     {
