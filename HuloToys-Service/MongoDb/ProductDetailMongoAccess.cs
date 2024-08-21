@@ -85,7 +85,11 @@ namespace WEB.CMS.Models.Product
             {
                 var filter = Builders<ProductMongoDbModel>.Filter;
                 var filterDefinition = filter.Empty;
-                filterDefinition &= Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, keyword);
+                if(keyword!=null && keyword.Trim() != "")
+                {
+                    filterDefinition &= Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, keyword);
+
+                }
                 if (group_id > 0)
                 {
                     filterDefinition &= Builders<ProductMongoDbModel>.Filter.Regex(x => x.group_product_id, group_id.ToString());

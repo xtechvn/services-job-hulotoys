@@ -36,6 +36,7 @@ namespace Entities.ViewModels.Products
         public List<ProductAttributeMongoDbModelItem> attributes_detail { get; set; }
         public List<ProductDiscountOnGroupsBuyModel> discount_group_buy { get; set; }
         public List<ProductDetailVariationMongoDbModel> variations { get; set; }
+        public ProductDetailVariationMongoDbModel selected_variation { get; set; }
 
         public int preorder_status { get; set; }
         public float star { get; set; }
