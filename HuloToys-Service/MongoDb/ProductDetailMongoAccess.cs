@@ -18,7 +18,7 @@ namespace HuloToys_Service.MongoDb
             _configuration = configuration;
             string url = "mongodb://" + configuration["DataBaseConfig:MongoServer:Host"] + "";
             var client = new MongoClient("mongodb://" + configuration["DataBaseConfig:MongoServer:Host"] + "");
-            IMongoDatabase db = client.GetDatabase(configuration["DataBaseConfig:MongoServer:catalog"]);
+            IMongoDatabase db = client.GetDatabase(configuration["DataBaseConfig:MongoServer:catalog_core"]);
             _productDetailCollection = db.GetCollection<ProductMongoDbModel>("ProductDetail");
         }
         public async Task<string> AddNewAsync(ProductMongoDbModel model)
@@ -140,6 +140,9 @@ namespace HuloToys_Service.MongoDb
                 {
                     filterDefinition &= Builders<ProductMongoDbModel>.Filter.Regex(x => x.group_product_id, group_id.ToString());
                 }
+                filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.parent_product_id, "");
+                filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.status, (int)ProductStatus.ACTIVE);
+
                 var sort_filter = Builders<ProductMongoDbModel>.Sort;
                 var sort_filter_definition = sort_filter.Descending(x => x.updated_last);
                 var model = _productDetailCollection.Find(filterDefinition);

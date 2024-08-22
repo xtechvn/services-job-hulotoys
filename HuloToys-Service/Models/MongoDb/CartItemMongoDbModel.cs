@@ -14,6 +14,8 @@ namespace Models.MongoDb
         }
         public long account_client_id { get; set; }
         public int quanity { get; set; }
+        public double total_amount { get; set; }
+        public DateTime created_date { get; set; }
         public ProductMongoDbModel product { get; set; }
     }
 }

@@ -23,12 +23,14 @@ namespace HuloToys_Service.Controllers
         private readonly IConfiguration _configuration;
         private readonly WorkQueueClient workQueueClient;
         private readonly CartMongodbService _cartMongodbService;
+        private readonly ProductDetailMongoAccess _productDetailMongoAccess;
         public CartController(IConfiguration configuration)
         {
             _configuration  = configuration;
 
             workQueueClient = new WorkQueueClient(configuration);
             _cartMongodbService = new CartMongodbService(configuration);
+            _productDetailMongoAccess = new ProductDetailMongoAccess(configuration);
         }
         [HttpPost("add")]
         public async Task<IActionResult> AddToCart([FromBody] APIRequestGenericModel input)
@@ -39,7 +41,7 @@ namespace HuloToys_Service.Controllers
                 if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, _configuration["KEY:private_key"]))
                 {
                     var request = JsonConvert.DeserializeObject<ProductAddToCartRequestModel>(objParr[0].ToString());
-                    if (request == null || request.product == null || request.product._id == null)
+                    if (request == null || request.product_id == null)
                     {
                         return Ok(new
                         {
@@ -47,22 +49,26 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var data = await _cartMongodbService.FindByProductId(request.product._id, request.account_client_id);
+                    var data = await _cartMongodbService.FindByProductId(request.product_id, request.account_client_id);
                     string id = "";
                     if (data == null || data.product == null)
                     {
+                        var product = await _productDetailMongoAccess.GetByID(request.product_id);
+
                         id = await _cartMongodbService.Insert(new CartItemMongoDbModel()
                         {
                             account_client_id = request.account_client_id,
-                            product = request.product,
+                            product = product,
                             quanity = request.quanity,
-
+                            total_amount=product.amount * request.quanity,
+                            created_date=DateTime.Now,
                         });
                     }
                     else
                     {
                         data.quanity += request.quanity;
-                        id = await _cartMongodbService.UpdateCartQuanity(data._id, data.quanity);
+                        data.created_date = DateTime.Now;
+                        id = await _cartMongodbService.UpdateCartQuanity(data);
                     }
                     return Ok(new
                     {

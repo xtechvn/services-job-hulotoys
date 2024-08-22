@@ -118,7 +118,7 @@ namespace WEB.CMS.Controllers
                     var j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
                     if (j_data != null && j_data.Trim() != "")
                     {
-                        ProductMongoDbModel result = JsonConvert.DeserializeObject<ProductMongoDbModel>(j_data);
+                        ProductDetailResponseModel result = JsonConvert.DeserializeObject<ProductDetailResponseModel>(j_data);
                         if (result != null)
                         {
                             return Ok(new
