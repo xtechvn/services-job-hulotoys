@@ -11,5 +11,6 @@ namespace App_Push_Consummer.Interfaces
     public interface ICommentsBusiness
     {
         Task<Int32> saveComments(CommentsModel data);
+        Task<Int32> saveReceiverInfoEmail(CommentsModel data);
     }
 }

@@ -10,5 +10,7 @@ namespace HuloToys_Service.Models.Address
     {
         public long AccountClientId { get; set; }
         public string Content { get; set; }
+        public string Email { get; set; }
+        public long Type_Queue { get; set; }
     }
 }

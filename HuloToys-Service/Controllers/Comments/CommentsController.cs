@@ -27,7 +27,7 @@ namespace HuloToys_Service.Controllers.Comments
             configuration = _configuration;
             redisService = _redisService;
         }
-        [HttpPost("insert-comments")]
+        [HttpPost("push-queue")]
         public async Task<IActionResult> insertComments([FromBody] APIRequestGenericModel input)
         {
             try
@@ -53,7 +53,7 @@ namespace HuloToys_Service.Controllers.Comments
                         var j_param = new Dictionary<string, string>
                     {
                         {"data_push", comment_model}, // có thể là json
-                        {"type",QueueType.ADD_COMMENT.ToString()}
+                        {"type",request.Type_Queue.ToString()}
                     };
                         var _data_push = JsonConvert.SerializeObject(j_param);
 

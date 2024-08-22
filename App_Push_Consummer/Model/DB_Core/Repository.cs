@@ -182,5 +182,23 @@ namespace App_Push_Consummer.Model.DB_Core
             }
             return null;
         }
+        public static int saveReceiverInfoEmail(long ClientId, string Email)
+        {
+            try
+            {
+                SqlParameter[] objParam_order = new SqlParameter[2];
+                objParam_order[0] = new SqlParameter("@ClientId", ClientId);
+                objParam_order[1] = new SqlParameter("@Email", Email);
+
+
+                var id = DBWorker.ExecuteNonQuery("sp_InsertReceivePromotions", objParam_order);
+                return id;
+            }
+            catch (Exception ex)
+            {
+                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "GetDataset =>saveComments error queue = " + ex.ToString());
+                return -1;
+            }
+        }
     }
 }
