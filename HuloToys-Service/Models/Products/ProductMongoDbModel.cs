@@ -17,7 +17,6 @@ namespace Entities.ViewModels.Products
             _id = ObjectId.GenerateNewId().ToString();
         }
         public string code { get; set; }
-        public int status { get; set; }
 
         public double price { get; set; }
         public double profit { get; set; }
@@ -31,12 +30,11 @@ namespace Entities.ViewModels.Products
         public string name { get; set; }
         public string group_product_id { get; set; }
         public string description { get; set; }
-        public List<ProductSpecificationMongoDbModel> specification { get; set; }
+        public List<ProductDetailVariationAttributesMongoDbModel> variation_detail { get; set; }
+        public List<ProductSpecificationDetailMongoDbModel> specification { get; set; }
         public List<ProductAttributeMongoDbModel> attributes { get; set; }
         public List<ProductAttributeMongoDbModelItem> attributes_detail { get; set; }
         public List<ProductDiscountOnGroupsBuyModel> discount_group_buy { get; set; }
-        public List<ProductDetailVariationMongoDbModel> variations { get; set; }
-        public ProductDetailVariationMongoDbModel selected_variation { get; set; }
 
         public int preorder_status { get; set; }
         public float star { get; set; }
@@ -45,6 +43,8 @@ namespace Entities.ViewModels.Products
         public DateTime created_date { get; set; }
         public DateTime updated_last { get; set; }
 
+        public string parent_product_id { get; set; }
+        public int status { get; set; }
 
     }
 }

@@ -1,9 +1,6 @@
-﻿using HuloToys_Service.ElasticSearch.NewEs;
-using HuloToys_Service.MongoDb;
-using HuloToys_Service.RedisWorker;
+﻿using HuloToys_Service.RedisWorker;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WEB.CMS.Models.Product;
 
 namespace HuloToys_Service.Controllers.Files
 {

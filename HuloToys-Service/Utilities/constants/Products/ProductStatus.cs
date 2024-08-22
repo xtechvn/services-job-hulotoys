@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace HuloToys_Service.Utilities.constants.Product
 {
-    public enum ProductAttributesAttributeId
+    public enum ProductStatus
     {
-       Color=1,
-       Size=2,
-
+        ACTIVE=1,
+        DEACTIVE=2
     }
 }

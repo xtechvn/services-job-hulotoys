@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Entities.ViewModels.Products
 {
-    public class ProductSpecificationMongoDbModel
+    public class ProductSpecificationDetailMongoDbModel
     {
         [BsonElement("_id")]
         public string _id { get; set; }
@@ -16,7 +16,9 @@ namespace Entities.ViewModels.Products
         {
             _id = ObjectId.GenerateNewId().ToString();
         }
-        public int attribute_type { get; set; }
-        public string attribute_name { get; set; }
+        public int attribute_id { get; set; }
+        public int value_type { get; set; }
+        public string value { get; set; }
+
     }
 }

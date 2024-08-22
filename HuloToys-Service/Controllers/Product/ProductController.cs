@@ -5,16 +5,11 @@ using HuloToys_Service.MongoDb;
 using HuloToys_Service.RedisWorker;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Models.APIRequest;
-using Models.MongoDb;
-using Nest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Drawing.Printing;
 using Utilities;
 using Utilities.Contants;
-using WEB.CMS.Models.Product;
 
 namespace WEB.CMS.Controllers
 {
@@ -74,8 +69,9 @@ namespace WEB.CMS.Controllers
                     }
                     if (request.page_size <= 0) request.page_size = 10;
                     if (request.page_index < 1) request.page_index = 1;
-                    var data = await _productDetailMongoAccess.Listing(request.keyword, request.group_id, request.page_index, request.page_size);
-                    if (data != null && data.items != null && data.items.Count > 0)
+                    var data = await _productDetailMongoAccess.ResponseListing(request.keyword, request.group_id, request.page_index, request.page_size);
+                   
+                    if (data != null  && data.items.Count > 0)
                     {
                         _redisService.Set(cache_name, JsonConvert.SerializeObject(data), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
                     }
@@ -133,7 +129,7 @@ namespace WEB.CMS.Controllers
                             });
                         }
                     }
-                    var data = await _productDetailMongoAccess.GetByID(request.id);
+                    var data = await _productDetailMongoAccess.GetFullProductById(request.id);
                     if (data != null)
                     {
                         _redisService.Set(cache_name, JsonConvert.SerializeObject(data), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));

@@ -6,14 +6,9 @@ namespace Entities.ViewModels.Products
 {
     public class ProductDetailVariationMongoDbModel
     {
-        [BsonElement("_id")]
         public string _id { get; set; }
-        public void GenID()
-        {
-            _id = ObjectId.GenerateNewId().ToString();
-        }
+
         public List<ProductDetailVariationAttributesMongoDbModel> variation_attributes { get; set; }
-        public string code { get; set; }
         public double price { get; set; }
         public double profit { get; set; }
         public double amount { get; set; }
@@ -22,14 +17,7 @@ namespace Entities.ViewModels.Products
     }
     public class ProductDetailVariationAttributesMongoDbModel
     {
-
-        [BsonElement("_id")]
-        public string _id { get; set; }
-        public void GenID()
-        {
-            _id = ObjectId.GenerateNewId().ToString();
-        }
-        public string level { get; set; }
+        public string id { get; set; }
         public string name { get; set; }
     }
 }
