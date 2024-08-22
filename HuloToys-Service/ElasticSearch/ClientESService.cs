@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Utilities;
 using Entities.Models;
+using System.Numerics;
 
 namespace Caching.Elasticsearch
 {
@@ -65,7 +66,7 @@ namespace Caching.Elasticsearch
                                .Query(q => q
                                    .Term(m => m.email,email)
                                ));
-
+               
                 if (query.IsValid)
                 {
                     var result = query.Documents as List<ClientESModel>;
