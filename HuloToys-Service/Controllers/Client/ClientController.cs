@@ -82,9 +82,10 @@ namespace HuloToys_Service.Controllers
 
                                 }
                                 //-- By Email 
-                                var client_exitst = clientESService.GetByEmail(request.user_name);
+                                var client_exitst = clientESService.GetByEmail(request.user_name.Split("@")[0]);
                                 if(client_exitst!=null && client_exitst.Count > 0)
                                 {
+                                    client_exitst = client_exitst.Where(x => x.email.ToLower().Trim() == request.user_name.ToLower().Trim()).ToList();
                                     foreach(var client in client_exitst)
                                     {
                                         var account_client_exists = accountClientESService.GetByClientIdAndPassword(client.id, request.password);

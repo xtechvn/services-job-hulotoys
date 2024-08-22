@@ -41,17 +41,19 @@ namespace HuloToys_Service.MongoDb
             return null;
 
         }
-        public async Task<string> UpdateCartQuanity(string id, int new_quanity)
+        public async Task<string> UpdateCartQuanity(CartItemMongoDbModel data)
         {
             try
             {
                 var filter = Builders<CartItemMongoDbModel>.Filter;
                 var filterDefinition = filter.Empty;
-                filterDefinition &= Builders<CartItemMongoDbModel>.Filter.Eq(x => x._id, id);
-                var update = Builders<CartItemMongoDbModel>.Update.Set(x=>x.quanity, new_quanity);
-
+                filterDefinition &= Builders<CartItemMongoDbModel>.Filter.Eq(x => x._id, data._id);
+                var update  = Builders<CartItemMongoDbModel>.Update
+                    .Set(x => x.created_date, data.created_date)
+                    .Set(x => x.quanity, data.quanity);
                 var updated_item =await bookingCollection.UpdateOneAsync(filterDefinition, update);
-                return id;
+
+                return data._id;
             }
             catch (Exception ex)
             {
