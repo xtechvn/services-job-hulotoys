@@ -10,5 +10,6 @@ namespace App_Push_Consummer.Model.Comments
     {
         public long AccountClientId { get; set; }
         public string Content { get; set; }
+        public string Email { get; set; }
     }
 }

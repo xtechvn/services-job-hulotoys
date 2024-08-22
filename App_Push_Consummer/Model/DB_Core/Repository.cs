@@ -182,13 +182,12 @@ namespace App_Push_Consummer.Model.DB_Core
             }
             return null;
         }
-        public static int saveReceiverInfoEmail(long ClientId, string Email)
+        public static int saveReceiverInfoEmail( string Email)
         {
             try
             {
-                SqlParameter[] objParam_order = new SqlParameter[2];
-                objParam_order[0] = new SqlParameter("@ClientId", ClientId);
-                objParam_order[1] = new SqlParameter("@Email", Email);
+                SqlParameter[] objParam_order = new SqlParameter[1];
+                objParam_order[0] = new SqlParameter("@Email", Email);
 
 
                 var id = DBWorker.ExecuteNonQuery("sp_InsertReceivePromotions", objParam_order);

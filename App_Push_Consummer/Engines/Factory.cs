@@ -88,7 +88,7 @@ namespace App_Push_Consummer.Engines
                     case QueueType.ADD_RECEIVER_INFO_EMAIL:
                         {
                             var comments_model = JsonConvert.DeserializeObject<CommentsModel>(queue_info.data_push);
-                            var comments_id = await comments_business.saveComments(comments_model);
+                            var comments_id = await comments_business.saveReceiverInfoEmail(comments_model);
                             if (comments_id < 0)
                             {
                                 ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "Lưu thông tin comment thất bại");

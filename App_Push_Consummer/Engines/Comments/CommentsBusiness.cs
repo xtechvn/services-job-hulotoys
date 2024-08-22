@@ -40,19 +40,13 @@ namespace App_Push_Consummer.Engines.Comments
         {
             try
             {
-                var client = Repository.GetClientByAccountClientId(data.AccountClientId);
-                if (client == null)
-                {
-                    ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "không tìm thấy client AccountClientId=" + data.AccountClientId.ToString());
-                    return -1;
-                }
-                int response = Repository.saveReceiverInfoEmail(client.ClientId, data.Content);
+                int response = Repository.saveReceiverInfoEmail( data.Email);
                 return response;
 
             }
             catch (Exception ex)
             {
-                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "saveComments => error queue = " + ex.ToString());
+                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "saveReceiverInfoEmail => error queue = " + ex.ToString());
                 return -1;
             }
         }
