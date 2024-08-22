@@ -148,7 +148,7 @@ namespace HuloToys_Service.ElasticSearch.DAL
                         }
                     }
                     list_article = list_article.Where(x => x.body != null && x.body.Trim() != "" && x.lead != null && x.lead.Trim() != "" && x.title != null && x.title.Trim() != "").ToList();
-
+                    list_article= list_article.OrderBy(x => x.createdon).ToList();
                     return list_article;
                 }
                 catch
