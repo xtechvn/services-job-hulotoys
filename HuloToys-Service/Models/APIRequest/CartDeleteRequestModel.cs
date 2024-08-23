@@ -9,6 +9,5 @@ namespace Models.APIRequest
     public class CartDeleteRequestModel
     {
         public string id { get; set; }
-        public long client_id { get; set; }
     }
 }

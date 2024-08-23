@@ -50,12 +50,12 @@ namespace HuloToys_Service.Controllers
                         });
                     }
                     var data = await _cartMongodbService.FindByProductId(request.product_id, request.account_client_id);
-                    string id = "";
+                    int id = 0;
                     if (data == null || data.product == null)
                     {
                         var product = await _productDetailMongoAccess.GetByID(request.product_id);
 
-                        id = await _cartMongodbService.Insert(new CartItemMongoDbModel()
+                        await _cartMongodbService.Insert(new CartItemMongoDbModel()
                         {
                             account_client_id = request.account_client_id,
                             product = product,
@@ -63,12 +63,14 @@ namespace HuloToys_Service.Controllers
                             total_amount=product.amount * request.quanity,
                             created_date=DateTime.Now,
                         });
+                        id =1;
                     }
                     else
                     {
                         data.quanity += request.quanity;
                         data.created_date = DateTime.Now;
-                        id = await _cartMongodbService.UpdateCartQuanity(data);
+                         await _cartMongodbService.UpdateCartQuanity(data);
+                        id = 2;
                     }
                     return Ok(new
                     {
