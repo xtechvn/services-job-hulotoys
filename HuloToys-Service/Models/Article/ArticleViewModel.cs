@@ -72,6 +72,7 @@
         public DateTime publish_date { get; set; }
         public DateTime update_last { get; set; }
         public DateTime createdon  { get; set; }
+        public DateTime modifiedon { get; set; }
         public int article_type { get; set; }
         public short? position { get; set; }
         public int status { get; set; }
