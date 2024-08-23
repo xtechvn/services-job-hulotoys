@@ -63,6 +63,28 @@ namespace HuloToys_Service.MongoDb
             return null;
 
         }
+        public async Task<CartItemMongoDbModel> FindById(string id)
+        {
+            try
+            {
+                var filter = Builders<CartItemMongoDbModel>.Filter;
+                var filterDefinition = filter.Empty;
+                filterDefinition &= Builders<CartItemMongoDbModel>.Filter.Eq(x => x._id, id);
+
+                var model = await bookingCollection.Find(filterDefinition).ToListAsync();
+                if (model != null)
+                {
+                    return model.FirstOrDefault();
+                }
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
+            }
+            return null;
+
+        }
         public async Task<CartItemMongoDbModel> FindByProductId(string product_id,long account_client_id)
         {
             try

@@ -12,6 +12,9 @@ using Utilities;
 using Utilities.Contants;
 using HuloToys_Front_End.Models.Products;
 using Microsoft.Extensions.Configuration;
+using REPOSITORIES.IRepositories;
+using Caching.Elasticsearch;
+using HuloToys_Service.Models;
 
 namespace HuloToys_Service.Controllers
 {
@@ -24,6 +27,7 @@ namespace HuloToys_Service.Controllers
         private readonly WorkQueueClient workQueueClient;
         private readonly CartMongodbService _cartMongodbService;
         private readonly ProductDetailMongoAccess _productDetailMongoAccess;
+        
         public CartController(IConfiguration configuration)
         {
             _configuration  = configuration;
@@ -31,6 +35,7 @@ namespace HuloToys_Service.Controllers
             workQueueClient = new WorkQueueClient(configuration);
             _cartMongodbService = new CartMongodbService(configuration);
             _productDetailMongoAccess = new ProductDetailMongoAccess(configuration);
+           
         }
         [HttpPost("add")]
         public async Task<IActionResult> AddToCart([FromBody] APIRequestGenericModel input)
@@ -216,6 +221,6 @@ namespace HuloToys_Service.Controllers
                 msg = ResponseMessages.DataInvalid,
             });
         }
-
+       
     }
 }

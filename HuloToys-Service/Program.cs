@@ -4,6 +4,8 @@ using HuloToys_Service.Repro.IRepository;
 using HuloToys_Service.Repro.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using REPOSITORIES.IRepositories;
+using REPOSITORIES.Repositories;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +46,7 @@ builder.Services.AddSingleton<IArticleRepository, ArticleRepository>();
 builder.Services.AddSingleton<ITagRepository, TagRepository>();
 builder.Services.AddSingleton<IGroupProductRepository, GroupProductRepository>();
 builder.Services.AddSingleton<IGroupProductRepository, GroupProductRepository>();
+builder.Services.AddSingleton<IIdentifierServiceRepository, IdentifierServiceRepository>();
 
 builder.Services.AddSingleton<RedisConn>();
 
