@@ -16,13 +16,13 @@ namespace HuloToys_Service.Controllers.Test
     [ApiController]
     public class TestController : ControllerBase
     {
-        private readonly IConfiguration configuration;
-        private readonly RedisConn redisService;
-        public TestController(IConfiguration _configuration, RedisConn _redisService)
-        {
-            configuration = _configuration;
-            redisService = _redisService;
-        }
+            private readonly IConfiguration configuration;
+            private readonly RedisConn redisService;
+            public TestController(IConfiguration _configuration, RedisConn _redisService)
+            {
+                configuration = _configuration;
+                redisService = _redisService;
+            }
         /// <summary>
         /// Test login 
         /// </summary>
