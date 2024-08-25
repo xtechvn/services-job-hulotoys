@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Reflection;
 using Utilities;
+using HuloToys_Service.Models.ElasticSearch;
 
 namespace Caching.Elasticsearch
 {
@@ -133,6 +134,34 @@ namespace Caching.Elasticsearch
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return new List<OrderESModel>();
+        }
+        public async Task<long> CountOrderByYear()
+        {
+           
+            try
+            {
+                var nodes = new Uri[] { new Uri(_ElasticHost) };
+                var connectionPool = new StaticConnectionPool(nodes);
+                var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
+                var elasticClient = new ElasticClient(connectionSettings);
+                var query = elasticClient.Count<OrderESModel>(sd => sd
+                                   .Index(index)
+                                  .Query(q =>
+                                   q.Bool(
+                                       qb => qb.Must(
+                                          q => q.DateRange(m => m.Field(x => x.createtime).GreaterThan(new DateTime(DateTime.Now.Year, 01, 01, 0, 0, 0))
+                                           )
+                                           )
+                                       )
+                                  ));
+                return query.Count;
+            } 
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+            }
+            return -1;
         }
     }
 }

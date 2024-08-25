@@ -6,19 +6,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HuloToys_Service.Models.Products
+namespace Entities.ViewModels.Products
 {
     public class ProductAttributeMongoDbModel
     {
-        [BsonElement("_id")]
         public string _id { get; set; }
-        public void GenID()
-        {
-            _id = ObjectId.GenerateNewId().ToString();
-        }
-        public int attribute_id { get; set; }
-        public int value_type { get; set; }
-        public string value { get; set; }
+        public string name { get; set; }
 
+
+    }
+    public class ProductAttributeMongoDbModelItem
+    {
+        public string attribute_id { get; set; }
+        public string img { get; set; }
+        public string name { get; set; }
     }
 }

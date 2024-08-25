@@ -10,6 +10,11 @@ using Newtonsoft.Json.Linq;
 using System.Reflection;
 using Utilities;
 using Utilities.Contants;
+using HuloToys_Front_End.Models.Products;
+using Microsoft.Extensions.Configuration;
+using REPOSITORIES.IRepositories;
+using Caching.Elasticsearch;
+using HuloToys_Service.Models;
 
 namespace HuloToys_Service.Controllers
 {
@@ -18,143 +23,131 @@ namespace HuloToys_Service.Controllers
     [Authorize]
     public class CartController : ControllerBase
     {
-        private readonly IConfiguration configuration;
+        private readonly IConfiguration _configuration;
         private readonly WorkQueueClient workQueueClient;
-        private readonly CartMongodbService cartMongodbService;
-        public CartController(IConfiguration _configuration)
+        private readonly CartMongodbService _cartMongodbService;
+        private readonly ProductDetailMongoAccess _productDetailMongoAccess;
+        
+        public CartController(IConfiguration configuration)
         {
-            configuration = _configuration;
+            _configuration  = configuration;
 
             workQueueClient = new WorkQueueClient(configuration);
-            cartMongodbService=new CartMongodbService(configuration);
+            _cartMongodbService = new CartMongodbService(configuration);
+            _productDetailMongoAccess = new ProductDetailMongoAccess(configuration);
+           
         }
-        [HttpPost("insert")]
-        public async Task<ActionResult> InsertCartItem([FromBody] APIRequestGenericModel input)
+        [HttpPost("add")]
+        public async Task<IActionResult> AddToCart([FromBody] APIRequestGenericModel input)
         {
             try
             {
-
-
                 JArray objParr = null;
-                if (input != null && input.token !=null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, _configuration["KEY:private_key"]))
                 {
-                    var request = JsonConvert.DeserializeObject<CartInsertRequestModel>(objParr[0].ToString());
-                    if (request == null
-                        || request.client_id <= 0
-                        || request.product_id <= 0)
+                    var request = JsonConvert.DeserializeObject<ProductAddToCartRequestModel>(objParr[0].ToString());
+                    if (request == null || request.product_id == null)
                     {
-
                         return Ok(new
                         {
                             status = (int)ResponseType.FAILED,
                             msg = ResponseMessages.DataInvalid
                         });
                     }
+                    var data = await _cartMongodbService.FindByProductId(request.product_id, request.account_client_id);
+                    int id = 0;
+                    if (data == null || data.product == null)
+                    {
+                        var product = await _productDetailMongoAccess.GetByID(request.product_id);
 
-                    CartItemMongoDbModel model = new CartItemMongoDbModel()
-                    {
-                        client_id = request.client_id,
-                        product_id = request.product_id,
-                    };
-                    var result= cartMongodbService.InsertCartItem(model);
-                    if (result != null)
-                    {
-                        return Ok(new
+                        await _cartMongodbService.Insert(new CartItemMongoDbModel()
                         {
-                            status = (int)ResponseType.SUCCESS,
-                            msg = "Success",
-                            data=result
+                            account_client_id = request.account_client_id,
+                            product = product,
+                            quanity = request.quanity,
+                            total_amount=product.amount * request.quanity,
+                            created_date=DateTime.Now,
                         });
+                        id =1;
                     }
                     else
                     {
-                        return Ok(new
-                        {
-                            status = (int)ResponseType.FAILED,
-                            msg = ResponseMessages.FunctionExcutionFailed,
-                            data = result
-
-                        });
+                        data.quanity += request.quanity;
+                        data.created_date = DateTime.Now;
+                         await _cartMongodbService.UpdateCartQuanity(data);
+                        id = 2;
                     }
+                    return Ok(new
+                    {
+                        status = (int)ResponseType.SUCCESS,
+                        msg = ResponseMessages.Success,
+                        data = id
+                    });
                 }
 
+
             }
-            catch (Exception ex)
+            catch
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
-                return Ok(new
-                {
-                    status = (int)ResponseType.FAILED,
-                    msg = ResponseMessages.FunctionExcutionFailed
-                });
+
             }
             return Ok(new
             {
                 status = (int)ResponseType.FAILED,
-                msg = ResponseMessages.DataInvalid
+                msg = ResponseMessages.DataInvalid,
             });
-
         }
-        [HttpPost("count-item")]
-        public async Task<ActionResult> CountCartItem([FromBody] APIRequestGenericModel input)
+        [HttpPost("count")]
+        public async Task<IActionResult> CountCart([FromBody] APIRequestGenericModel input)
         {
             try
             {
-
-
                 JArray objParr = null;
-                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, _configuration["KEY:private_key"]))
                 {
-                    var request = JsonConvert.DeserializeObject<CartInsertRequestModel>(objParr[0].ToString());
-                    if (request == null || request.client_id <= 0)
+                    var request = JsonConvert.DeserializeObject<ProductCartCountRequestModel>(objParr[0].ToString());
+                    if (request == null || request.account_client_id <= 0)
                     {
-
                         return Ok(new
                         {
                             status = (int)ResponseType.FAILED,
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var result = await cartMongodbService.CountCartItemByClientId(request.client_id);
+                    var data = await _cartMongodbService.Count(request.account_client_id);
+
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
-                        msg = "Success",
-                        data=result
+                        msg = ResponseMessages.Success,
+                        data = data
                     });
                 }
 
+
             }
-            catch (Exception ex)
+            catch
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
-                return Ok(new
-                {
-                    status = (int)ResponseType.FAILED,
-                    msg = ResponseMessages.FunctionExcutionFailed
-                });
+
             }
             return Ok(new
             {
                 status = (int)ResponseType.FAILED,
-                msg = ResponseMessages.DataInvalid
+                msg = ResponseMessages.DataInvalid,
             });
-
         }
         [HttpPost("delete")]
-        public async Task<ActionResult> DeleteCartItem([FromBody] APIRequestGenericModel input)
+        public async Task<ActionResult> Delete([FromBody] APIRequestGenericModel input)
         {
             try
             {
 
 
                 JArray objParr = null;
-                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, _configuration["KEY:private_key"]))
                 {
                     var request = JsonConvert.DeserializeObject<CartDeleteRequestModel>(objParr[0].ToString());
-                    if (request == null || request.id ==null || request.id.Trim()=="")
+                    if (request == null || request.id == null || request.id.Trim() == "")
                     {
 
                         return Ok(new
@@ -163,7 +156,7 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var result = await cartMongodbService.DeleteCartItemByID(request.id);
+                    var result = await _cartMongodbService.Delete(request.id);
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
@@ -171,142 +164,63 @@ namespace HuloToys_Service.Controllers
                         data = result
                     });
                 }
-
             }
             catch (Exception ex)
             {
                 string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
                 return Ok(new
                 {
                     status = (int)ResponseType.FAILED,
                     msg = ResponseMessages.FunctionExcutionFailed
                 });
+
             }
             return Ok(new
             {
                 status = (int)ResponseType.FAILED,
-                msg = ResponseMessages.DataInvalid
+                msg = ResponseMessages.FunctionExcutionFailed
             });
-
         }
-        [HttpPost("get")]
-        public async Task<ActionResult> GetListCartItems([FromBody] APIRequestGenericModel input)
+        [HttpPost("list")]
+        public async Task<IActionResult> Listing([FromBody] APIRequestGenericModel input)
         {
             try
             {
-
-
                 JArray objParr = null;
-                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, _configuration["KEY:private_key"]))
                 {
-                    var request = JsonConvert.DeserializeObject<CartInsertRequestModel>(objParr[0].ToString());
-                    if (request == null || request.client_id <= 0)
+                    var request = JsonConvert.DeserializeObject<ProductCartCountRequestModel>(objParr[0].ToString());
+                    if (request == null || request.account_client_id <= 0)
                     {
-
                         return Ok(new
                         {
                             status = (int)ResponseType.FAILED,
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var result = await cartMongodbService.GetCartItemByClientID(request.client_id);
+                    var data = await _cartMongodbService.GetList(request.account_client_id);
+
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
-                        msg = "Success",
-                        data = result
+                        msg = ResponseMessages.Success,
+                        data = data
                     });
                 }
 
+
             }
-            catch (Exception ex)
+            catch
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
-                return Ok(new
-                {
-                    status = (int)ResponseType.FAILED,
-                    msg = ResponseMessages.FunctionExcutionFailed
-                });
+
             }
             return Ok(new
             {
                 status = (int)ResponseType.FAILED,
-                msg = ResponseMessages.DataInvalid
+                msg = ResponseMessages.DataInvalid,
             });
-
         }
-        [HttpPost("confirm")]
-        public async Task<ActionResult> ConfirmCart([FromBody] APIRequestGenericModel input)
-        {
-            try
-            {
-
-
-                JArray objParr = null;
-                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
-                {
-                    var request = JsonConvert.DeserializeObject<CartInsertRequestModel>(objParr[0].ToString());
-                    if (request == null|| request.client_id <= 0)
-                    {
-
-                        return Ok(new
-                        {
-                            status = (int)ResponseType.FAILED,
-                            msg = ResponseMessages.DataInvalid
-                        });
-                    }
-
-                    //BookingMongoDbModel model = new BookingMongoDbModel()
-                    //{
-                    //    client_id=request.client_id,
-                    //    products= await cartMongodbService.GetCartItemByClientID(request.client_id),
-                    //};
-                    //var result = bookingMongodbService.Insert(model);
-                    //if (result != null)
-                    //{
-                    //    foreach(var item in model.products)
-                    //    {
-                    //        await cartMongodbService.DeleteCartItemByID(item._id);
-                    //    }
-                    //    return Ok(new
-                    //    {
-                    //        status = (int)ResponseType.SUCCESS,
-                    //        msg = "Success",
-                    //        data = result
-                    //    });
-                    //}
-                    //else
-                    //{
-                    //    return Ok(new
-                    //    {
-                    //        status = (int)ResponseType.FAILED,
-                    //        msg = ResponseMessages.FunctionExcutionFailed,
-                    //        data = result
-
-                    //    });
-                    //}
-                }
-
-            }
-            catch (Exception ex)
-            {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
-                return Ok(new
-                {
-                    status = (int)ResponseType.FAILED,
-                    msg = ResponseMessages.FunctionExcutionFailed
-                });
-            }
-            return Ok(new
-            {
-                status = (int)ResponseType.FAILED,
-                msg = ResponseMessages.DataInvalid
-            });
-
-        }
-
+       
     }
 }

@@ -8,8 +8,8 @@ namespace Models.Queue
 {
     public class ClientConsumerQueueModel
     {
-        public int queue_type { get; set; } // phân biệt các data nhận về lấy từ queue
-        public string data_receiver { get; set; }   // data queue từ nơi khác push về
+        public int type { get; set; } // phân biệt các data nhận về lấy từ queue
+        public string data_push { get; set; }   // data queue từ nơi khác push về
     }
     public class AccountClientViewModel
     {
@@ -19,6 +19,7 @@ namespace Models.Queue
         public string Email { get; set; }
         public string Phone { get; set; }
         public string Name { get; set; }
+        public string ClientName { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
         public string ForgotPasswordToken { get; set; }

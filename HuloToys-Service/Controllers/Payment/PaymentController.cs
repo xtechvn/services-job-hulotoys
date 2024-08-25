@@ -8,6 +8,10 @@ using Newtonsoft.Json.Linq;
 using System.Reflection;
 using Utilities;
 using Utilities.Contants;
+using HuloToys_Service.Models.Orders;
+using HuloToys_Service.Utilities.lib;
+using HuloToys_Service.MongoDb;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HuloToys_Service.Controllers
 {
@@ -18,10 +22,68 @@ namespace HuloToys_Service.Controllers
     {
         private readonly IConfiguration configuration;
         private readonly WorkQueueClient workQueueClient;
+        private readonly VietQRServices _vietQRServices;
+        private readonly OrderMongodbService _orderMongodbService;
+
         public PaymentController(IConfiguration _configuration)
         {
             configuration = _configuration;
             workQueueClient = new WorkQueueClient(configuration);
+            _vietQRServices = new VietQRServices(configuration);
+            _orderMongodbService = new OrderMongodbService(configuration);
+
+        }
+        [HttpPost("qr-code")]
+        public async Task<ActionResult> QrCode([FromBody] APIRequestGenericModel input)
+        {
+            try
+            {
+
+
+                JArray objParr = null;
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+                {
+                    var request = JsonConvert.DeserializeObject<OrderGeneralRequestModel>(objParr[0].ToString());
+                    if (request == null || request.id == null || request.id.Trim() == "")
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid,
+                        });
+
+                    }
+                    var model = await _orderMongodbService.FindById(request.id);
+                    if(model!=null && model._id!=null&& model._id.Trim()!="")
+                    {
+                        var qr = await _vietQRServices.GetVietQRCode(
+                      configuration["BankTransfer:AccountNumber"]
+                      , configuration["BankTransfer:AccountName"]
+                      , Convert.ToInt32(configuration["BankTransfer:BankId"])
+                      , model.order_no
+                      , model.total_amount);
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.SUCCESS,
+                            msg = ResponseMessages.Success,
+                            data = qr
+                        });
+                    }
+
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+            }
+            return Ok(new
+            {
+                status = (int)ResponseType.FAILED,
+                msg = ResponseMessages.DataInvalid,
+            });
 
         }
         [HttpPost("checkout")]

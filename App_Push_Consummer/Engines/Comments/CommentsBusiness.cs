@@ -36,5 +36,19 @@ namespace App_Push_Consummer.Engines.Comments
                 return -1;
             }
         }
+        public async Task<Int32> saveReceiverInfoEmail(CommentsModel data)
+        {
+            try
+            {
+                int response = Repository.saveReceiverInfoEmail( data.Email);
+                return response;
+
+            }
+            catch (Exception ex)
+            {
+                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "saveReceiverInfoEmail => error queue = " + ex.ToString());
+                return -1;
+            }
+        }
     }
 }

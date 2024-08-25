@@ -58,6 +58,7 @@ namespace HuloToys_Service.Controllers
                     {
                         case (int)AccountLoginType.Password:
                             {
+                                //-- By Username 
                                 var account_client = accountClientESService.GetByUsernameAndPassword(request.user_name, request.password);
                                 if (account_client != null && account_client.id > 0 && account_client.clientid > 0)
                                 {
@@ -79,6 +80,53 @@ namespace HuloToys_Service.Controllers
 
                                     }
 
+                                }
+                                //-- By Email 
+                                var client_exitst = clientESService.GetByEmail(request.user_name.Split("@")[0]);
+                                if(client_exitst!=null && client_exitst.Count > 0)
+                                {
+                                    client_exitst = client_exitst.Where(x => x.email.ToLower().Trim() == request.user_name.ToLower().Trim()).ToList();
+                                    foreach(var client in client_exitst)
+                                    {
+                                        var account_client_exists = accountClientESService.GetByClientIdAndPassword(client.id, request.password);
+                                        if (account_client_exists != null && account_client_exists.id > 0)
+                                        {
+                                            return Ok(new
+                                            {
+                                                status = (int)ResponseType.SUCCESS,
+                                                msg = "Success",
+                                                data = new
+                                                {
+                                                    account_client_id = account_client_exists.id,
+                                                    user_name = account_client_exists.username,
+                                                    name = client.clientname
+                                                }
+                                            });
+                                        }
+                                    }
+                                }
+                                //-- By Phone 
+                                client_exitst = clientESService.GetByPhone(request.user_name);
+                                if (client_exitst != null && client_exitst.Count > 0)
+                                {
+                                    foreach (var client in client_exitst)
+                                    {
+                                        var account_client_exists = accountClientESService.GetByClientIdAndPassword(client.id, request.password);
+                                        if (account_client_exists != null && account_client_exists.id > 0)
+                                        {
+                                            return Ok(new
+                                            {
+                                                status = (int)ResponseType.SUCCESS,
+                                                msg = "Success",
+                                                data = new
+                                                {
+                                                    account_client_id = account_client_exists.id,
+                                                    user_name = account_client_exists.username,
+                                                    name = client.clientname
+                                                }
+                                            });
+                                        }
+                                    }
                                 }
                             }
                             break;
@@ -160,7 +208,19 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-
+                    string username_generate = "u" + DateTime.Now.ToString("yyMMddHHmmss");
+                    for (int i = 1; i < 999; i++)
+                    {
+                        var value = username_generate + i.ToString().PadLeft(3, '0');
+                        var exists = accountClientESService.GetByUsername(value);
+                        if (exists != null) { continue; }
+                        else
+                        {
+                            username_generate = value; 
+                            break;
+                        }
+                    }
+                     
                     AccountClientViewModel model = new AccountClientViewModel()
                     {
                         ClientId=-1,
@@ -169,16 +229,17 @@ namespace HuloToys_Service.Controllers
                         Id=-1,
                         isReceiverInfoEmail=request.is_receive_email==true?(byte)1: (byte)0,
                         Name=request.user_name.Trim(),
+                        ClientName=request.user_name.Trim(),
                         Password=request.password,
                         Phone=request.phone,
                         Status=0,
-                        UserName=request.user_name,
+                        UserName= username_generate,
                         GoogleToken=request.token
                     };
                     var queue_model = new ClientConsumerQueueModel()
                     {
-                        data_receiver = JsonConvert.SerializeObject(model),
-                        queue_type = QueueType.ADD_USER
+                        data_push = JsonConvert.SerializeObject(model),
+                        type = QueueType.ADD_USER
                     };
                     bool result= workQueueClient.InsertQueueSimple(new Models.QueueSettingViewModel()
                     {
@@ -193,7 +254,8 @@ namespace HuloToys_Service.Controllers
                         return Ok(new
                         {
                             status = (int)ResponseType.SUCCESS,
-                            msg = "Success"
+                            msg = "Success",
+                            data= username_generate
                         });
                     }
                     
@@ -261,8 +323,8 @@ namespace HuloToys_Service.Controllers
                             };
                             var queue_model = new ClientConsumerQueueModel()
                             {
-                                data_receiver = JsonConvert.SerializeObject(model),
-                                queue_type = QueueType.UPDATE_USER
+                                data_push = JsonConvert.SerializeObject(model),
+                                type = QueueType.UPDATE_USER
                             };
                             bool result = workQueueClient.InsertQueueSimple(new Models.QueueSettingViewModel()
                             {
@@ -353,8 +415,8 @@ namespace HuloToys_Service.Controllers
                             };
                             var queue_model = new ClientConsumerQueueModel()
                             {
-                                data_receiver = JsonConvert.SerializeObject(model),
-                                queue_type = QueueType.UPDATE_USER
+                                data_push = JsonConvert.SerializeObject(model),
+                                type = QueueType.UPDATE_USER
                             };
                             bool result = workQueueClient.InsertQueueSimple(new Models.QueueSettingViewModel()
                             {
