@@ -29,12 +29,11 @@ namespace APP_CHECKOUT.DAL
                      new SqlParameter("@TotalAmount", request.TotalAmount),
                      new SqlParameter("@TotalPrice", request.TotalPrice),
                      new SqlParameter("@ProductLink", request.ProductLink),
-                     new SqlParameter("@CreatedDate", request.CreatedDate),
                      new SqlParameter("@UserCreate", request.UserCreate),
                      new SqlParameter("@UserUpdated", request.UserUpdated),
 
                 };
-                request.OrderDetailId = _DbWorker.ExecuteNonQuery(SPName.CREATE_ORDER, objParam);
+                request.OrderDetailId = _DbWorker.ExecuteNonQuery(SPName.CREATE_ORDER_DEATIL, objParam);
 
                 return request.OrderDetailId;
             }
@@ -52,7 +51,7 @@ namespace APP_CHECKOUT.DAL
                    new SqlParameter("@OrderDetailId", request.OrderDetailId),
                    new SqlParameter("@OrderId", request.OrderId),
                      new SqlParameter("@ProductId", request.ProductId),
-                     new SqlParameter("@ProductCode", request.ProductCode),
+                     new SqlParameter("@ProductCode", request.ProductCode ==null || request.ProductCode.Trim() =="" ? "":request.ProductCode),
                      new SqlParameter("@Price", request.Price),
                      new SqlParameter("@Profit", request.Profit),
                      new SqlParameter("@Discount", request.Discount),
@@ -61,7 +60,6 @@ namespace APP_CHECKOUT.DAL
                      new SqlParameter("@TotalAmount", request.TotalAmount),
                      new SqlParameter("@TotalPrice", request.TotalPrice),
                      new SqlParameter("@ProductLink", request.ProductLink),
-                     new SqlParameter("@CreatedDate", request.CreatedDate),
                      new SqlParameter("@UserCreate", request.UserCreate),
                      new SqlParameter("@UserUpdated", request.UserUpdated),
 
