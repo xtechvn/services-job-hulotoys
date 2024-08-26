@@ -11,7 +11,7 @@ namespace HuloToys_Service.Controllers.Order.Business
     {
         private readonly IConfiguration _configuration;
         private readonly ClientESService clientESService;
-        public IdentiferService(IOptions<DataBaseConfig> dataBaseConfig, IConfiguration configuration)
+        public IdentiferService( IConfiguration configuration)
         {
             _configuration = configuration;
             clientESService = new ClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);

@@ -42,7 +42,7 @@ namespace HuloToys_Service.Controllers
             orderMongodbService = new OrderMongodbService( configuration);
             _cartMongodbService = new CartMongodbService(configuration);
             work_queue = new WorkQueueClient(configuration);
-            identiferService = new IdentiferService();
+            identiferService = new IdentiferService(_configuration);
             queue_setting = new QueueSettingViewModel
             {
                 host = configuration["Queue:Host"],

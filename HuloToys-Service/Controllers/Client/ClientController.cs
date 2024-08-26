@@ -32,7 +32,7 @@ namespace HuloToys_Service.Controllers
             workQueueClient=new WorkQueueClient(configuration);
             accountClientESService = new AccountClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
             clientESService = new ClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
-            _identifierServiceRepository = new IdentiferService();
+            _identifierServiceRepository = new IdentiferService(_configuration);
         }
         [HttpPost("login")]
         public async Task<ActionResult> ClientLogin([FromBody] APIRequestGenericModel input)
