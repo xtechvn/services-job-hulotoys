@@ -1,6 +1,7 @@
 ﻿using Elasticsearch.Net;
 using Entities.Models;
 using HuloToys_Service.Elasticsearch;
+using HuloToys_Service.Models.Article;
 using HuloToys_Service.Models.ElasticSearch;
 using HuloToys_Service.Models.Entities;
 using HuloToys_Service.Utilities.Lib;
@@ -9,7 +10,7 @@ using System.Reflection;
 
 namespace HuloToys_Service.ElasticSearch.NewEs
 {
-    public class ArticleESService : ESRepository<Article>
+    public class ArticleESService : ESRepository<ArticleViewModel>
     {
         public string index = "article_hulotoys_store";
         private readonly IConfiguration configuration;
@@ -21,7 +22,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
             configuration = _configuration;
             index = _configuration["DataBaseConfig:Elastic:Index:Article"];
         }
-        public Article GetDetailById(long id)
+        public ArticleViewModel GetDetailById(long id)
         {
             try
             {
@@ -40,7 +41,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
                 {
 
                     var data = query.Documents as List<ArticleESModel>;
-                    var result = data.Select(a => new Article
+                    var result = data.Select(a => new ArticleViewModel
                     {
 
                         Id = a.id,
@@ -72,7 +73,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
             }
             return null;
         }
-        public List<Article> GetListArticle()
+        public List<ArticleViewModel> GetListArticle()
         {
             try
             {
@@ -90,7 +91,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<ArticleESModel>;
-                    var result = data.Select(a => new Article
+                    var result = data.Select(a => new ArticleViewModel
                     {
 
                         Id = a.id,
@@ -122,7 +123,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
             }
             return null;
         }
-        public List<Article> GetListArticlePosition()
+        public List<ArticleViewModel> GetListArticlePosition()
         {
             try
             {
@@ -140,7 +141,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<ArticleESModel>;
-                    var result = data.Select(a => new Article
+                    var result = data.Select(a => new ArticleViewModel
                     {
 
                         Id = a.id,

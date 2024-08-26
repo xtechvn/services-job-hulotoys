@@ -1,6 +1,7 @@
 ﻿using Elasticsearch.Net;
 using Entities.Models;
 using HuloToys_Service.Elasticsearch;
+using HuloToys_Service.Models.Article;
 using HuloToys_Service.Models.ElasticSearch;
 using HuloToys_Service.Models.Entities;
 using HuloToys_Service.Utilities.Lib;
@@ -9,7 +10,7 @@ using System.Reflection;
 
 namespace HuloToys_Service.ElasticSearch.NewEs
 {
-    public class ArticleTagESService : ESRepository<ArticleTag>
+    public class ArticleTagESService : ESRepository<ArticleTagViewModel>
     {
         public string index = "article_tag_hulotoys_store";
         private readonly IConfiguration configuration;
@@ -22,7 +23,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
             index = _configuration["DataBaseConfig:Elastic:Index:ArticleTag"];
 
         }
-        public List<ArticleTag> GetListArticleTagByArticleId(long articleid)
+        public List<ArticleTagViewModel> GetListArticleTagByArticleId(long articleid)
         {
             try
             {
@@ -41,7 +42,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<ArticleTagESModel>;
-                    var result = data.Select(a => new ArticleTag
+                    var result = data.Select(a => new ArticleTagViewModel
                     {
 
                         Id = a.id,
@@ -60,7 +61,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
             }
             return null;
         }
-        public List<ArticleTag> GetListArticleTagByTagid(long tagid)
+        public List<ArticleTagViewModel> GetListArticleTagByTagid(long tagid)
         {
             try
             {
@@ -79,7 +80,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<ArticleTagESModel>;
-                    var result = data.Select(a => new ArticleTag
+                    var result = data.Select(a => new ArticleTagViewModel
                     {
                         Id = a.id,
                         ArticleId = a.articleid,

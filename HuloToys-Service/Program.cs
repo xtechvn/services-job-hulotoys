@@ -1,7 +1,5 @@
 using Entities.ConfigModels;
 using HuloToys_Service.RedisWorker;
-using HuloToys_Service.Repro.IRepository;
-using HuloToys_Service.Repro.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using REPOSITORIES.IRepositories;
@@ -42,10 +40,6 @@ builder.Services.Configure<DomainConfig>(Configuration.GetSection("DomainConfig"
 
 // Register services
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-builder.Services.AddSingleton<IArticleRepository, ArticleRepository>();
-builder.Services.AddSingleton<ITagRepository, TagRepository>();
-builder.Services.AddSingleton<IGroupProductRepository, GroupProductRepository>();
-builder.Services.AddSingleton<IGroupProductRepository, GroupProductRepository>();
 builder.Services.AddSingleton<IIdentifierServiceRepository, IdentifierServiceRepository>();
 
 builder.Services.AddSingleton<RedisConn>();

@@ -1,15 +1,16 @@
 ﻿using HuloToys_Service.ElasticSearch.NewEs;
 using HuloToys_Service.Models.Article;
-using HuloToys_Service.Models.Entities;
+using HuloToys_Service.Models.Products;
 using HuloToys_Service.Utilities.Lib;
-using System.Data;
+using Newtonsoft.Json;
+using System.Reflection;
+using Utilities;
 using Utilities.Contants;
 
-namespace HuloToys_Service.ElasticSearch.DAL
+namespace HuloToys_Service.Controllers.News.Business
 {
-    public class ArticleDAL
+    public partial class NewsBusiness
     {
-
         public IConfiguration configuration;
         public ArticleESService articleESService;
         public ArticleTagESService articleTagESService;
@@ -17,7 +18,7 @@ namespace HuloToys_Service.ElasticSearch.DAL
         public ArticleCategoryESService articleCategoryESService;
         public ArticleRelatedESService articleRelatedESService;
         public GroupProductESService groupProductESService;
-        public ArticleDAL(string connection, IConfiguration _configuration)
+        public NewsBusiness( IConfiguration _configuration)
         {
 
             configuration = _configuration;
@@ -28,9 +29,6 @@ namespace HuloToys_Service.ElasticSearch.DAL
             articleRelatedESService = new ArticleRelatedESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
             groupProductESService = new GroupProductESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
         }
-
-
-
         public async Task<ArticleModel> GetArticleDetail(long Id)
         {
             try
@@ -148,7 +146,7 @@ namespace HuloToys_Service.ElasticSearch.DAL
                         }
                     }
                     list_article = list_article.Where(x => x.body != null && x.body.Trim() != "" && x.lead != null && x.lead.Trim() != "" && x.title != null && x.title.Trim() != "").ToList();
-                    list_article= list_article.OrderBy(x => x.modifiedon).ToList();
+                    list_article = list_article.OrderBy(x => x.modifiedon).ToList();
                     return list_article;
                 }
                 catch
@@ -576,6 +574,203 @@ namespace HuloToys_Service.ElasticSearch.DAL
                 return null;
             }
         }
+        public List<long> GetTagIDByArticleID(long articleID)
+        {
+            try
+            {
 
+                var data = articleTagESService.GetListArticleTagByArticleId(articleID);
+                var List_TagId = data.Select(s => s.TagId);
+                if (List_TagId != null && List_TagId.Count() > 0)
+                {
+                    var json = JsonConvert.SerializeObject(List_TagId.Distinct().ToList());
+                    return JsonConvert.DeserializeObject<List<long>>(json);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+            }
+            return null;
+        }
+        public List<GroupProduct> GetByParentId(long parent_id)
+        {
+            try
+            {
+                var data = groupProductESService.GetListGroupProductByParentId(parent_id);
+                return data;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetByParentId-GroupProductDAL" + ex);
+            }
+            return null;
+        }
+        public GroupProduct GetById(long id)
+        {
+            try
+            {
+                var data = groupProductESService.GetDetailGroupProductById(id);
+                return data;
+
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetById-GroupProductDAL" + ex);
+
+            }
+            return null;
+        }
+        public async Task<List<string>> GetTagByListID(List<long> tag_id_list)
+        {
+            try
+            {
+                var list_name = new List<string>();
+                if (tag_id_list != null && tag_id_list.Count > 0)
+                {
+                    foreach (var item in tag_id_list)
+                    {
+                        var tag = tagESService.GetListTagById(item);
+                        if (tag != null) { list_name.Add(tag.TagName); }
+                    }
+                }
+                return list_name;
+
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                return null;
+            }
+        }
+
+
+        public async Task<ArticleFeModel> GetMostViewedArticle(long article_id)
+        {
+            try
+            {
+                var detail = await GetArticleDetailLite(article_id);
+
+                if (detail != null)
+                {
+                    var group = GetById(detail.category_id);
+                    if (!group.IsShowHeader) return null;
+                    var fe_detail = new ArticleFeModel()
+                    {
+                        id = detail.id,
+                        lead = detail.lead,
+                        publish_date = detail.publish_date,
+                        title = detail.title,
+                        image_11 = detail.image_11,
+                        image_43 = detail.image_43,
+                        image_169 = detail.image_169,
+                        article_type = detail.article_type,
+                        category_name = detail.category_name,
+
+                    };
+                    return fe_detail;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "[API]ArticleRepository - GetMostViewedArticle: " + ex);
+            }
+            return null;
+        }
+
+
+
+        public async Task<ArticleFEModelPagnition> getArticleListByTags(string tag, int skip, int take)
+        {
+            try
+            {
+                return await GetArticleListByTag(tag, skip, take);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "[API]getArticleListByTags - GetArticleDetail: " + ex);
+                return null;
+            }
+        }
+        public async Task<string> GetGroupProductNameAsync(int cateID)
+        {
+            string group_name = null;
+            try
+            {
+                var dataModel = GetById(cateID);
+                if (dataModel == null || dataModel.Name == null) return "";
+                group_name = dataModel.Name;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetGroupProductNameAsync -GroupProductRepository : " + ex);
+            }
+            return group_name;
+        }
+
+        public async Task<List<ArticleGroupViewModel>> GetArticleCategoryByParentID(long parent_id)
+        {
+            try
+            {
+                var group = GetByParentId(parent_id);
+                group = group.Where(x => x.IsShowHeader == true).ToList();
+                var list = new List<ArticleGroupViewModel>();
+                //list.Add(new ArticleGroupViewModel()
+                //{
+                //    id = parent_id,
+                //    name = "Mới nhất",
+                //    order_no = -1,
+                //    image_path = "",
+                //    url_path = "tin-tuc-" + parent_id
+                //});
+                list.AddRange(group.Select(x => new ArticleGroupViewModel() { id = x.Id, image_path = x.ImagePath, name = x.Name, order_no = (int)x.OrderNo, url_path = x.Path }).OrderBy(x => x.order_no).ToList());
+                return list;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetArticleCategoryByParentID -GroupProductRepository : " + ex);
+            }
+            return null;
+        }
+        public async Task<List<ArticleGroupViewModel>> GetFooterCategoryByParentID(long parent_id)
+        {
+            try
+            {
+                var group = GetByParentId(parent_id);
+                group = group.Where(x => x.IsShowFooter == true).ToList();
+                var list = new List<ArticleGroupViewModel>();
+
+                list.AddRange(group.Select(x => new ArticleGroupViewModel() { id = x.Id, image_path = x.ImagePath, name = x.Name, order_no = (int)x.OrderNo, url_path = x.Path }).OrderBy(x => x.order_no).ToList());
+                return list;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetFooterCategoryByParentID -GroupProductRepository : " + ex);
+            }
+            return null;
+        }
+        public async Task<List<ProductGroupViewModel>> GetProductGroupByParentID(long parent_id, string url_static)
+        {
+            try
+            {
+                var group = GetByParentId(parent_id);
+                var list = new List<ProductGroupViewModel>();
+                list.AddRange(group.Select(x => new ProductGroupViewModel() { id = x.Id, image = url_static + x.ImagePath, name = x.Name, code = Convert.ToInt32(x.Code), link = CommonHelper.RemoveSpecialCharacters(CommonHelper.RemoveUnicode(x.Name.ToLower())).Replace(" ", "-").Replace("--", "-") }).ToList());
+                return list;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetProductGroupByParentID -GroupProductRepository : " + ex);
+            }
+            return null;
+        }
+        public async Task<List<string>> GetAllTagByArticleID(long articleID)
+        {
+            var tag_id_list = GetTagIDByArticleID(articleID);
+            return await GetTagByListID(tag_id_list);
+        }
     }
 }

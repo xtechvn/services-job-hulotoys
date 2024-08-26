@@ -1,6 +1,7 @@
 ﻿using Elasticsearch.Net;
 using Entities.Models;
 using HuloToys_Service.Elasticsearch;
+using HuloToys_Service.Models.Article;
 using HuloToys_Service.Models.ElasticSearch;
 using HuloToys_Service.Models.Entities;
 using HuloToys_Service.Utilities.Lib;
@@ -9,7 +10,7 @@ using System.Reflection;
 
 namespace HuloToys_Service.ElasticSearch.NewEs
 {
-    public class ArticleCategoryESService : ESRepository<ArticleCategory>
+    public class ArticleCategoryESService : ESRepository<ArticleCategoryViewModel>
     {
         public string index = "article_category_hulotoys_store";
         private readonly IConfiguration configuration;
@@ -22,7 +23,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
             index = _configuration["DataBaseConfig:Elastic:Index:ArticleCategory"];
 
         }
-        public List<ArticleCategory> GetByArticleId(long id)
+        public List<ArticleCategoryViewModel> GetByArticleId(long id)
         {
             try
             {
@@ -41,7 +42,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<ArticleCategoryESModel>;
-                    var result = data.Select(a => new ArticleCategory
+                    var result = data.Select(a => new ArticleCategoryViewModel
                     {
 
                         Id = a.id,
@@ -60,7 +61,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
             }
             return null;
         }
-        public List<ArticleCategory> GetListArticleCategory()
+        public List<ArticleCategoryViewModel> GetListArticleCategory()
         {
             try
             {
@@ -78,7 +79,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<ArticleCategoryESModel>;
-                    var result = data.Select(a => new ArticleCategory
+                    var result = data.Select(a => new ArticleCategoryViewModel
                     {
 
                         Id = a.id,
@@ -97,7 +98,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
             }
             return null;
         }
-        public List<ArticleCategory> GetByCategoryId(long CategoryId)
+        public List<ArticleCategoryViewModel> GetByCategoryId(long CategoryId)
         {
             try
             {
@@ -117,7 +118,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
                 {
 
                     var data = query.Documents as List<ArticleCategoryESModel>;
-                    var result = data.Select(a => new ArticleCategory
+                    var result = data.Select(a => new ArticleCategoryViewModel
                     {
 
                         Id = a.id,

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace HuloToys_Service.Models.Entities;
+namespace HuloToys_Service.Models.Article;
 
-public partial class Tag
+public partial class TagViewModel
 {
     public long Id { get; set; }
 
@@ -11,5 +11,4 @@ public partial class Tag
 
     public DateTime? CreatedOn { get; set; }
 
-    public virtual ICollection<ArticleTag> ArticleTags { get; set; } = new List<ArticleTag>();
 }

@@ -1,7 +1,41 @@
 ﻿namespace HuloToys_Service.Models.Article
 {
-    public class ArticleViewModel : Entities.Article
+    public class ArticleViewModel
     {
+        public long Id { get; set; }
+
+        public string Title { get; set; } = null!;
+
+        public string Lead { get; set; } = null!;
+
+        public string Body { get; set; } = null!;
+
+        public int Status { get; set; }
+
+        public int ArticleType { get; set; }
+
+        public int? PageView { get; set; }
+
+        public DateTime? PublishDate { get; set; }
+
+        public int? AuthorId { get; set; }
+
+        public string Image169 { get; set; } = null!;
+
+        public string? Image43 { get; set; }
+
+        public string? Image11 { get; set; }
+
+        public DateTime? CreatedOn { get; set; }
+
+        public DateTime? ModifiedOn { get; set; }
+
+        public DateTime? DownTime { get; set; }
+
+        public DateTime? UpTime { get; set; }
+
+        public short? Position { get; set; }
+     
         public string AuthorName { get; set; }
         public string ArticleStatusName { get; set; }
         public string ArticleCategoryName { get; set; }

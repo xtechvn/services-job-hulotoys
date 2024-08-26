@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace HuloToys_Service.Models.Entities;
+namespace HuloToys_Service.Models.Article;
 
-public partial class ArticleTag
+public partial class ArticleTagViewModel
 {
     public long Id { get; set; }
 
@@ -11,7 +11,4 @@ public partial class ArticleTag
 
     public long? ArticleId { get; set; }
 
-    public virtual Article? Article { get; set; }
-
-    public virtual Tag? Tag { get; set; }
 }

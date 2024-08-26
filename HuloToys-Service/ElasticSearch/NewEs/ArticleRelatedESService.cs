@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace HuloToys_Service.ElasticSearch.NewEs
 {
-    public class ArticleRelatedESService : ESRepository<ArticleRelated>
+    public class ArticleRelatedESService : ESRepository<ArticleRelatedViewModel>
     {
         public string index = "article_related_hulotoys_store";
         private readonly IConfiguration configuration;
@@ -21,7 +21,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
             index = _configuration["DataBaseConfig:Elastic:Index:ArticleRelated"];
 
         }
-        public List<ArticleRelated> GetListArticleRelatedByArticleId(long articleid)
+        public List<ArticleRelatedViewModel> GetListArticleRelatedByArticleId(long articleid)
         {
             try
             {
@@ -40,7 +40,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<ArticleRelatedESmodel>;
-                    var result = data.Select(a => new ArticleRelated
+                    var result = data.Select(a => new ArticleRelatedViewModel
                     {
 
                         Id = a.id,

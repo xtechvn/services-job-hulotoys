@@ -1,29 +1,28 @@
 ﻿using Elasticsearch.Net;
-using Entities.Models;
+using Models.ElasticSearch;
 using HuloToys_Service.Elasticsearch;
-using HuloToys_Service.Models.Article;
-using HuloToys_Service.Models.ElasticSearch;
-using HuloToys_Service.Models.Entities;
 using HuloToys_Service.Utilities.Lib;
 using Nest;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Reflection;
+using Utilities;
 
-namespace HuloToys_Service.ElasticSearch.NewEs
+namespace Caching.Elasticsearch
 {
-    public class TagESService : ESRepository<TagViewModel>
+    public class OrderESService : ESRepository<OrderESModel>
     {
-        public string index = "tag_hulotoys_store";
-        private readonly IConfiguration configuration;
-        private static string _ElasticHost;
 
-        public TagESService(string Host, IConfiguration _configuration) : base(Host, _configuration)
-        {
+        public OrderESService(string Host,IConfiguration _configuration) : base(Host, _configuration) {
             _ElasticHost = Host;
             configuration = _configuration;
-            index = _configuration["DataBaseConfig:Elastic:Index:Tag"];
+            index = _configuration["DataBaseConfig:Elastic:Index:Order"];
+
+
         }
-        public List<TagViewModel> GetListTag()
+        public List<OrderESModel> GetByClientID( long client_id)
         {
+            List<OrderESModel> result = new List<OrderESModel>();
             try
             {
                 var nodes = new Uri[] { new Uri(_ElasticHost) };
@@ -31,21 +30,19 @@ namespace HuloToys_Service.ElasticSearch.NewEs
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<TagESModel>(sd => sd
+                var query = elasticClient.Search<OrderESModel>(sd => sd
                                .Index(index)
-                               .Size(4000)
-                               .Query(q => q.MatchAll()
-                               ));
+                               .Query(q => q
+                                   .Match(m => m.Field("clientid").Query(client_id.ToString())
+                                   )));
 
-                if (query.IsValid)
+                if (!query.IsValid)
                 {
-                    var data = query.Documents as List<TagESModel>;
-                    var result = data.Select(a => new TagViewModel
-                    {
-                        Id = a.id,
-                        CreatedOn = a.createdon,
-                        TagName = a.tagname,
-                    }).ToList();
+                    return result;
+                }
+                else
+                {
+                    result = query.Documents as List<OrderESModel>;
                     return result;
                 }
             }
@@ -56,8 +53,9 @@ namespace HuloToys_Service.ElasticSearch.NewEs
             }
             return null;
         }
-        public List<TagViewModel> GetListTagByTagName(string TagName)
+        public OrderESModel GetLastestClientID(long client_id)
         {
+            OrderESModel result = new OrderESModel();
             try
             {
                 var nodes = new Uri[] { new Uri(_ElasticHost) };
@@ -65,23 +63,22 @@ namespace HuloToys_Service.ElasticSearch.NewEs
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<TagESModel>(sd => sd
+                var query = elasticClient.Search<OrderESModel>(sd => sd
                                .Index(index)
-                               .Size(4000)
-                               .Query(q => q.
-                                        QueryString(m => m.Fields("tagname").Query(TagName.ToLower().Replace("#", "").ToString()))
-                               ));
+                               
+                               .Query(q => q
+                                   .Match(m => m.Field("clientid").Query(client_id.ToString())
+                                   ))
+                                .Sort(q => q.Descending(u => u.createtime))); ;
 
-                if (query.IsValid)
+                if (!query.IsValid)
                 {
-                    var data = query.Documents as List<TagESModel>;
-                    var result = data.Select(a => new TagViewModel
-                    {
-                        Id = a.id,
-                        CreatedOn = a.createdon,
-                        TagName = a.tagname,
-                    }).ToList();
                     return result;
+                }
+                else
+                {
+                    var rs=  query.Documents as List<OrderESModel>;
+                    return rs.FirstOrDefault();
                 }
             }
             catch (Exception ex)
@@ -91,8 +88,9 @@ namespace HuloToys_Service.ElasticSearch.NewEs
             }
             return null;
         }
-        public TagViewModel GetListTagById(long id)
+        public List<OrderESModel> GetByOrderNo(string text,long client_id)
         {
+            List<OrderESModel> result = new List<OrderESModel>();
             try
             {
                 var nodes = new Uri[] { new Uri(_ElasticHost) };
@@ -100,22 +98,30 @@ namespace HuloToys_Service.ElasticSearch.NewEs
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<TagESModel>(sd => sd
-                               .Index(index)
-                               .Query(q => q.
-                                        Match(m => m.Field("id").Query(id.ToString()))
-                               ));
+                var search_response = elasticClient.Search<OrderESModel>(s => s
+                        .Index(index)
+                        .Size(4000)
+                        .Query(q =>
+                         q.Bool(
+                             qb => qb.Must(
+                                 q => q.Term("clientid", client_id.ToString()),
+                                 q => q.QueryString(qs => qs
+                                 .Fields(new[] { "orderno" })
+                                 .Query("*" + text.ToUpper() + "*")
+                                 .Analyzer("standard")
 
-                if (query.IsValid)
+                          )
+                         )
+                        )));
+
+                if (!search_response.IsValid)
                 {
-                    var data = query.Documents as List<TagESModel>;
-                    var result = data.Select(a => new TagViewModel
-                    {
-                        Id = a.id,
-                        CreatedOn = a.createdon,
-                        TagName = a.tagname,
-                    }).ToList();
-                    return result.FirstOrDefault();
+                    return result;
+                }
+                else
+                {
+                    result = search_response.Documents as List<OrderESModel>;
+                    return result ?? new List<OrderESModel>();
                 }
             }
             catch (Exception ex)
@@ -123,7 +129,7 @@ namespace HuloToys_Service.ElasticSearch.NewEs
                 string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
-            return null;
+            return new List<OrderESModel>();
         }
     }
 }
