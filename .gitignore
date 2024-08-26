@@ -2,31 +2,12 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/App_Check_Out/obj/Debug/net8.0
+/.vs
+.vs/HuloToys-Service/v17/.suo
+/App_Push_Consummer/bin
+/App_Push_Consummer/obj
 /HuloToys-Service/obj
-/LIB.Entities/obj
 /Utilities/obj
 /App_Check_Out/obj
 /HuloToys-Service/bin
-/HuloToys-Service/obj
-/App_Push_Consummer/obj
-/.vs
-/.vs
 /App_Check_Out/bin
-/App_Push_Consummer/bin
-/App_Push_Consummer/obj
-/App_Push_Consummer/obj
-/Utilities/bin
-/App_Push_Consummer/obj
-.vs/HuloToys-Service/v17/.futdcache.v2
-.vs/HuloToys-Service/v17/.suo
-.vs/HuloToys-Service/DesignTimeBuild/.dtbcache.v2
-/.vs
-/App_Push_Consummer/Properties
-/.vs
-App_Push_Consummer/App_Push_Consummer.csproj.user
-.vs/HuloToys-Service/DesignTimeBuild/.dtbcache.v2
-.vs/HuloToys-Service/v17/.futdcache.v2
-HuloToys-Service/HuloToys-Service.csproj.user
-/HuloToys-Service/Properties
-/.vs

@@ -11,7 +11,7 @@ using Models.Queue;
 using HuloToys_Service.RabitMQ;
 using Models.APIRequest;
 using Caching.Elasticsearch;
-using System.Security.Cryptography;
+using HuloToys_Service.Models.Queue;
 using HuloToys_Service.Utilities.constants;
 using REPOSITORIES.IRepositories;
 
@@ -245,7 +245,7 @@ namespace HuloToys_Service.Controllers
                         data_push = JsonConvert.SerializeObject(model),
                         type = QueueType.ADD_USER
                     };
-                    bool result= workQueueClient.InsertQueueSimple(new Models.QueueSettingViewModel()
+                    bool result= workQueueClient.InsertQueueSimple(new QueueSettingViewModel()
                     {
                         host = configuration["Queue:Host"],
                         port = Convert.ToInt32(configuration["Queue:Port"]),
@@ -330,7 +330,7 @@ namespace HuloToys_Service.Controllers
                                 data_push = JsonConvert.SerializeObject(model),
                                 type = QueueType.UPDATE_USER
                             };
-                            bool result = workQueueClient.InsertQueueSimple(new Models.QueueSettingViewModel()
+                            bool result = workQueueClient.InsertQueueSimple(new  QueueSettingViewModel()
                             {
                                 host = configuration["Queue:Host"],
                                 port = Convert.ToInt32(configuration["Queue:Port"]),
@@ -422,7 +422,7 @@ namespace HuloToys_Service.Controllers
                                 data_push = JsonConvert.SerializeObject(model),
                                 type = QueueType.UPDATE_USER
                             };
-                            bool result = workQueueClient.InsertQueueSimple(new Models.QueueSettingViewModel()
+                            bool result = workQueueClient.InsertQueueSimple(new  QueueSettingViewModel()
                             {
                                 host = configuration["Queue:Host"],
                                 port = Convert.ToInt32(configuration["Queue:Port"]),

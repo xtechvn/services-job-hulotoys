@@ -11,13 +11,12 @@ using Utilities;
 using Utilities.Contants;
 using HuloToys_Service.MongoDb;
 using Models.MongoDb;
-using REPOSITORIES.IRepositories;
-using HuloToys_Service.Models;
 using HuloToys_Service.Models.APP;
 using HuloToys_Service.Utilities.constants.APP;
 using HuloToys_Service.Models.APIRequest;
 using Models.Orders;
-using HuloToys_Service.Utilities.lib;
+using HuloToys_Service.Models.Queue;
+using HuloToys_Service.Controllers.Order.Business;
 
 namespace HuloToys_Service.Controllers
 {
@@ -30,20 +29,20 @@ namespace HuloToys_Service.Controllers
         private readonly WorkQueueClient workQueueClient;
         private readonly OrderESService orderESRepository;
         private readonly OrderMongodbService orderMongodbService;
-        private readonly IIdentifierServiceRepository _identifierServiceRepository;
         private readonly CartMongodbService _cartMongodbService;
         private readonly WorkQueueClient work_queue;
+        private readonly IdentiferService identiferService;
         private readonly QueueSettingViewModel queue_setting;
-        public OrderController(IConfiguration _configuration, IIdentifierServiceRepository identifierServiceRepository)
+        public OrderController(IConfiguration _configuration )
         {
             configuration = _configuration;
 
             workQueueClient = new WorkQueueClient(configuration);
             orderESRepository = new OrderESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
             orderMongodbService = new OrderMongodbService( configuration);
-            _identifierServiceRepository = identifierServiceRepository;
             _cartMongodbService = new CartMongodbService(configuration);
             work_queue = new WorkQueueClient(configuration);
+            identiferService = new IdentiferService();
             queue_setting = new QueueSettingViewModel
             {
                 host = configuration["Queue:Host"],
@@ -265,7 +264,7 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.FunctionExcutionFailed
                         });
                     }
-                    var order_no = await _identifierServiceRepository.buildOrderNo(count);
+                    var order_no = await identiferService.buildOrderNo(count);
                     var model = new OrderDetailMongoDbModel()
                     {
                         account_client_id = request.account_client_id,
@@ -294,6 +293,7 @@ namespace HuloToys_Service.Controllers
                             cart.quanity = item.quanity;
                             model.carts.Add(cart);
                             model.total_amount += cart.total_amount;
+                            await _cartMongodbService.Delete(item.id);
                         }
 
                     }

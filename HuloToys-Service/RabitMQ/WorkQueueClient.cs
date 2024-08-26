@@ -1,4 +1,4 @@
-﻿using HuloToys_Service.Models;
+﻿using HuloToys_Service.Models.Queue;
 using HuloToys_Service.RedisWorker;
 using HuloToys_Service.Utilities.Lib;
 using RabbitMQ.Client;

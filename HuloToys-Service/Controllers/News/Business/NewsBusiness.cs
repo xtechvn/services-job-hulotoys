@@ -1,4 +1,4 @@
-﻿using HuloToys_Service.ElasticSearch.NewEs;
+﻿using HuloToys_Service.ElasticSearch;
 using HuloToys_Service.Models.Article;
 using HuloToys_Service.Models.Products;
 using HuloToys_Service.Utilities.Lib;

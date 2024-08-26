@@ -1,5 +1,4 @@
 ﻿using Elasticsearch.Net;
-using Models.ElasticSearch;
 using HuloToys_Service.Elasticsearch;
 using HuloToys_Service.Utilities.Lib;
 using Nest;
@@ -8,6 +7,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Utilities;
 using HuloToys_Service.Models.ElasticSearch;
+using HuloToys_Service.Models.Orders;
 
 namespace Caching.Elasticsearch
 {

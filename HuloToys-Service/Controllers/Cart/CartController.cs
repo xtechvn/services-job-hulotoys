@@ -11,10 +11,6 @@ using System.Reflection;
 using Utilities;
 using Utilities.Contants;
 using HuloToys_Front_End.Models.Products;
-using Microsoft.Extensions.Configuration;
-using REPOSITORIES.IRepositories;
-using Caching.Elasticsearch;
-using HuloToys_Service.Models;
 
 namespace HuloToys_Service.Controllers
 {

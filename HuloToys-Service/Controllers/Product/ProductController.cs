@@ -1,6 +1,6 @@
 ﻿using Entities.ViewModels.Products;
 using HuloToys_Front_End.Models.Products;
-using HuloToys_Service.ElasticSearch.NewEs;
+using HuloToys_Service.ElasticSearch;
 using HuloToys_Service.MongoDb;
 using HuloToys_Service.RedisWorker;
 using Microsoft.AspNetCore.Authorization;

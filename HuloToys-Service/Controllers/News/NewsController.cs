@@ -1,7 +1,6 @@
 ﻿using ENTITIES.ViewModels.ArticleViewModels;
 using HuloToys_Service.Controllers.News.Business;
 using HuloToys_Service.Models.Article;
-using HuloToys_Service.Models.MongoDb;
 using HuloToys_Service.RedisWorker;
 using HuloToys_Service.Utilities.Lib;
 using Microsoft.AspNetCore.Authorization;

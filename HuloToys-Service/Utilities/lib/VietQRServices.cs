@@ -1,4 +1,4 @@
-﻿using HuloToys_Service.Models;
+﻿using HuloToys_Service.Models.Payment;
 using Nest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

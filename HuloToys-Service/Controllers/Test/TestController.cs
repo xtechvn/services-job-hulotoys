@@ -1,5 +1,6 @@
 ﻿using HuloToys_Service.Elasticsearch;
 using HuloToys_Service.Models;
+using HuloToys_Service.Models.Queue;
 using HuloToys_Service.RabitMQ;
 using HuloToys_Service.RedisWorker;
 
