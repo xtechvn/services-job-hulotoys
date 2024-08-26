@@ -12,6 +12,9 @@ namespace Caching.Elasticsearch
 {
     public class OrderESService : ESRepository<OrderESModel>
     {
+        public string index = "order_hulotoys_store";
+        private readonly IConfiguration configuration;
+        private static string _ElasticHost;
 
         public OrderESService(string Host,IConfiguration _configuration) : base(Host, _configuration) {
             _ElasticHost = Host;

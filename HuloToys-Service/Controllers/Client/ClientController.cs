@@ -13,6 +13,7 @@ using Models.APIRequest;
 using Caching.Elasticsearch;
 using System.Security.Cryptography;
 using HuloToys_Service.Utilities.constants;
+using REPOSITORIES.IRepositories;
 
 namespace HuloToys_Service.Controllers
 {
@@ -25,11 +26,13 @@ namespace HuloToys_Service.Controllers
         private readonly WorkQueueClient workQueueClient;
         private readonly AccountClientESService accountClientESService;
         private readonly ClientESService clientESService;
-        public ClientController(IConfiguration _configuration) {
+        private readonly IIdentifierServiceRepository _identifierServiceRepository;
+        public ClientController(IConfiguration _configuration, IIdentifierServiceRepository identifierServiceRepository) {
             configuration= _configuration;
             workQueueClient=new WorkQueueClient(configuration);
             accountClientESService = new AccountClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
             clientESService = new ClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
+            _identifierServiceRepository = identifierServiceRepository;
         }
         [HttpPost("login")]
         public async Task<ActionResult> ClientLogin([FromBody] APIRequestGenericModel input)
@@ -220,21 +223,22 @@ namespace HuloToys_Service.Controllers
                             break;
                         }
                     }
-                     
+
                     AccountClientViewModel model = new AccountClientViewModel()
                     {
-                        ClientId=-1,
-                        ClientType=0,
-                        Email=request.email==null || request.email.Trim()==""?"":request.email.Trim(),
-                        Id=-1,
-                        isReceiverInfoEmail=request.is_receive_email==true?(byte)1: (byte)0,
-                        Name=request.user_name.Trim(),
-                        ClientName=request.user_name.Trim(),
-                        Password=request.password,
-                        Phone=request.phone,
-                        Status=0,
-                        UserName= username_generate,
-                        GoogleToken=request.token
+                        ClientId = -1,
+                        ClientType = 0,
+                        Email = request.email == null || request.email.Trim() == "" ? "" : request.email.Trim(),
+                        Id = -1,
+                        isReceiverInfoEmail = request.is_receive_email == true ? (byte)1 : (byte)0,
+                        Name = request.user_name.Trim(),
+                        ClientName = request.user_name.Trim(),
+                        Password = request.password,
+                        Phone = request.phone,
+                        Status = 0,
+                        UserName = username_generate,
+                        GoogleToken = request.token,
+                        ClientCode =await _identifierServiceRepository.buildClientNo(0)
                     };
                     var queue_model = new ClientConsumerQueueModel()
                     {
