@@ -13,7 +13,7 @@ using Models.APIRequest;
 using Caching.Elasticsearch;
 using HuloToys_Service.Models.Queue;
 using HuloToys_Service.Utilities.constants;
-using REPOSITORIES.IRepositories;
+using HuloToys_Service.Controllers.Order.Business;
 
 namespace HuloToys_Service.Controllers
 {
@@ -26,13 +26,13 @@ namespace HuloToys_Service.Controllers
         private readonly WorkQueueClient workQueueClient;
         private readonly AccountClientESService accountClientESService;
         private readonly ClientESService clientESService;
-        private readonly IIdentifierServiceRepository _identifierServiceRepository;
-        public ClientController(IConfiguration _configuration, IIdentifierServiceRepository identifierServiceRepository) {
+        private readonly IdentiferService _identifierServiceRepository;
+        public ClientController(IConfiguration _configuration) {
             configuration= _configuration;
             workQueueClient=new WorkQueueClient(configuration);
             accountClientESService = new AccountClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
             clientESService = new ClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
-            _identifierServiceRepository = identifierServiceRepository;
+            _identifierServiceRepository = new IdentiferService();
         }
         [HttpPost("login")]
         public async Task<ActionResult> ClientLogin([FromBody] APIRequestGenericModel input)
