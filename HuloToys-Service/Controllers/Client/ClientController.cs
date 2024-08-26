@@ -245,14 +245,7 @@ namespace HuloToys_Service.Controllers
                         data_push = JsonConvert.SerializeObject(model),
                         type = QueueType.ADD_USER
                     };
-                    bool result= workQueueClient.InsertQueueSimple(new QueueSettingViewModel()
-                    {
-                        host = configuration["Queue:Host"],
-                        port = Convert.ToInt32(configuration["Queue:Port"]),
-                        v_host = configuration["Queue:V_Host"],
-                        username = configuration["Queue:Username"],
-                        password = configuration["Queue:Password"],
-                    },JsonConvert.SerializeObject(queue_model),QueueName.queue_app_push);
+                    bool result= workQueueClient.InsertQueueSimple(JsonConvert.SerializeObject(queue_model),QueueName.queue_app_push);
                     if (result)
                     {
                         return Ok(new
@@ -330,14 +323,7 @@ namespace HuloToys_Service.Controllers
                                 data_push = JsonConvert.SerializeObject(model),
                                 type = QueueType.UPDATE_USER
                             };
-                            bool result = workQueueClient.InsertQueueSimple(new  QueueSettingViewModel()
-                            {
-                                host = configuration["Queue:Host"],
-                                port = Convert.ToInt32(configuration["Queue:Port"]),
-                                v_host = configuration["Queue:V_Host"],
-                                username = configuration["Queue:Username"],
-                                password = configuration["Queue:Password"],
-                            }, JsonConvert.SerializeObject(queue_model), QueueName.queue_app_push);
+                            bool result = workQueueClient.InsertQueueSimple( JsonConvert.SerializeObject(queue_model), QueueName.queue_app_push);
                             if (result)
                             {
                                 return Ok(new
@@ -422,14 +408,7 @@ namespace HuloToys_Service.Controllers
                                 data_push = JsonConvert.SerializeObject(model),
                                 type = QueueType.UPDATE_USER
                             };
-                            bool result = workQueueClient.InsertQueueSimple(new  QueueSettingViewModel()
-                            {
-                                host = configuration["Queue:Host"],
-                                port = Convert.ToInt32(configuration["Queue:Port"]),
-                                v_host = configuration["Queue:V_Host"],
-                                username = configuration["Queue:Username"],
-                                password = configuration["Queue:Password"],
-                            }, JsonConvert.SerializeObject(queue_model), QueueName.queue_app_push);
+                            bool result = workQueueClient.InsertQueueSimple( JsonConvert.SerializeObject(queue_model), QueueName.queue_app_push);
                             if (result)
                             {
                                 return Ok(new

@@ -32,7 +32,6 @@ namespace HuloToys_Service.Controllers
         private readonly CartMongodbService _cartMongodbService;
         private readonly WorkQueueClient work_queue;
         private readonly IdentiferService identiferService;
-        private readonly QueueSettingViewModel queue_setting;
         public OrderController(IConfiguration _configuration )
         {
             configuration = _configuration;
@@ -43,14 +42,7 @@ namespace HuloToys_Service.Controllers
             _cartMongodbService = new CartMongodbService(configuration);
             work_queue = new WorkQueueClient(configuration);
             identiferService = new IdentiferService(_configuration);
-            queue_setting = new QueueSettingViewModel
-            {
-                host = configuration["Queue:Host"],
-                v_host = configuration["Queue:V_Host"],
-                port = Convert.ToInt32(configuration["Queue:Port"]),
-                username = configuration["Queue:Username"],
-                password = configuration["Queue:Password"]
-            };
+            
         }
 
         [HttpPost("history")]
@@ -301,7 +293,7 @@ namespace HuloToys_Service.Controllers
                     var result = await orderMongodbService.Insert(model);
                     //-- Insert Queue:
                     var queue_model = new CheckoutQueueModel() { event_id = (int)CheckoutEventID.CREATE_ORDER, order_mongo_id = result };
-                    var pushed_queue=work_queue.InsertQueueSimpleDurable(queue_setting,JsonConvert.SerializeObject(queue_model) , QueueName.QUEUE_CHECKOUT);
+                    var pushed_queue=work_queue.InsertQueueSimpleDurable(JsonConvert.SerializeObject(queue_model) , QueueName.QUEUE_CHECKOUT);
                    
                     return Ok(new
                     {

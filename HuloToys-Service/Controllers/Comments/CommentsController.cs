@@ -23,10 +23,13 @@ namespace HuloToys_Service.Controllers.Comments
     {
         private readonly IConfiguration configuration;
         private readonly RedisConn redisService;
+        private readonly WorkQueueClient work_queue;
         public CommentsController(IConfiguration _configuration, RedisConn _redisService)
         {
             configuration = _configuration;
             redisService = _redisService;
+            work_queue = new WorkQueueClient(configuration);
+
         }
         [HttpPost("push-queue")]
         public async Task<IActionResult> insertComments([FromBody] APIRequestGenericModel input)
@@ -38,15 +41,7 @@ namespace HuloToys_Service.Controllers.Comments
                 {
                     var request = JsonConvert.DeserializeObject<CommentsModel>(objParr[0].ToString());
                     bool response_queue = false;
-                    var work_queue = new WorkQueueClient(configuration);
-                    var queue_setting = new QueueSettingViewModel
-                    {
-                        host = configuration["Queue:Host"],
-                        v_host = configuration["Queue:V_Host"],
-                        port = Convert.ToInt32(configuration["Queue:Port"]),
-                        username = configuration["Queue:Username"],
-                        password = configuration["Queue:Password"]
-                    };
+                    
                     var comment_model = JsonConvert.SerializeObject(request);
                     if (comment_model != null)
                     {
@@ -60,7 +55,7 @@ namespace HuloToys_Service.Controllers.Comments
 
                         // Execute Push Queue
 
-                        response_queue = work_queue.InsertQueueSimple(queue_setting, _data_push, QueueName.queue_app_push);
+                        response_queue = work_queue.InsertQueueSimple(_data_push, QueueName.queue_app_push);
                         if (response_queue)
                         {
                             return Ok(new

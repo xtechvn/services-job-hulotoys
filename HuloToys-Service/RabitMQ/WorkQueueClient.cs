@@ -10,13 +10,21 @@ namespace HuloToys_Service.RabitMQ
     public class WorkQueueClient
     {
         private readonly IConfiguration configuration;
+        private readonly QueueSettingViewModel queue_setting;
+        private readonly ConnectionFactory factory;
+        
         public WorkQueueClient(IConfiguration _configuration)
         {
-            configuration = _configuration;            
-        }
-        public bool InsertQueueSimple(QueueSettingViewModel queue_setting,string message, string queueName)
-        {            
-            var factory = new ConnectionFactory()
+            configuration = _configuration;
+            queue_setting = new QueueSettingViewModel()
+            {
+                host = _configuration["Queue:Host"],
+                port = Convert.ToInt32(_configuration["Queue:Port"]),
+                v_host = _configuration["Queue:V_Host"],
+                username = _configuration["Queue:Username"],
+                password = _configuration["Queue:Password"],
+            };
+            factory = new ConnectionFactory()
             {
                 HostName = queue_setting.host,
                 UserName = queue_setting.username,
@@ -24,6 +32,10 @@ namespace HuloToys_Service.RabitMQ
                 VirtualHost = queue_setting.v_host,
                 Port = Protocols.DefaultProtocol.DefaultPort
             };
+        }
+        public bool InsertQueueSimple(string message, string queueName)
+        {            
+            
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
@@ -52,16 +64,9 @@ namespace HuloToys_Service.RabitMQ
                 }
             }
         }
-        public bool InsertQueueSimpleDurable(QueueSettingViewModel queue_setting, string message, string queueName)
+        public bool InsertQueueSimpleDurable( string message, string queueName)
         {
-            var factory = new ConnectionFactory()
-            {
-                HostName = queue_setting.host,
-                UserName = queue_setting.username,
-                Password = queue_setting.password,
-                VirtualHost = queue_setting.v_host,
-                Port = Protocols.DefaultProtocol.DefaultPort
-            };
+            
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
