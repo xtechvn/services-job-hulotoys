@@ -328,7 +328,7 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.FunctionExcutionFailed
                         });
                     }
-                    var order_no = await identiferService.buildOrderNo(count);
+                    var order_no = await identiferService.buildOrderNo(++count);
                     var model = new OrderDetailMongoDbModel()
                     {
                         account_client_id = request.account_client_id,
