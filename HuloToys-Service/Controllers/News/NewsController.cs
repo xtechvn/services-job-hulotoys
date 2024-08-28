@@ -16,7 +16,7 @@ namespace HuloToys_Service.Controllers
 {
     [Route("api/news")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class NewsController : ControllerBase
     {
 
@@ -707,11 +707,11 @@ namespace HuloToys_Service.Controllers
                 {
                     string db_type = "database";
                     string title = (objParr[0]["title"]).ToString().Trim();
-                    int parent_cate_faq_id = Convert.ToInt32(objParr[0]["parent_cate_faq_id"]);
+                    string parent_cate_faq_id = objParr[0]["parent_cate_faq_id"].ToString();
 
                     var detail = new List<ArticleRelationModel>();
 
-                    detail = await _newsBusiness.FindArticleByTitle(title, parent_cate_faq_id);
+                    detail = await _newsBusiness.FindArticleByBody(title, parent_cate_faq_id);
 
                     return Ok(new
                     {

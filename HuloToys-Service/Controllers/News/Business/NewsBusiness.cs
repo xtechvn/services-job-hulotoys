@@ -780,23 +780,15 @@ namespace HuloToys_Service.Controllers.News.Business
 
                 try
                 {
-                    var arr_cate_child_help_id = new List<int>();
-                    var list_id = parent_cate_faq_id.Split(',').ToList();
-                    if (list_id != null && list_id.Count > 0)
-                    {
-                        foreach(var item in list_id)
-                        {
-                            var group_product_list = groupProductESService.GetListGroupProductByParentId(Convert.ToInt32(item));
-                            arr_cate_child_help_id = group_product_list.Select(x => x.Id).ToList();
-                        }
-                      
-                    }
+                   
+                    var arr_cate_child_help_id = parent_cate_faq_id.Split(',').ToList();
+               
                     if (arr_cate_child_help_id.Count() > 0)
                     {
                         foreach (var item in arr_cate_child_help_id)
                         {
                             var groupProductName = string.Empty;
-                            var DetailGroupProductById = groupProductESService.GetDetailGroupProductById(item);
+                            var DetailGroupProductById = groupProductESService.GetDetailGroupProductById(Convert.ToInt32(item));
                             if (DetailGroupProductById.IsShowHeader == true)
                             {
                                 groupProductName += DetailGroupProductById.Name + ",";
