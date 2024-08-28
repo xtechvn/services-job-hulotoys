@@ -73,7 +73,7 @@ namespace Caching.Elasticsearch
                 if (status == null || status.Trim() == "")
                 {
                     Func<QueryContainerDescriptor<OrderESModel>, QueryContainer> query_container = q => q
-                                  .Match(m => m.Field("clientid").Query(client_id.ToString())
+                                  .Match(m => m.Field(x=>x.clientid).Query(client_id.ToString())
                                   );
                     var query = elasticClient.Search<OrderESModel>(sd => sd
                               .Index(index)
@@ -103,9 +103,9 @@ namespace Caching.Elasticsearch
                 else
                 {
                     Func<QueryContainerDescriptor<OrderESModel>, QueryContainer> query_container = q =>
-                                q.Match(m => m.Field("clientid").Query(client_id.ToString()))
+                                q.Match(m => m.Field(x => x.clientid).Query(client_id.ToString()))
                                  &&
-                                q.Terms(t => t.Field(x => x.orderstatus).Terms(status.Split(",")))
+                                q.Terms(t => t.Field(x => x.status).Terms(status.Split(",")))
                                 ;
                     var query = elasticClient.Search<OrderESModel>(sd => sd
                              .Index(index)
@@ -154,7 +154,7 @@ namespace Caching.Elasticsearch
                                .Query(q => q
                                    .Match(m => m.Field("clientid").Query(client_id.ToString())
                                    ))
-                                .Sort(q => q.Descending(u => u.createtime))); ;
+                                .Sort(q => q.Descending(u => u.createddate))); ;
 
                 if (!query.IsValid)
                 {
@@ -225,17 +225,24 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Count<OrderESModel>(sd => sd
+                var query = elasticClient.Search<OrderESModel>(sd => sd
                                    .Index(index)
                                   .Query(q =>
                                    q.Bool(
                                        qb => qb.Must(
-                                          q => q.DateRange(m => m.Field(x => x.createtime).GreaterThan(new DateTime(DateTime.Now.Year, 01, 01, 0, 0, 0))
+                                          q => q.DateRange(m => m.Field(x => x.createddate).GreaterThan(new DateTime(DateTime.Now.Year, 01, 01, 0, 0, 0))
                                            )
                                            )
                                        )
                                   ));
-                return query.Count;
+                if (query.IsValid)
+                {
+                    return query.Documents.Count;
+                }
+                else
+                {
+                    return 0;
+                }
             }
             catch (Exception ex)
             {

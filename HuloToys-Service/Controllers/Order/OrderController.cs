@@ -32,6 +32,7 @@ namespace HuloToys_Service.Controllers
         private readonly WorkQueueClient workQueueClient;
         private readonly OrderESService orderESRepository;
         private readonly OrderMongodbService orderMongodbService;
+        private readonly AccountClientESService accountClientESService;
         private readonly CartMongodbService _cartMongodbService;
         private readonly WorkQueueClient work_queue;
         private readonly IdentiferService identiferService;
@@ -43,6 +44,7 @@ namespace HuloToys_Service.Controllers
 
             workQueueClient = new WorkQueueClient(configuration);
             orderESRepository = new OrderESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
+            accountClientESService = new AccountClientESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
             orderMongodbService = new OrderMongodbService( configuration);
             _cartMongodbService = new CartMongodbService(configuration);
             work_queue = new WorkQueueClient(configuration);
@@ -134,7 +136,8 @@ namespace HuloToys_Service.Controllers
                             });
                         }
                     }
-                    var result = orderESRepository.GetFEByClientID(request.client_id,request.status, (request.page_index <= 0 ? 1 : request.page_index), (request.page_size <= 0 ? 10 : request.page_size));
+                    var account_client = accountClientESService.GetById(request.client_id);
+                    var result = orderESRepository.GetFEByClientID((long)account_client.clientid, request.status, (request.page_index <= 0 ? 1 : request.page_index), (request.page_size <= 0 ? 10 : request.page_size));
                     if(result!=null && result.data!=null && result.data.Count > 0)
                     {
                         result.data_order = await orderMongodbService.GetListByOrderId(result.data.Select(x => x.orderid).ToList());
@@ -328,7 +331,7 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.FunctionExcutionFailed
                         });
                     }
-                    var order_no = await identiferService.buildOrderNo(++count);
+                    var order_no = await identiferService.buildOrderNo(count);
                     var model = new OrderDetailMongoDbModel()
                     {
                         account_client_id = request.account_client_id,
