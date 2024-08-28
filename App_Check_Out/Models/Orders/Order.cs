@@ -44,5 +44,7 @@ public partial class Order
 
     public int? UserId { get; set; }
     public string UserGroupIds { get; set; }
+    public int? CreatedBy { get; set; }
+    public int? UserUpdateId { get; set; }
 
 }

@@ -8,6 +8,7 @@ using System.Reflection;
 using Utilities;
 using HuloToys_Service.Models.ElasticSearch;
 using HuloToys_Service.Models.Orders;
+using Azure.Core;
 
 namespace Caching.Elasticsearch
 {
@@ -17,14 +18,15 @@ namespace Caching.Elasticsearch
         private readonly IConfiguration configuration;
         private static string _ElasticHost;
 
-        public OrderESService(string Host,IConfiguration _configuration) : base(Host, _configuration) {
+        public OrderESService(string Host, IConfiguration _configuration) : base(Host, _configuration)
+        {
             _ElasticHost = Host;
             configuration = _configuration;
             index = _configuration["DataBaseConfig:Elastic:Index:Order"];
 
 
         }
-        public List<OrderESModel> GetByClientID( long client_id)
+        public List<OrderESModel> GetByClientID(long client_id)
         {
             List<OrderESModel> result = new List<OrderESModel>();
             try
@@ -33,12 +35,14 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-
                 var query = elasticClient.Search<OrderESModel>(sd => sd
-                               .Index(index)
-                               .Query(q => q
-                                   .Match(m => m.Field("clientid").Query(client_id.ToString())
-                                   )));
+                            .Index(index)
+                            .Query(q => q
+                                .Match(m => m.Field("clientid").Query(client_id.ToString())
+                                ))
+                            .Size(100)
+
+                            );
 
                 if (!query.IsValid)
                 {
@@ -48,6 +52,83 @@ namespace Caching.Elasticsearch
                 {
                     result = query.Documents as List<OrderESModel>;
                     return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+            }
+            return null;
+        }
+        public OrderFEResponseModel GetFEByClientID(long client_id, string status, int page_index, int page_size)
+        {
+            OrderFEResponseModel result = new OrderFEResponseModel();
+            try
+            {
+                var nodes = new Uri[] { new Uri(_ElasticHost) };
+                var connectionPool = new StaticConnectionPool(nodes);
+                var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
+                var elasticClient = new ElasticClient(connectionSettings);
+                if (status == null || status.Trim() == "")
+                {
+                    Func<QueryContainerDescriptor<OrderESModel>, QueryContainer> query_container = q => q
+                                  .Match(m => m.Field("clientid").Query(client_id.ToString())
+                                  );
+                    var query = elasticClient.Search<OrderESModel>(sd => sd
+                              .Index(index)
+                              .Query(query_container)
+                              .From((page_index - 1) * page_size)
+                              .Size(page_size)
+
+                              );
+                    var query_count = elasticClient.Count<OrderESModel>(sd => sd
+                              .Index(index)
+                              .Query(query_container)
+                              );
+                    if (!query.IsValid && !query_count.IsValid)
+                    {
+                        return result;
+                    }
+                    else
+                    {
+                        result.data = query.Documents as List<OrderESModel>;
+                        result.total = query_count.Count;
+                        result.page_index = page_index;
+                        result.page_size = page_size;
+                        return result;
+                    }
+                   
+                }
+                else
+                {
+                    Func<QueryContainerDescriptor<OrderESModel>, QueryContainer> query_container = q =>
+                                q.Match(m => m.Field("clientid").Query(client_id.ToString()))
+                                 &&
+                                q.Terms(t => t.Field(x => x.orderstatus).Terms(status.Split(",")))
+                                ;
+                    var query = elasticClient.Search<OrderESModel>(sd => sd
+                             .Index(index)
+                             .Query(query_container)
+                              .From((page_index - 1) * page_size)
+                              .Size(page_size)
+                             );
+                    var query_count = elasticClient.Count<OrderESModel>(sd => sd
+                             .Index(index)
+                             .Query(query_container)
+                             );
+                    if (!query.IsValid)
+                    {
+                        return result;
+                    }
+                    else
+                    {
+                        result.data = query.Documents as List<OrderESModel>;
+                        result.total = query_count.Count;
+                        result.page_index = page_index;
+                        result.page_size = page_size;
+                        return result;
+                    }
                 }
             }
             catch (Exception ex)
@@ -69,7 +150,7 @@ namespace Caching.Elasticsearch
 
                 var query = elasticClient.Search<OrderESModel>(sd => sd
                                .Index(index)
-                               
+
                                .Query(q => q
                                    .Match(m => m.Field("clientid").Query(client_id.ToString())
                                    ))
@@ -81,7 +162,7 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    var rs=  query.Documents as List<OrderESModel>;
+                    var rs = query.Documents as List<OrderESModel>;
                     return rs.FirstOrDefault();
                 }
             }
@@ -92,7 +173,7 @@ namespace Caching.Elasticsearch
             }
             return null;
         }
-        public List<OrderESModel> GetByOrderNo(string text,long client_id)
+        public List<OrderESModel> GetByOrderNo(string text, long client_id)
         {
             List<OrderESModel> result = new List<OrderESModel>();
             try
@@ -137,7 +218,7 @@ namespace Caching.Elasticsearch
         }
         public async Task<long> CountOrderByYear()
         {
-           
+
             try
             {
                 var nodes = new Uri[] { new Uri(_ElasticHost) };
@@ -155,11 +236,11 @@ namespace Caching.Elasticsearch
                                        )
                                   ));
                 return query.Count;
-            } 
+            }
             catch (Exception ex)
             {
                 string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return -1;
         }

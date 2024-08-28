@@ -12,3 +12,7 @@
 /HuloToys-Service/bin
 /App_Check_Out/bin
 /Utilities/bin
+/App_Check_Out/Properties
+/HuloToys-Service/Properties
+HuloToys-Service/HuloToys-Service.csproj.user
+/HuloToys-Service/.config

@@ -10,5 +10,8 @@ namespace Models.APIRequest
     {
         public long client_id { get; set; }
         public string order_no { get; set; }
+        public string status { get; set; }
+        public int page_index { get; set; }
+        public int page_size { get; set; }
     }
 }

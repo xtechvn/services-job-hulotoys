@@ -18,7 +18,9 @@ namespace Models.MongoDb
         public long order_id { get; set; }
         public string order_no { get; set; }
         public double total_amount { get; set; }
-
+        public double? total_price { get; set; }
+        public double? total_profit { get; set; }
+        public double? total_discount { get; set; }
         public List<CartItemMongoDbModel> carts { get; set; }
     }
 }

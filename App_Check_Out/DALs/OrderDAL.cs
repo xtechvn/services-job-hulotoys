@@ -35,6 +35,7 @@ namespace APP_CHECKOUT.DAL
                      new SqlParameter("@IsDelete", request.IsDelete),
                      new SqlParameter("@UserId", request.UserId),
                      new SqlParameter("@UserGroupIds", request.UserGroupIds),
+                     new SqlParameter("@CreatedBy", request.CreatedBy),
 
                 };
                 request.OrderId = _DbWorker.ExecuteNonQuery(SPName.CREATE_ORDER, objParam);
@@ -70,6 +71,7 @@ namespace APP_CHECKOUT.DAL
                      new SqlParameter("@IsDelete", request.IsDelete),
                      new SqlParameter("@UserId", request.UserId),
                      new SqlParameter("@UserGroupIds", request.UserGroupIds),
+                     new SqlParameter("@UserUpdateId", request.UserUpdateId),
 
                 };
                 return _DbWorker.ExecuteNonQuery(SPName.UPDATE_ORDER, objParam);

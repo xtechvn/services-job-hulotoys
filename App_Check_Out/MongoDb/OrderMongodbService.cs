@@ -62,7 +62,25 @@ namespace APP_CHECKOUT.MongoDb
             return null;
 
         }
-       
+        public async Task<string> Update(OrderDetailMongoDbModel model)
+        {
+            try
+            {
+                var filter = Builders<OrderDetailMongoDbModel>.Filter;
+                var filterDefinition = filter.Empty;
+                filterDefinition &= Builders<OrderDetailMongoDbModel>.Filter.Eq(x => x._id, model._id);
+
+                await bookingCollection.ReplaceOneAsync(filterDefinition, model);
+                return model._id;
+            }
+            catch (Exception ex)
+            {
+                //string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                //LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
+            }
+            return null;
+
+        }
         public async Task<bool> Delete(string id)
         {
             try

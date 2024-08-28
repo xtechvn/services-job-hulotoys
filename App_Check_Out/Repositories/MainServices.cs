@@ -110,6 +110,10 @@ namespace APP_CHECKOUT.Repositories
                     total_profit += (cart.product.profit * cart.quanity);
                     total_discount += (cart.product.discount * cart.quanity);
                     total_amount += (cart.product.amount * cart.quanity);
+                    cart.total_price = cart.product.price * cart.quanity;
+                    cart.total_discount = cart.product.discount * cart.quanity;
+                    cart.total_profit = cart.product.profit * cart.quanity;
+                    cart.total_amount = cart.product.amount * cart.quanity;
                 }
                 var account_client=accountClientESService.GetById(order.account_client_id);
                 var client = clientESService.GetById((long)account_client.clientid);
@@ -133,7 +137,9 @@ namespace APP_CHECKOUT.Repositories
                     UserId = Convert.ToInt32(_configuration["Setting:BOT_UserID"]),
                     UtmMedium=order.utm_medium,
                     UtmSource=order.utm_source,
-                    VoucherId=order.voucher_id
+                    VoucherId=order.voucher_id,
+                    CreatedBy = Convert.ToInt32(_configuration["Setting:BOT_UserID"]),
+                    UserUpdateId = Convert.ToInt32(_configuration["Setting:BOT_UserID"])
                 };
                 var order_id = await orderDAL.CreateOrder(order_summit);
                 Console.WriteLine("Created Order - " + order.order_no+": "+ order_id);
@@ -147,8 +153,14 @@ namespace APP_CHECKOUT.Repositories
                         await orderDetailDAL.CreateOrderDetail(detail);
                         Console.WriteLine("Created OrderDetail - " + detail.OrderId + ": " + detail.OrderDetailId);
                         logging_service.LoggingAppOutput("OrderDetail Created - " + detail.OrderId + ": " + detail.OrderDetailId, true, false);
-
+                        order.order_id=order_id;
+                        order.total_price = total_price;
+                        order.total_profit=total_profit;
+                        order.total_amount= total_amount;
+                        order.total_discount= total_discount;
+                        await orderDetailMongoDbModel.Update(order);
                     }
+
                 }
 
             }
