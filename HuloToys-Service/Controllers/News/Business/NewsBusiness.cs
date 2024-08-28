@@ -772,5 +772,77 @@ namespace HuloToys_Service.Controllers.News.Business
             var tag_id_list = GetTagIDByArticleID(articleID);
             return await GetTagByListID(tag_id_list);
         }
+        public async Task<List<ArticleRelationModel>> FindArticleByBody(string title, string parent_cate_faq_id)
+        {
+            try
+            {
+                var list_article = new List<ArticleRelationModel>();
+
+                try
+                {
+                    var arr_cate_child_help_id = new List<int>();
+                    var list_id = parent_cate_faq_id.Split(',').ToList();
+                    if (list_id != null && list_id.Count > 0)
+                    {
+                        foreach(var item in list_id)
+                        {
+                            var group_product_list = groupProductESService.GetListGroupProductByParentId(Convert.ToInt32(item));
+                            arr_cate_child_help_id = group_product_list.Select(x => x.Id).ToList();
+                        }
+                      
+                    }
+                    if (arr_cate_child_help_id.Count() > 0)
+                    {
+                        foreach (var item in arr_cate_child_help_id)
+                        {
+                            var groupProductName = string.Empty;
+                            var DetailGroupProductById = groupProductESService.GetDetailGroupProductById(item);
+                            if (DetailGroupProductById.IsShowHeader == true)
+                            {
+                                groupProductName += DetailGroupProductById.Name + ",";
+                            }
+                            var List_articleCategory = articleCategoryESService.GetByCategoryId(DetailGroupProductById.Id);
+                            if (List_articleCategory != null && List_articleCategory.Count > 0)
+                            {
+                                foreach (var item2 in List_articleCategory)
+                                {
+                                    var ListArticleByBody = articleESService.GetListArticleByBody((long)item2.ArticleId,title);
+                                    if (ListArticleByBody != null)
+                                    {
+                           
+                                        list_article.AddRange(ListArticleByBody);
+                                    }
+
+                                }
+                            }
+
+                        }
+                        if (list_article.Count > 0)
+                            list_article = list_article.Where(s => s.Title.ToUpper().Contains(title.ToUpper())).GroupBy(x => x.Id).Select(x => x.First()).OrderByDescending(x => x.publish_date).ToList();
+
+                    }
+                    else
+                    {
+                        return null;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+
+                    LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "[title = " + title + "]FindArticleByBody - ArticleDAL: transaction.Commit " + ex);
+                    return null;
+                }
+
+                return list_article;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "[title = " + title + "]FindArticleByBody - ArticleDAL:" + ex);
+
+                return null;
+            }
+        }
+
     }
 }

@@ -694,5 +694,53 @@ namespace HuloToys_Service.Controllers
                 });
             }
         }
+        [HttpPost("find-all-article.json")]
+        public async Task<ActionResult> FindArticleByBody([FromBody] APIRequestGenericModel input)
+        {
+            try
+            {
+                // string j_param = "{'title':'54544544444','parent_cate_faq_id':279}";
+                // token = CommonHelper.Encode(j_param, configuration["KEY_TOKEN_API"]);
+
+                JArray objParr = null;
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+                {
+                    string db_type = "database";
+                    string title = (objParr[0]["title"]).ToString().Trim();
+                    int parent_cate_faq_id = Convert.ToInt32(objParr[0]["parent_cate_faq_id"]);
+
+                    var detail = new List<ArticleRelationModel>();
+
+                    detail = await _newsBusiness.FindArticleByTitle(title, parent_cate_faq_id);
+
+                    return Ok(new
+                    {
+                        status = detail.Count() > 0 ? (int)ResponseType.SUCCESS : (int)ResponseType.EMPTY,
+                        data_list = detail.Count() > 0 ? detail : null,
+                        msg = "Get " + db_type + " Successfully !!!",
+                        _token = input.token
+                    });
+                }
+                else
+                {
+                    return Ok(new
+                    {
+                        status = (int)ResponseType.ERROR,
+                        msg = "Key ko hop le"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                return Ok(new
+                {
+                    status = (int)ResponseType.FAILED,
+                    msg = "find-article.json = " + ex.ToString(),
+                    _token = input.token
+                });
+            }
+        }
     }
 }
