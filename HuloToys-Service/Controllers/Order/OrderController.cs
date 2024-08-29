@@ -17,6 +17,9 @@ using HuloToys_Service.Models.APIRequest;
 using Models.Orders;
 using HuloToys_Service.Models.Queue;
 using HuloToys_Service.Controllers.Order.Business;
+using HuloToys_Front_End.Models.Products;
+using HuloToys_Service.RedisWorker;
+using HuloToys_Service.Models.Orders;
 
 namespace HuloToys_Service.Controllers
 {
@@ -29,20 +32,25 @@ namespace HuloToys_Service.Controllers
         private readonly WorkQueueClient workQueueClient;
         private readonly OrderESService orderESRepository;
         private readonly OrderMongodbService orderMongodbService;
+        private readonly AccountClientESService accountClientESService;
         private readonly CartMongodbService _cartMongodbService;
         private readonly WorkQueueClient work_queue;
         private readonly IdentiferService identiferService;
-        public OrderController(IConfiguration _configuration )
+        private readonly RedisConn _redisService;
+
+        public OrderController(IConfiguration _configuration, RedisConn redisService)
         {
             configuration = _configuration;
 
             workQueueClient = new WorkQueueClient(configuration);
             orderESRepository = new OrderESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
+            accountClientESService = new AccountClientESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
             orderMongodbService = new OrderMongodbService( configuration);
             _cartMongodbService = new CartMongodbService(configuration);
             work_queue = new WorkQueueClient(configuration);
             identiferService = new IdentiferService(_configuration);
-            
+            _redisService = new RedisConn(configuration);
+            _redisService.Connect();
         }
 
         [HttpPost("history")]
@@ -72,6 +80,73 @@ namespace HuloToys_Service.Controllers
                         status = (int)ResponseType.SUCCESS,
                         msg = "Success",
                         data= result
+                    });
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+            }
+            return Ok(new
+            {
+                status = (int)ResponseType.FAILED,
+                msg = ResponseMessages.DataInvalid
+            });
+
+        }
+        [HttpPost("fe-history")]
+        public async Task<ActionResult> OrderFEHistory([FromBody] APIRequestGenericModel input)
+        {
+            try
+            {
+
+
+                JArray objParr = null;
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+                {
+                    var request = JsonConvert.DeserializeObject<OrderHistoryRequestModel>(objParr[0].ToString());
+                    if (request == null || request.client_id <= 0
+                        || request.page_index <= 0 || request.page_size <= 0
+                        )
+                    {
+
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    if (request.status == "-1") request.status = "";
+
+                    var cache_name = CacheType.ORDER_DETAIL_FE + request.client_id+request.status+request.page_index+request.page_size;
+                    var j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
+                    if (j_data != null && j_data.Trim() != "")
+                    {
+                        OrderFEResponseModel data = JsonConvert.DeserializeObject<OrderFEResponseModel>(j_data);
+                        if (data != null && data.data != null&& data.data.Count>0)
+                        {
+                            return Ok(new
+                            {
+                                status = (int)ResponseType.SUCCESS,
+                                msg = ResponseMessages.Success,
+                                data = data
+                            });
+                        }
+                    }
+                    var account_client = accountClientESService.GetById(request.client_id);
+                    var result = orderESRepository.GetFEByClientID((long)account_client.clientid, request.status, (request.page_index <= 0 ? 1 : request.page_index), (request.page_size <= 0 ? 10 : request.page_size));
+                    if(result!=null && result.data!=null && result.data.Count > 0)
+                    {
+                        result.data_order = await orderMongodbService.GetListByOrderId(result.data.Select(x => x.orderid).ToList());
+                    }
+                    return Ok(new
+                    {
+                        status = (int)ResponseType.SUCCESS,
+                        msg = "Success",
+                        data = result
                     });
 
                 }

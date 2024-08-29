@@ -17,6 +17,9 @@ namespace APP_CHECKOUT.Models.Orders
         public int delivery_type { get; set; }
         public long order_id { get; set; }
         public string order_no { get; set; }
+        public double? total_price { get; set; }
+        public double? total_profit { get; set; }
+        public double? total_discount { get; set; }
         public double total_amount { get; set; }
         public string utm_source { get; set; }
         public string utm_medium { get; set; }

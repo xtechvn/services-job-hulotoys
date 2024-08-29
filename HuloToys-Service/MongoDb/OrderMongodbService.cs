@@ -50,11 +50,7 @@ namespace HuloToys_Service.MongoDb
                 var filterDefinition = filter.Empty;
                 filterDefinition &= Builders<OrderDetailMongoDbModel>.Filter.Eq(x => x._id, id);
 
-                var model = await bookingCollection.Find(filterDefinition).ToListAsync();
-                if (model != null)
-                {
-                    return model.FirstOrDefault();
-                }
+                return await bookingCollection.Find(filterDefinition).FirstOrDefaultAsync();
             }
             catch (Exception ex)
             {
@@ -64,7 +60,26 @@ namespace HuloToys_Service.MongoDb
             return null;
 
         }
-       
+        public async Task<List<OrderDetailMongoDbModel>> GetListByOrderId(List<long> ids)
+        {
+            try
+            {
+                var filter = Builders<OrderDetailMongoDbModel>.Filter;
+                var filterDefinition = filter.Empty;
+                filterDefinition &= Builders<OrderDetailMongoDbModel>.Filter.In(x => x.order_id, ids);
+
+                return await bookingCollection.Find(filterDefinition).ToListAsync();
+               
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
+            }
+            return null;
+
+        }
+
         public async Task<bool> Delete(string id)
         {
             try
