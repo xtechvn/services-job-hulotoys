@@ -809,9 +809,7 @@ namespace HuloToys_Service.Controllers.News.Business
                             }
 
                         }
-                        if (list_article.Count > 0)
-                            list_article = list_article.Where(s => s.Title.ToUpper().Contains(title.ToUpper())).GroupBy(x => x.Id).Select(x => x.First()).OrderByDescending(x => x.publish_date).ToList();
-
+                      
                     }
                     else
                     {
