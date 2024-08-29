@@ -2,6 +2,7 @@
 using HuloToys_Service.Models.Article;
 using HuloToys_Service.Models.Products;
 using HuloToys_Service.Utilities.Lib;
+using Nest;
 using Newtonsoft.Json;
 using System.Reflection;
 using Utilities;
@@ -777,12 +778,13 @@ namespace HuloToys_Service.Controllers.News.Business
             try
             {
                 var list_article = new List<ArticleRelationModel>();
+                var list_articleid = new List<long?>();
 
                 try
                 {
                    
                     var arr_cate_child_help_id = parent_cate_faq_id.Split(',').ToList();
-               
+                    var ListArticleByBody = articleESService.GetListArticleByBody( title);
                     if (arr_cate_child_help_id.Count() > 0)
                     {
                         foreach (var item in arr_cate_child_help_id)
@@ -794,22 +796,10 @@ namespace HuloToys_Service.Controllers.News.Business
                                 groupProductName += DetailGroupProductById.Name + ",";
                             }
                             var List_articleCategory = articleCategoryESService.GetByCategoryId(DetailGroupProductById.Id);
-                            if (List_articleCategory != null && List_articleCategory.Count > 0)
-                            {
-                                foreach (var item2 in List_articleCategory)
-                                {
-                                    var ListArticleByBody = articleESService.GetListArticleByBody((long)item2.ArticleId,title);
-                                    if (ListArticleByBody != null)
-                                    {
-                           
-                                        list_article.AddRange(ListArticleByBody);
-                                    }
-
-                                }
-                            }
-
+                            list_articleid.AddRange(List_articleCategory.Select(s => s.ArticleId).ToList());
                         }
-                      
+                        string articleid = string.Join(',', list_articleid);
+                        list_article = ListArticleByBody.Where(s => articleid.Contains(s.Id.ToString())).ToList();
                     }
                     else
                     {

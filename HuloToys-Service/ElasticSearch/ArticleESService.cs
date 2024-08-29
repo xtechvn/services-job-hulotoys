@@ -170,7 +170,7 @@ namespace HuloToys_Service.ElasticSearch
             }
             return null;
         }
-        public List<ArticleRelationModel> GetListArticleByBody(long id,string txt_search)
+        public List<ArticleRelationModel> GetListArticleByBody(string txt_search)
         {
             try
             {
@@ -184,7 +184,7 @@ namespace HuloToys_Service.ElasticSearch
                           .Query(q =>
                            q.Bool(
                                qb => qb.Must(
-                                  q => q.Term("id", id),
+                                  //q => q.Term("id", id),
                                    sh => sh.QueryString(qs => qs
                                    .Fields(new[] { "title", "lead", "body" })
                                    .Query("*" + txt_search + "*")
