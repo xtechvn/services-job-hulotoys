@@ -1,11 +1,11 @@
 ﻿using Entities.ViewModels.Products;
 using HuloToys_Front_End.Models.Products;
 using HuloToys_Service.ElasticSearch;
+using HuloToys_Service.Models.APIRequest;
 using HuloToys_Service.MongoDb;
 using HuloToys_Service.RedisWorker;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Models.APIRequest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Utilities;

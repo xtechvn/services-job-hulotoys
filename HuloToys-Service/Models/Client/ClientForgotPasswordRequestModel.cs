@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Models.APIRequest
+namespace HuloToys_Service.Models.Client
 {
-    public class PaymentCheckoutRequestModel
+    public class ClientForgotPasswordRequestModel
     {
+        public string name { get; set; }
     }
 }

@@ -1,8 +1,8 @@
-﻿using HuloToys_Service.RedisWorker;
+﻿using HuloToys_Service.Models.APIRequest;
+using HuloToys_Service.RedisWorker;
 using HuloToys_Service.Utilities.Lib;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Models.APIRequest;
 using Newtonsoft.Json.Linq;
 using Utilities;
 using Utilities.Contants;

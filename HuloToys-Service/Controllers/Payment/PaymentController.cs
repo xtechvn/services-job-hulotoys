@@ -1,5 +1,4 @@
-﻿using Models.APIRequest;
-using HuloToys_Service.RabitMQ;
+﻿using HuloToys_Service.RabitMQ;
 using HuloToys_Service.Utilities.Lib;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +11,8 @@ using HuloToys_Service.Models.Orders;
 using HuloToys_Service.Utilities.lib;
 using HuloToys_Service.MongoDb;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using HuloToys_Service.Models.APIRequest;
+using HuloToys_Service.Models.Payment;
 
 namespace HuloToys_Service.Controllers
 {
@@ -43,7 +44,7 @@ namespace HuloToys_Service.Controllers
                 JArray objParr = null;
                 if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
-                    var request = JsonConvert.DeserializeObject<OrderGeneralRequestModel>(objParr[0].ToString());
+                    var request = JsonConvert.DeserializeObject<OrdersGeneralRequestModel>(objParr[0].ToString());
                     if (request == null || request.id == null || request.id.Trim() == "")
                     {
                         return Ok(new

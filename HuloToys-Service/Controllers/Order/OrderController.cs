@@ -13,13 +13,10 @@ using HuloToys_Service.MongoDb;
 using Models.MongoDb;
 using HuloToys_Service.Models.APP;
 using HuloToys_Service.Utilities.constants.APP;
-using HuloToys_Service.Models.APIRequest;
-using Models.Orders;
-using HuloToys_Service.Models.Queue;
 using HuloToys_Service.Controllers.Order.Business;
-using HuloToys_Front_End.Models.Products;
 using HuloToys_Service.RedisWorker;
 using HuloToys_Service.Models.Orders;
+using HuloToys_Service.Models.APIRequest;
 
 namespace HuloToys_Service.Controllers
 {
@@ -285,6 +282,58 @@ namespace HuloToys_Service.Controllers
 
                     }
                     
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+            }
+            return Ok(new
+            {
+                status = (int)ResponseType.FAILED,
+                msg = ResponseMessages.DataInvalid
+            });
+
+        }
+        [HttpPost("history-detail")]
+        public async Task<ActionResult> HistoryDetail([FromBody] APIRequestGenericModel input)
+        {
+            try
+            {
+
+
+                JArray objParr = null;
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+                {
+                    var request = JsonConvert.DeserializeObject<OrderHistoryDetailRequestModel>(objParr[0].ToString());
+                    if (request == null || request.id <= 0)
+                    {
+
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    OrderDetailResponseModel result = new OrderDetailResponseModel()
+                    {
+                        data_order = (await orderMongodbService.GetListByOrderId(new List<long>() { request.id })).FirstOrDefault(),
+                        data = orderESRepository.GetByOrderId(request.id)
+                    };
+                    if (result != null)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.SUCCESS,
+                            msg = "Success",
+                            data = result
+                        });
+
+                    }
+
 
                 }
 

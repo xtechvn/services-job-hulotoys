@@ -1,5 +1,6 @@
 ﻿using HuloToys_Service.Models;
 using HuloToys_Service.Models.Address;
+using HuloToys_Service.Models.APIRequest;
 using HuloToys_Service.Models.Queue;
 using HuloToys_Service.RabitMQ;
 using HuloToys_Service.RedisWorker;
@@ -7,7 +8,6 @@ using HuloToys_Service.Utilities.Lib;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Models.APIRequest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Reflection;

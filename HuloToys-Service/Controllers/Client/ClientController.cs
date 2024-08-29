@@ -6,14 +6,14 @@ using System.Reflection;
 using HuloToys_Service.Utilities.Lib;
 using Utilities;
 using Utilities.Contants;
-using LIB.Models.APIRequest;
 using Models.Queue;
 using HuloToys_Service.RabitMQ;
-using Models.APIRequest;
 using Caching.Elasticsearch;
 using HuloToys_Service.Models.Queue;
 using HuloToys_Service.Utilities.constants;
 using HuloToys_Service.Controllers.Order.Business;
+using HuloToys_Service.Models.Client;
+using HuloToys_Service.Models.APIRequest;
 
 namespace HuloToys_Service.Controllers
 {

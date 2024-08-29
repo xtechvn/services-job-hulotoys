@@ -1,4 +1,4 @@
-﻿namespace HuloToys_Service.Models.APIRequest
+﻿namespace HuloToys_Service.Models.Orders
 {
     public class OrdersGeneralRequestModel
     {

@@ -1,8 +1,8 @@
-﻿namespace LIB.Models.APIRequest
+﻿namespace HuloToys_Service.Models.Client
 {
     public class ClientRegisterRequestModel
     {
-        public string user_name {  get; set; }
+        public string user_name { get; set; }
         public string email { get; set; }
         public string phone { get; set; }
         public string password { get; set; }
