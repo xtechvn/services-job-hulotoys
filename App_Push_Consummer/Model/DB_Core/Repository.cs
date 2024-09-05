@@ -25,7 +25,7 @@ namespace App_Push_Consummer.Model.DB_Core
                 objParam_order[4] = new SqlParameter("@DistrictId", model.DistrictId);
                 objParam_order[5] = new SqlParameter("@WardId", model.WardId);
                 objParam_order[6] = new SqlParameter("@Address", model.Address);
-                objParam_order[7] = new SqlParameter("@Address", model.Address);
+                objParam_order[7] = new SqlParameter("@Status", model.Status);
                 objParam_order[8] = new SqlParameter("@IsActive", model.IsActive);
 
                 var id = DBWorker.ExecuteNonQuery("sp_InsertAddressClient", objParam_order);
