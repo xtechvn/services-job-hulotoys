@@ -16,7 +16,11 @@ namespace HuloToys_Service.Models.Orders
 
         public DateTime createddate { get; set; }
 
+        public int? createdby { get; set; }
+
         public DateTime? updatelast { get; set; }
+
+        public int? userupdateid { get; set; }
 
         public double? price { get; set; }
 
@@ -26,7 +30,7 @@ namespace HuloToys_Service.Models.Orders
 
         public double? amount { get; set; }
 
-        public int status { get; set; }
+        public int orderstatus { get; set; }
 
         public short paymenttype { get; set; }
 
@@ -35,6 +39,10 @@ namespace HuloToys_Service.Models.Orders
         public string utmsource { get; set; }
 
         public string utmmedium { get; set; }
+
+        /// <summary>
+        /// chính là label so với wiframe
+        /// </summary>
         public string note { get; set; }
 
         public int? voucherid { get; set; }
@@ -44,5 +52,17 @@ namespace HuloToys_Service.Models.Orders
         public int? userid { get; set; }
 
         public string usergroupids { get; set; }
+
+        public string receivername { get; set; }
+
+        public string phone { get; set; }
+
+        public int? provinceid { get; set; }
+
+        public int? districtid { get; set; }
+
+        public int? wardid { get; set; }
+
+        public string address { get; set; }
     }
 }

@@ -3,6 +3,7 @@
     public class AddressViewModel
     {
         public long Id { get; set; }
+        public long AccountClientId { get; set; }
         public long ClientId { get; set; }
         public string ReceiverName { get; set; }
         public string Phone { get; set; }

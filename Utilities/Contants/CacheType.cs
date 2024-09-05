@@ -19,6 +19,10 @@
         public const string ORDER_DETAIL_FE = "ORDER_DETAIL_FE_";
 
         public const string ADDRESS_CLIENT = "ADDRESS_CLIENT_";
+        public const string ADDRESS_CLIENT_DETAIL = "ADDRESS_CLIENT_DETAIL_";
 
+        public const string PROVINCE = "PROVINCE";
+        public const string DISTRICT = "DISTRICT";
+        public const string WARD = "WARD";
     }
 }

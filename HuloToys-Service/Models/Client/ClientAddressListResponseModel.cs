@@ -2,8 +2,8 @@
 
 namespace HuloToys_Service.Models.Client
 {
-    public class ClientAddressListResponseModel : List<AddressClientESModel>
+    public class ClientAddressListResponseModel
     {
-
+        public List<AddressClientESModel> list { get; set; }
     }
 }

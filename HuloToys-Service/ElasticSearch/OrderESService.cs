@@ -105,7 +105,7 @@ namespace Caching.Elasticsearch
                     Func<QueryContainerDescriptor<OrderESModel>, QueryContainer> query_container = q =>
                                 q.Match(m => m.Field(x => x.clientid).Query(client_id.ToString()))
                                  &&
-                                q.Terms(t => t.Field(x => x.status).Terms(status.Split(",")))
+                                q.Terms(t => t.Field(x => x.orderstatus).Terms(status.Split(",")))
                                 ;
                     var query = elasticClient.Search<OrderESModel>(sd => sd
                              .Index(index)

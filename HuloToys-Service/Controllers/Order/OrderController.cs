@@ -17,6 +17,7 @@ using HuloToys_Service.Controllers.Order.Business;
 using HuloToys_Service.RedisWorker;
 using HuloToys_Service.Models.Orders;
 using HuloToys_Service.Models.APIRequest;
+using HuloToys_Service.Models.Location;
 
 namespace HuloToys_Service.Controllers
 {
@@ -271,7 +272,8 @@ namespace HuloToys_Service.Controllers
                         });
                     }
                     var result = await orderMongodbService.FindById(request.id);
-                    if(result != null)
+                   
+                    if (result != null)
                     {
                         return Ok(new
                         {
@@ -323,6 +325,24 @@ namespace HuloToys_Service.Controllers
                         data_order = (await orderMongodbService.GetListByOrderId(new List<long>() { request.id })).FirstOrDefault(),
                         data = orderESRepository.GetByOrderId(request.id)
                     };
+                    var provinces = _redisService.Get(CacheType.PROVINCE, Convert.ToInt32(configuration["Redis:Database:db_common"]));
+                    var district = _redisService.Get(CacheType.DISTRICT, Convert.ToInt32(configuration["Redis:Database:db_common"]));
+                    var ward = _redisService.Get(CacheType.WARD, Convert.ToInt32(configuration["Redis:Database:db_common"]));
+                    if (result.data.provinceid>0&& provinces != null && provinces.Trim() != "")
+                    {
+                        var data = JsonConvert.DeserializeObject<List<Province>>(provinces);
+                        result.province = data.FirstOrDefault(x => x.Id == result.data.provinceid);
+                    }
+                    if (result.data.districtid > 0 && district != null && district.Trim() != "")
+                    {
+                        var data = JsonConvert.DeserializeObject<List<District>>(district);
+                        result.district = data.FirstOrDefault(x => x.Id == result.data.districtid);
+                    }
+                    if (result.data.wardid > 0 && ward != null && ward.Trim() != "")
+                    {
+                        var data = JsonConvert.DeserializeObject<List<Ward>>(ward);
+                        result.ward = data.FirstOrDefault(x => x.Id == result.data.wardid);
+                    }
                     if (result != null)
                     {
                         return Ok(new

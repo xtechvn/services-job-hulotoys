@@ -20,51 +20,6 @@ namespace HuloToys_Service.Elasticsearch
             this.configuration = _configuration;
         }
 
-        public bool DeleteProductByCode(string index_name, string document_id)
-        {
-            string key_es_id = string.Empty;
-            try
-            {
-                var nodes = new Uri[] { new Uri(_ElasticHost) };
-                var connectionPool = new StaticConnectionPool(nodes);
-                var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
-                var elasticClient = new ElasticClient(connectionSettings);
-               
-                var result = elasticClient.Search<object>(sd => sd
-                               .Index(index_name)
-                               .Query(q => q
-                                   .Match(m => m.Field("product_code").Query(document_id)
-                                   )));
-
-                if (result.IsValid && result.Documents.Count > 0)
-                {
-                    foreach (Hit<object> hit in (IHit<object>[])result.HitsMetadata.Hits)
-                    {
-                        key_es_id = ((Hit<object>)((IHit<object>[])result.HitsMetadata.Hits)[0]).Id;
-                        var response = elasticClient.Delete<object>(key_es_id.ToString(), d => d
-                        .Index(index_name)
-                        );
-                    }
-                    return result.IsValid;
-                }
-                else
-                {
-                    return true; // chưa có mã này
-                }
-            }
-            catch (Exception ex)
-            {
-                string error = ("DeleteProductByCode key_es_id= " + key_es_id + " document_id" + document_id + " Exception" + ex.ToString());
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], MethodBase.GetCurrentMethod().Name + "=>" + error);
-                return false;
-            }
-        }
-
-       
-        /// <summary>
-
-        /// <summary>
-
         /// </summary>
         /// <param name="indexName"></param>
         /// <param name="value">Giá trị cần tìm kiếm</param>
@@ -95,7 +50,6 @@ namespace HuloToys_Service.Elasticsearch
             }
         }
        
-
         public int UpSert(TEntity entity, string indexName)
         {
             try

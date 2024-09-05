@@ -23,7 +23,7 @@ namespace Caching.Elasticsearch
         {
             _ElasticHost = Host;
             configuration = _configuration;
-            index = _configuration["DataBaseConfig:Elastic:Index:Order"];
+            index = _configuration["DataBaseConfig:Elastic:Index:AddressClient"];
 
 
         }
@@ -53,6 +53,44 @@ namespace Caching.Elasticsearch
                 {
                     result = query.Documents as List<AddressClientESModel>;
                     return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+            }
+            return null;
+        }
+        public AddressClientESModel GetById(long id,long client_id)
+        {
+            AddressClientESModel result = new AddressClientESModel();
+            try
+            {
+                var nodes = new Uri[] { new Uri(_ElasticHost) };
+                var connectionPool = new StaticConnectionPool(nodes);
+                var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
+                var elasticClient = new ElasticClient(connectionSettings);
+                var query = elasticClient.Search<AddressClientESModel>(sd => sd
+                            .Index(index)
+                            .Query(q => q
+                                .Match(m => m.Field(x => x.id).Query(id.ToString())
+                                ) 
+                                && 
+                                q.Match(m => m.Field(x => x.clientid).Query(client_id.ToString()))
+                                )
+                            .Size(100)
+
+                            );
+
+                if (!query.IsValid)
+                {
+                    return null;
+                }
+                else
+                {
+                    var list = query.Documents as List<AddressClientESModel>;
+                    return list.FirstOrDefault();
                 }
             }
             catch (Exception ex)
