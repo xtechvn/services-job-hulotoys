@@ -31,11 +31,11 @@ namespace Models.MongoDb
 
         public string phone { get; set; }
 
-        public int? provinceid { get; set; }
+        public string? provinceid { get; set; }
 
-        public int? districtid { get; set; }
+        public string? districtid { get; set; }
 
-        public int? wardid { get; set; }
+        public string? wardid { get; set; }
 
         public string address { get; set; }
 

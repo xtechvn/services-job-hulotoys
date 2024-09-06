@@ -66,7 +66,7 @@ namespace HuloToys_Service.Controllers
                         });
                     }
                     var provinces = _redisService.Get(CacheType.PROVINCE, Convert.ToInt32(configuration["Redis:Database:db_common"]));
-                    if (provinces!=null)
+                    if (provinces != null)
                     {
                         var data = JsonConvert.DeserializeObject<List<Province>>(provinces);
                         return Ok(new

@@ -408,7 +408,11 @@ namespace HuloToys_Service.Controllers
                         payment_type = request.payment_type,
                         delivery_type = request.delivery_type,
                         order_no = order_no,
-                        total_amount=0
+                        total_amount=0,
+                        address=request.address.address,
+                        districtid=request.address.districtid,
+                        provinceid=request.address.provinceid,
+                        wardid=request.address.wardid
                     };
                     
                     foreach (var item in request.carts)

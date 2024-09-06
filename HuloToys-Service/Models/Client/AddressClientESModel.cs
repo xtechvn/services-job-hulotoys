@@ -5,7 +5,6 @@ namespace Entities.Models
 {
     public partial class AddressClientESModel
     {
-        public long _id { get; set; }
         public long id { get; set; }
         public long clientid { get; set; }
         public string receivername { get; set; }
