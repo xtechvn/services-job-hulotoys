@@ -50,7 +50,7 @@ namespace App_Push_Consummer.Model.DB_Core
                 objParam_order[5] = new SqlParameter("@DistrictId", model.DistrictId);
                 objParam_order[6] = new SqlParameter("@WardId", model.WardId);
                 objParam_order[7] = new SqlParameter("@Address", model.Address);
-                objParam_order[8] = new SqlParameter("@Address", model.Address);
+                objParam_order[8] = new SqlParameter("@Status", model.Status);
                 objParam_order[9] = new SqlParameter("@IsActive", model.IsActive);
                 objParam_order[10] = new SqlParameter("@CreatedOn", model.CreatedOn);
 
