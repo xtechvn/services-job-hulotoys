@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Entities.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,8 @@ namespace Models.APIRequest
         public int payment_type { get; set; }
         public int delivery_type { get; set; }
         public List<CartConfirmItemRequestModel> carts { get; set; }
+        public AddressClientFEModel address { get; set; }
+
     }
     public class CartConfirmItemRequestModel
     {

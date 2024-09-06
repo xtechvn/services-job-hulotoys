@@ -1,5 +1,6 @@
 ﻿using Caching.Elasticsearch;
 using Entities.Models;
+using HuloToys_Service.Controllers.Address.Business;
 using HuloToys_Service.Models;
 using HuloToys_Service.Models.Address;
 using HuloToys_Service.Models.APIRequest;
@@ -10,10 +11,12 @@ using HuloToys_Service.RedisWorker;
 using HuloToys_Service.Utilities.Lib;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Nest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 using System.Reflection;
 using Utilities;
 using Utilities.Contants;
@@ -28,6 +31,7 @@ namespace HuloToys_Service.Controllers.Address
         private readonly IConfiguration configuration;
         private readonly AccountClientESService accountClientESService;
         private readonly AddressClientESService addressClientESService;
+        private readonly AddressClientService addressClientService;
         private readonly RedisConn redisService;
         private readonly WorkQueueClient work_queue;
         public AddressController(IConfiguration _configuration, RedisConn _redisService)
@@ -38,6 +42,7 @@ namespace HuloToys_Service.Controllers.Address
             work_queue = new WorkQueueClient(_configuration);
             addressClientESService = new AddressClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
             redisService.Connect();
+            addressClientService = new AddressClientService(_configuration, redisService);
 
         }
         [HttpPost("insert-address")]
@@ -66,6 +71,9 @@ namespace HuloToys_Service.Controllers.Address
                         // Execute Push Queue
 
                         response_queue = work_queue.InsertQueueSimple(_data_push, QueueName.queue_app_push);
+                        //-- Clear Cache:
+                        var cache_name = CacheType.ADDRESS_CLIENT + request.AccountClientId;
+                        redisService.clear(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
                         if (response_queue)
                         {
                             return Ok(new
@@ -127,6 +135,12 @@ namespace HuloToys_Service.Controllers.Address
                         // Execute Push Queue
 
                         response_queue = work_queue.InsertQueueSimple(_data_push, QueueName.queue_app_push);
+                        //-- Clear Cache:
+                        var cache_name = CacheType.ADDRESS_CLIENT + request.AccountClientId;
+                        redisService.clear(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
+                        cache_name = CacheType.ADDRESS_CLIENT_DETAIL + request.Id + request.AccountClientId;
+                        redisService.clear(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
+
                         if (response_queue)
                         {
 
@@ -195,12 +209,7 @@ namespace HuloToys_Service.Controllers.Address
                             });
                         }
                     }
-                    var account_client = accountClientESService.GetById(request.account_client_id);
-                    var client_id = (long)account_client.clientid;
-                    ClientAddressListResponseModel model = new ClientAddressListResponseModel()
-                    {
-                        list = addressClientESService.GetByClientID(client_id)
-                    };
+                    var model = addressClientService.AddressByClient(request);
                     if (model.list != null && model.list.Count > 0)
                     {
                         redisService.Set(cache_name, JsonConvert.SerializeObject(model), Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
@@ -210,6 +219,67 @@ namespace HuloToys_Service.Controllers.Address
                         status = (int)ResponseType.SUCCESS,
                         msg = ResponseMessages.Success,
                         data = model
+                    });
+                }
+
+
+            }
+            catch
+            {
+
+            }
+            return Ok(new
+            {
+                status = (int)ResponseType.FAILED,
+                msg = ResponseMessages.DataInvalid,
+            });
+        }
+        [HttpPost("default")]
+        public async Task<IActionResult> AddressDefaultByClient([FromBody] APIRequestGenericModel input)
+        {
+            try
+            {
+                JArray objParr = null;
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+                {
+                    var request = JsonConvert.DeserializeObject<ClientAddressGeneralRequestModel>(objParr[0].ToString());
+                    if (request == null)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    var cache_name = CacheType.ADDRESS_CLIENT + request.account_client_id;
+                    var j_data = await redisService.GetAsync(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
+                    if (j_data != null && j_data.Trim() != "")
+                    {
+                        ClientAddressListResponseModel result = JsonConvert.DeserializeObject<ClientAddressListResponseModel>(j_data);
+                        if (result != null && result.list != null && result.list.Count > 0)
+                        {
+                            var selected_address = result.list.FirstOrDefault(x => x.isactive == true);
+                            if (selected_address == null) selected_address = result.list.FirstOrDefault();
+                            return Ok(new
+                            {
+                                status = (int)ResponseType.SUCCESS,
+                                msg = ResponseMessages.Success,
+                                data = selected_address,
+                            });
+                        }
+                    }
+                    var model = addressClientService.AddressByClient(request);
+                    if (model.list != null && model.list.Count > 0)
+                    {
+                        redisService.Set(cache_name, JsonConvert.SerializeObject(model), Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
+                    }
+                    var selected = model.list.FirstOrDefault(x => x.isactive == true);
+                    if (selected == null) selected = model.list.FirstOrDefault();
+                    return Ok(new
+                    {
+                        status = (int)ResponseType.SUCCESS,
+                        msg = ResponseMessages.Success,
+                        data = selected
                     });
                 }
 
