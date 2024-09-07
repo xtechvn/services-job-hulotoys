@@ -58,9 +58,10 @@ namespace Caching.Elasticsearch
 
                 var query = elasticClient.Search<ClientESModel>(sd => sd
                                .Index(index)
-                               .Query(q => q
-                                   .Term(m => m.email,email)
-                               ));
+                                .Query(q => q
+                                .MatchPhrase(m => m
+                                .Field(f => f.email)
+                                .Query(email))));
                
                 if (query.IsValid)
                 {

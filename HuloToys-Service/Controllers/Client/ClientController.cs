@@ -219,6 +219,19 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
+                    if(request.email != null && request.email.Trim() != "")
+                    {
+                        var exists_client=clientESService.GetByEmail(request.email.Trim());
+                        if (exists_client != null && exists_client.Count>0) {
+                            return Ok(new
+                            {
+                                status = (int)ResponseType.FAILED,
+                                msg = ResponseMessages.ClientEmailExists
+                            });
+
+                        }
+
+                    }
                     string username_generate = "u" + DateTime.Now.ToString("yyMMddHHmmss");
                     for (int i = 1; i < 999; i++)
                     {
