@@ -26,6 +26,7 @@ namespace Models.Queue
         public string GoogleToken { get; set; }
         public byte? Status { get; set; }
         public byte? isReceiverInfoEmail { get; set; }
+        public string ClientCode { get; set; }
 
     }
 }

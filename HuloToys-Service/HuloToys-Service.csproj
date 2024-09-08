@@ -36,4 +36,8 @@
     <ProjectReference Include="..\Utilities\Utilities.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\Client\Business\" />
+  </ItemGroup>
+
 </Project>

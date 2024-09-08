@@ -11,13 +11,13 @@ using Utilities;
 using Utilities.Contants;
 using HuloToys_Service.MongoDb;
 using Models.MongoDb;
-using REPOSITORIES.IRepositories;
-using HuloToys_Service.Models;
 using HuloToys_Service.Models.APP;
 using HuloToys_Service.Utilities.constants.APP;
+using HuloToys_Service.Controllers.Order.Business;
+using HuloToys_Service.RedisWorker;
+using HuloToys_Service.Models.Orders;
 using HuloToys_Service.Models.APIRequest;
-using Models.Orders;
-using HuloToys_Service.Utilities.lib;
+using HuloToys_Service.Models.Location;
 
 namespace HuloToys_Service.Controllers
 {
@@ -30,28 +30,25 @@ namespace HuloToys_Service.Controllers
         private readonly WorkQueueClient workQueueClient;
         private readonly OrderESService orderESRepository;
         private readonly OrderMongodbService orderMongodbService;
-        private readonly IIdentifierServiceRepository _identifierServiceRepository;
+        private readonly AccountClientESService accountClientESService;
         private readonly CartMongodbService _cartMongodbService;
         private readonly WorkQueueClient work_queue;
-        private readonly QueueSettingViewModel queue_setting;
-        public OrderController(IConfiguration _configuration, IIdentifierServiceRepository identifierServiceRepository)
+        private readonly IdentiferService identiferService;
+        private readonly RedisConn _redisService;
+
+        public OrderController(IConfiguration _configuration, RedisConn redisService)
         {
             configuration = _configuration;
 
             workQueueClient = new WorkQueueClient(configuration);
             orderESRepository = new OrderESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
+            accountClientESService = new AccountClientESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
             orderMongodbService = new OrderMongodbService( configuration);
-            _identifierServiceRepository = identifierServiceRepository;
             _cartMongodbService = new CartMongodbService(configuration);
             work_queue = new WorkQueueClient(configuration);
-            queue_setting = new QueueSettingViewModel
-            {
-                host = configuration["Queue:Host"],
-                v_host = configuration["Queue:V_Host"],
-                port = Convert.ToInt32(configuration["Queue:Port"]),
-                username = configuration["Queue:Username"],
-                password = configuration["Queue:Password"]
-            };
+            identiferService = new IdentiferService(_configuration);
+            _redisService = new RedisConn(configuration);
+            _redisService.Connect();
         }
 
         [HttpPost("history")]
@@ -81,6 +78,73 @@ namespace HuloToys_Service.Controllers
                         status = (int)ResponseType.SUCCESS,
                         msg = "Success",
                         data= result
+                    });
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+            }
+            return Ok(new
+            {
+                status = (int)ResponseType.FAILED,
+                msg = ResponseMessages.DataInvalid
+            });
+
+        }
+        [HttpPost("fe-history")]
+        public async Task<ActionResult> OrderFEHistory([FromBody] APIRequestGenericModel input)
+        {
+            try
+            {
+
+
+                JArray objParr = null;
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+                {
+                    var request = JsonConvert.DeserializeObject<OrderHistoryRequestModel>(objParr[0].ToString());
+                    if (request == null || request.client_id <= 0
+                        || request.page_index <= 0 || request.page_size <= 0
+                        )
+                    {
+
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    if (request.status == "-1") request.status = "";
+
+                    var cache_name = CacheType.ORDER_DETAIL_FE + request.client_id+request.status+request.page_index+request.page_size;
+                    var j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
+                    if (j_data != null && j_data.Trim() != "")
+                    {
+                        OrderFEResponseModel data = JsonConvert.DeserializeObject<OrderFEResponseModel>(j_data);
+                        if (data != null && data.data != null&& data.data.Count>0)
+                        {
+                            return Ok(new
+                            {
+                                status = (int)ResponseType.SUCCESS,
+                                msg = ResponseMessages.Success,
+                                data = data
+                            });
+                        }
+                    }
+                    var account_client = accountClientESService.GetById(request.client_id);
+                    var result = orderESRepository.GetFEByClientID((long)account_client.clientid, request.status, (request.page_index <= 0 ? 1 : request.page_index), (request.page_size <= 0 ? 10 : request.page_size));
+                    if(result!=null && result.data!=null && result.data.Count > 0)
+                    {
+                        result.data_order = await orderMongodbService.GetListByOrderId(result.data.Select(x => x.orderid).ToList());
+                    }
+                    return Ok(new
+                    {
+                        status = (int)ResponseType.SUCCESS,
+                        msg = "Success",
+                        data = result
                     });
 
                 }
@@ -208,7 +272,8 @@ namespace HuloToys_Service.Controllers
                         });
                     }
                     var result = await orderMongodbService.FindById(request.id);
-                    if(result != null)
+                   
+                    if (result != null)
                     {
                         return Ok(new
                         {
@@ -219,6 +284,76 @@ namespace HuloToys_Service.Controllers
 
                     }
                     
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+            }
+            return Ok(new
+            {
+                status = (int)ResponseType.FAILED,
+                msg = ResponseMessages.DataInvalid
+            });
+
+        }
+        [HttpPost("history-detail")]
+        public async Task<ActionResult> HistoryDetail([FromBody] APIRequestGenericModel input)
+        {
+            try
+            {
+
+
+                JArray objParr = null;
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+                {
+                    var request = JsonConvert.DeserializeObject<OrderHistoryDetailRequestModel>(objParr[0].ToString());
+                    if (request == null || request.id <= 0)
+                    {
+
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    OrderDetailResponseModel result = new OrderDetailResponseModel()
+                    {
+                        data_order = (await orderMongodbService.GetListByOrderId(new List<long>() { request.id })).FirstOrDefault(),
+                        data = orderESRepository.GetByOrderId(request.id)
+                    };
+                    var provinces = _redisService.Get(CacheType.PROVINCE, Convert.ToInt32(configuration["Redis:Database:db_common"]));
+                    var district = _redisService.Get(CacheType.DISTRICT, Convert.ToInt32(configuration["Redis:Database:db_common"]));
+                    var ward = _redisService.Get(CacheType.WARD, Convert.ToInt32(configuration["Redis:Database:db_common"]));
+                    if (result.data.provinceid>0&& provinces != null && provinces.Trim() != "")
+                    {
+                        var data = JsonConvert.DeserializeObject<List<Province>>(provinces);
+                        result.province = data.FirstOrDefault(x => x.Id == result.data.provinceid);
+                    }
+                    if (result.data.districtid > 0 && district != null && district.Trim() != "")
+                    {
+                        var data = JsonConvert.DeserializeObject<List<District>>(district);
+                        result.district = data.FirstOrDefault(x => x.Id == result.data.districtid);
+                    }
+                    if (result.data.wardid > 0 && ward != null && ward.Trim() != "")
+                    {
+                        var data = JsonConvert.DeserializeObject<List<Ward>>(ward);
+                        result.ward = data.FirstOrDefault(x => x.Id == result.data.wardid);
+                    }
+                    if (result != null)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.SUCCESS,
+                            msg = "Success",
+                            data = result
+                        });
+
+                    }
+
 
                 }
 
@@ -265,7 +400,7 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.FunctionExcutionFailed
                         });
                     }
-                    var order_no = await _identifierServiceRepository.buildOrderNo(count);
+                    var order_no = await identiferService.buildOrderNo(count);
                     var model = new OrderDetailMongoDbModel()
                     {
                         account_client_id = request.account_client_id,
@@ -273,7 +408,11 @@ namespace HuloToys_Service.Controllers
                         payment_type = request.payment_type,
                         delivery_type = request.delivery_type,
                         order_no = order_no,
-                        total_amount=0
+                        total_amount=0,
+                        address=request.address.address,
+                        districtid=request.address.districtid,
+                        provinceid=request.address.provinceid,
+                        wardid=request.address.wardid
                     };
                     
                     foreach (var item in request.carts)
@@ -294,6 +433,7 @@ namespace HuloToys_Service.Controllers
                             cart.quanity = item.quanity;
                             model.carts.Add(cart);
                             model.total_amount += cart.total_amount;
+                            await _cartMongodbService.Delete(item.id);
                         }
 
                     }
@@ -301,7 +441,7 @@ namespace HuloToys_Service.Controllers
                     var result = await orderMongodbService.Insert(model);
                     //-- Insert Queue:
                     var queue_model = new CheckoutQueueModel() { event_id = (int)CheckoutEventID.CREATE_ORDER, order_mongo_id = result };
-                    var pushed_queue=work_queue.InsertQueueSimpleDurable(queue_setting,JsonConvert.SerializeObject(queue_model) , QueueName.QUEUE_CHECKOUT);
+                    var pushed_queue=work_queue.InsertQueueSimpleDurable(JsonConvert.SerializeObject(queue_model) , QueueName.QUEUE_CHECKOUT);
                    
                     return Ok(new
                     {

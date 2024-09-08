@@ -6,13 +6,18 @@ using System.Reflection;
 using HuloToys_Service.Utilities.Lib;
 using Utilities;
 using Utilities.Contants;
-using LIB.Models.APIRequest;
 using Models.Queue;
 using HuloToys_Service.RabitMQ;
-using Models.APIRequest;
 using Caching.Elasticsearch;
-using System.Security.Cryptography;
+using HuloToys_Service.Models.Queue;
 using HuloToys_Service.Utilities.constants;
+using HuloToys_Service.Controllers.Order.Business;
+using HuloToys_Service.Models.Client;
+using HuloToys_Service.Models.APIRequest;
+using HuloToys_Front_End.Models.Products;
+using HuloToys_Service.MongoDb;
+using HuloToys_Service.RedisWorker;
+using Entities.Models;
 
 namespace HuloToys_Service.Controllers
 {
@@ -25,11 +30,17 @@ namespace HuloToys_Service.Controllers
         private readonly WorkQueueClient workQueueClient;
         private readonly AccountClientESService accountClientESService;
         private readonly ClientESService clientESService;
-        public ClientController(IConfiguration _configuration) {
+        private readonly IdentiferService _identifierServiceRepository;
+        private readonly RedisConn _redisService;
+
+        public ClientController(IConfiguration _configuration, RedisConn redisService) {
             configuration= _configuration;
             workQueueClient=new WorkQueueClient(configuration);
             accountClientESService = new AccountClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
             clientESService = new ClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
+            _identifierServiceRepository = new IdentiferService(_configuration);
+            _redisService = new RedisConn(configuration);
+            _redisService.Connect();
         }
         [HttpPost("login")]
         public async Task<ActionResult> ClientLogin([FromBody] APIRequestGenericModel input)
@@ -208,6 +219,19 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
+                    if(request.email != null && request.email.Trim() != "")
+                    {
+                        var exists_client=clientESService.GetByEmail(request.email.Trim());
+                        if (exists_client != null && exists_client.Count>0) {
+                            return Ok(new
+                            {
+                                status = (int)ResponseType.FAILED,
+                                msg = ResponseMessages.ClientEmailExists
+                            });
+
+                        }
+
+                    }
                     string username_generate = "u" + DateTime.Now.ToString("yyMMddHHmmss");
                     for (int i = 1; i < 999; i++)
                     {
@@ -220,35 +244,29 @@ namespace HuloToys_Service.Controllers
                             break;
                         }
                     }
-                     
+
                     AccountClientViewModel model = new AccountClientViewModel()
                     {
-                        ClientId=-1,
-                        ClientType=0,
-                        Email=request.email==null || request.email.Trim()==""?"":request.email.Trim(),
-                        Id=-1,
-                        isReceiverInfoEmail=request.is_receive_email==true?(byte)1: (byte)0,
-                        Name=request.user_name.Trim(),
-                        ClientName=request.user_name.Trim(),
-                        Password=request.password,
-                        Phone=request.phone,
-                        Status=0,
-                        UserName= username_generate,
-                        GoogleToken=request.token
+                        ClientId = -1,
+                        ClientType = 0,
+                        Email = request.email == null || request.email.Trim() == "" ? "" : request.email.Trim(),
+                        Id = -1,
+                        isReceiverInfoEmail = request.is_receive_email == true ? (byte)1 : (byte)0,
+                        Name = request.user_name.Trim(),
+                        ClientName = request.user_name.Trim(),
+                        Password = request.password,
+                        Phone = request.phone,
+                        Status = 0,
+                        UserName = username_generate,
+                        GoogleToken = request.token,
+                        ClientCode =await _identifierServiceRepository.buildClientNo(0)
                     };
                     var queue_model = new ClientConsumerQueueModel()
                     {
                         data_push = JsonConvert.SerializeObject(model),
                         type = QueueType.ADD_USER
                     };
-                    bool result= workQueueClient.InsertQueueSimple(new Models.QueueSettingViewModel()
-                    {
-                        host = configuration["Queue:Host"],
-                        port = Convert.ToInt32(configuration["Queue:Port"]),
-                        v_host = configuration["Queue:V_Host"],
-                        username = configuration["Queue:Username"],
-                        password = configuration["Queue:Password"],
-                    },JsonConvert.SerializeObject(queue_model),QueueName.queue_app_push);
+                    bool result= workQueueClient.InsertQueueSimple(JsonConvert.SerializeObject(queue_model),QueueName.queue_app_push);
                     if (result)
                     {
                         return Ok(new
@@ -326,14 +344,7 @@ namespace HuloToys_Service.Controllers
                                 data_push = JsonConvert.SerializeObject(model),
                                 type = QueueType.UPDATE_USER
                             };
-                            bool result = workQueueClient.InsertQueueSimple(new Models.QueueSettingViewModel()
-                            {
-                                host = configuration["Queue:Host"],
-                                port = Convert.ToInt32(configuration["Queue:Port"]),
-                                v_host = configuration["Queue:V_Host"],
-                                username = configuration["Queue:Username"],
-                                password = configuration["Queue:Password"],
-                            }, JsonConvert.SerializeObject(queue_model), QueueName.queue_app_push);
+                            bool result = workQueueClient.InsertQueueSimple( JsonConvert.SerializeObject(queue_model), QueueName.queue_app_push);
                             if (result)
                             {
                                 return Ok(new
@@ -418,14 +429,7 @@ namespace HuloToys_Service.Controllers
                                 data_push = JsonConvert.SerializeObject(model),
                                 type = QueueType.UPDATE_USER
                             };
-                            bool result = workQueueClient.InsertQueueSimple(new Models.QueueSettingViewModel()
-                            {
-                                host = configuration["Queue:Host"],
-                                port = Convert.ToInt32(configuration["Queue:Port"]),
-                                v_host = configuration["Queue:V_Host"],
-                                username = configuration["Queue:Username"],
-                                password = configuration["Queue:Password"],
-                            }, JsonConvert.SerializeObject(queue_model), QueueName.queue_app_push);
+                            bool result = workQueueClient.InsertQueueSimple( JsonConvert.SerializeObject(queue_model), QueueName.queue_app_push);
                             if (result)
                             {
                                 return Ok(new
@@ -452,5 +456,6 @@ namespace HuloToys_Service.Controllers
             });
 
         }
+       
     }
 }

@@ -1,5 +1,6 @@
 ﻿using HuloToys_Service.Elasticsearch;
 using HuloToys_Service.Models;
+using HuloToys_Service.Models.Queue;
 using HuloToys_Service.RabitMQ;
 using HuloToys_Service.RedisWorker;
 
@@ -16,13 +17,16 @@ namespace HuloToys_Service.Controllers.Test
     [ApiController]
     public class TestController : ControllerBase
     {
-            private readonly IConfiguration configuration;
-            private readonly RedisConn redisService;
-            public TestController(IConfiguration _configuration, RedisConn _redisService)
-            {
-                configuration = _configuration;
-                redisService = _redisService;
-            }
+        private readonly IConfiguration configuration;
+        private readonly RedisConn redisService;
+        private readonly WorkQueueClient work_queue;
+        public TestController(IConfiguration _configuration, RedisConn _redisService)
+        {
+            configuration = _configuration;
+            redisService = _redisService;
+            work_queue = new WorkQueueClient(configuration);
+
+        }
         /// <summary>
         /// Test login 
         /// </summary>
@@ -56,8 +60,8 @@ namespace HuloToys_Service.Controllers.Test
                 var index_es = configuration["DataBaseConfig:Elastic:index_product"];
                 var es_host = configuration["DataBaseConfig:Elastic:Host"];
 
-                IESRepository<object> _ESRepository = new ESRepository<object>(es_host,configuration);
-                var result_product = _ESRepository.FindById("product","đồ chơi","product_id");
+                IESRepository<object> _ESRepository = new ESRepository<object>(es_host, configuration);
+                var result_product = _ESRepository.FindById("product", "đồ chơi", "product_id");
                 return Ok(new { data = result_product });
             }
             catch (Exception ex)
@@ -87,16 +91,8 @@ namespace HuloToys_Service.Controllers.Test
                 var _data_push = JsonConvert.SerializeObject(j_param);
 
                 // Execute Push Queue
-                var work_queue = new WorkQueueClient(configuration);
-                var queue_setting = new QueueSettingViewModel
-                {
-                    host = configuration["Queue:Host"],
-                    v_host = configuration["Queue:V_Host"],
-                    port = Convert.ToInt32(configuration["Queue:Port"]),
-                    username = configuration["Queue:Username"],
-                    password = configuration["Queue:Password"]
-                };
-                response_queue = work_queue.InsertQueueSimple(queue_setting, _data_push, QueueName.queue_app_push);
+
+                response_queue = work_queue.InsertQueueSimple(_data_push, QueueName.queue_app_push);
                 if (response_queue)
                 {
                     return Ok(new { msg = "done" });
@@ -104,7 +100,7 @@ namespace HuloToys_Service.Controllers.Test
                 else
                 {
                     return Ok(new { msg = "fail" });
-                }                
+                }
             }
             catch (Exception ex)
             {
