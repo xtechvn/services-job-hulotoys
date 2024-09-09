@@ -26,11 +26,12 @@ namespace HuloToys_Service.Controllers
         private readonly CartMongodbService _cartMongodbService;
         private readonly CartService _cartService;
         private readonly ProductDetailMongoAccess _productDetailMongoAccess;
-        
+        private readonly OrderMongodbService orderMongodbService;
+
         public CartController(IConfiguration configuration)
         {
             _configuration  = configuration;
-
+            orderMongodbService = new OrderMongodbService(configuration);
             workQueueClient = new WorkQueueClient(configuration);
             _cartMongodbService = new CartMongodbService(configuration);
             _productDetailMongoAccess = new ProductDetailMongoAccess(configuration);
@@ -265,6 +266,59 @@ namespace HuloToys_Service.Controllers
             {
                 status = (int)ResponseType.FAILED,
                 msg = ResponseMessages.DataInvalid,
+            });
+        }
+        [HttpPost("delete-by-order")]
+        public async Task<ActionResult> DeleteByOrder([FromBody] APIRequestGenericModel input)
+        {
+            try
+            {
+
+
+                JArray objParr = null;
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, _configuration["KEY:private_key"]))
+                {
+                    var request = JsonConvert.DeserializeObject<CartDeleteRequestModel>(objParr[0].ToString());
+                    if (request == null || request.id == null || request.id.Trim() == "")
+                    {
+
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    var order = await orderMongodbService.FindById(request.id);
+                    if(order!=null && order.carts != null)
+                    {
+                        foreach(var item in order.carts)
+                        {
+                            await _cartMongodbService.Delete(item._id);
+                        }
+                    }
+                    return Ok(new
+                    {
+                        status = (int)ResponseType.SUCCESS,
+                        msg = "Success",
+                        data = request.id
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
+                return Ok(new
+                {
+                    status = (int)ResponseType.FAILED,
+                    msg = ResponseMessages.FunctionExcutionFailed
+                });
+
+            }
+            return Ok(new
+            {
+                status = (int)ResponseType.FAILED,
+                msg = ResponseMessages.FunctionExcutionFailed
             });
         }
     }
