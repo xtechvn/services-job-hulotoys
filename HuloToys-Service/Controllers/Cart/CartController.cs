@@ -12,6 +12,7 @@ using Utilities.Contants;
 using HuloToys_Front_End.Models.Products;
 using HuloToys_Service.Models.Cart;
 using HuloToys_Service.Models.APIRequest;
+using HuloToys_Service.Controllers.Cart.Business;
 
 namespace HuloToys_Service.Controllers
 {
@@ -23,6 +24,7 @@ namespace HuloToys_Service.Controllers
         private readonly IConfiguration _configuration;
         private readonly WorkQueueClient workQueueClient;
         private readonly CartMongodbService _cartMongodbService;
+        private readonly CartService _cartService;
         private readonly ProductDetailMongoAccess _productDetailMongoAccess;
         
         public CartController(IConfiguration configuration)
@@ -32,6 +34,7 @@ namespace HuloToys_Service.Controllers
             workQueueClient = new WorkQueueClient(configuration);
             _cartMongodbService = new CartMongodbService(configuration);
             _productDetailMongoAccess = new ProductDetailMongoAccess(configuration);
+            _cartService = new CartService(configuration);
            
         }
         [HttpPost("add")]
@@ -64,6 +67,7 @@ namespace HuloToys_Service.Controllers
                             quanity = request.quanity,
                             total_amount=product.amount * request.quanity,
                             created_date=DateTime.Now,
+                           
                         });
                         id =1;
                     }
@@ -196,7 +200,8 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var data = await _cartMongodbService.GetList(request.account_client_id);
+                    //var data = await _cartMongodbService.GetList(request.account_client_id);
+                    var data = await _cartService.GetList(request.account_client_id);
 
                     return Ok(new
                     {
@@ -218,6 +223,49 @@ namespace HuloToys_Service.Controllers
                 msg = ResponseMessages.DataInvalid,
             });
         }
-       
+        [HttpPost("quanity-change")]
+        public async Task<IActionResult> ChangeQuanity([FromBody] APIRequestGenericModel input)
+        {
+            try
+            {
+                JArray objParr = null;
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, _configuration["KEY:private_key"]))
+                {
+                    var request = JsonConvert.DeserializeObject<ProductAddToCartRequestModel>(objParr[0].ToString());
+                    if (request == null || request.product_id == null)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    var data = await _cartMongodbService.FindByProductId(request.product_id, request.account_client_id);
+                    if (data != null && data.product != null)
+                    {
+                        data.quanity = request.quanity;
+                        data.created_date = DateTime.Now;
+                        await _cartMongodbService.UpdateCartQuanity(data);
+                    }
+                    return Ok(new
+                    {
+                        status = (int)ResponseType.SUCCESS,
+                        msg = ResponseMessages.Success,
+                        data = data!=null && data._id!=null? data._id:""
+                    });
+                }
+
+
+            }
+            catch
+            {
+
+            }
+            return Ok(new
+            {
+                status = (int)ResponseType.FAILED,
+                msg = ResponseMessages.DataInvalid,
+            });
+        }
     }
 }

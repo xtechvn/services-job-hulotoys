@@ -68,7 +68,8 @@ namespace HuloToys_Service.MongoDb
                 var filterDefinition = filter.Empty;
                 filterDefinition &= Builders<OrderDetailMongoDbModel>.Filter.In(x => x.order_id, ids);
 
-                return await bookingCollection.Find(filterDefinition).ToListAsync();
+                return await bookingCollection.Find(filterDefinition)
+                    .ToListAsync(); 
                
             }
             catch (Exception ex)
