@@ -431,8 +431,16 @@ namespace HuloToys_Service.Controllers
                         else
                         {
                             cart.quanity = item.quanity;
-                            model.carts.Add(cart);
+                            cart.total_price = cart.product.price * item.quanity;
+                            cart.total_profit = cart.product.profit * item.quanity;
+                            cart.total_amount = cart.product.amount * item.quanity;
+                            cart.total_discount = cart.product.discount * item.quanity;
+                            model.total_price += cart.total_price;
+                            model.total_profit += cart.total_profit;
                             model.total_amount += cart.total_amount;
+                            model.total_discount += cart.total_discount;
+                            model.carts.Add(cart);
+
                             await _cartMongodbService.Delete(item.id);
                         }
 
