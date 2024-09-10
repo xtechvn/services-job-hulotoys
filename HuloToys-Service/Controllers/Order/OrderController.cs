@@ -30,6 +30,7 @@ namespace HuloToys_Service.Controllers
         private readonly WorkQueueClient workQueueClient;
         private readonly OrderESService orderESRepository;
         private readonly OrderMongodbService orderMongodbService;
+        private readonly ProductDetailMongoAccess _productDetailMongoAccess;
         private readonly AccountClientESService accountClientESService;
         private readonly CartMongodbService _cartMongodbService;
         private readonly WorkQueueClient work_queue;
@@ -44,6 +45,7 @@ namespace HuloToys_Service.Controllers
             orderESRepository = new OrderESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
             accountClientESService = new AccountClientESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
             orderMongodbService = new OrderMongodbService( configuration);
+            _productDetailMongoAccess = new ProductDetailMongoAccess( configuration);
             _cartMongodbService = new CartMongodbService(configuration);
             work_queue = new WorkQueueClient(configuration);
             identiferService = new IdentiferService(_configuration);
@@ -430,6 +432,7 @@ namespace HuloToys_Service.Controllers
                         }
                         else
                         {
+                            cart.product= _productDetailMongoAccess.GetByID(cart.product._id);
                             cart.quanity = item.quanity;
                             cart.total_price = cart.product.price * item.quanity;
                             cart.total_profit = cart.product.profit * item.quanity;
