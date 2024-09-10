@@ -432,7 +432,7 @@ namespace HuloToys_Service.Controllers
                         }
                         else
                         {
-                            cart.product= _productDetailMongoAccess.GetByID(cart.product._id);
+                            cart.product= await _productDetailMongoAccess.GetByID(cart.product._id);
                             cart.quanity = item.quanity;
                             cart.total_price = cart.product.price * item.quanity;
                             cart.total_profit = cart.product.profit * item.quanity;
