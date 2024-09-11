@@ -174,18 +174,15 @@ namespace HuloToys_Service.MongoDb
 
                     foreach (var word  in keyword_split)
                     {
+                        string w=word.Trim();
                         if (StringHelper.HasSpecialCharacterExceptVietnameseCharacter(word)) {
-                            //var t = StringHelper.RemoveSpecialCharacterExceptVietnameseCharacter(word);
-                            //var word_edited = "\\b\\w*["+t+"]\\w*\\b";
-                            //regex_keyword_pattern += word_edited + " ";
+                            w = StringHelper.RemoveSpecialCharacterExceptVietnameseCharacter(word);
                         }
-                        else
-                        {
-                            regex_keyword_pattern+= word +" ";
-                        }
+                        regex_keyword_pattern += "(?=.*"+w+".*)";
 
                     }
                 }
+                regex_keyword_pattern = "^" + regex_keyword_pattern + ".*$";
                 var regex = new BsonRegularExpression(regex_keyword_pattern.Trim().ToLower(), "i");
                 
                 var filter = Builders<ProductMongoDbModel>.Filter.Or(
