@@ -1,12 +1,15 @@
 ﻿using Entities.ViewModels.Products;
 using HuloToys_Front_End.Models.Products;
 using HuloToys_Service.Utilities.constants.Product;
+using HuloToys_Service.Utilities.lib;
 using HuloToys_Service.Utilities.Lib;
 using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace HuloToys_Service.MongoDb
 {
@@ -163,15 +166,35 @@ namespace HuloToys_Service.MongoDb
         {
             try
             {
-                var regex_name = new BsonRegularExpression(keyword.Trim().ToLower(), "i");
-                var filter = Builders<ProductMongoDbModel>.Filter.Or(
-                    Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, regex_name), // Case-insensitive regex
-                    Builders<ProductMongoDbModel>.Filter.Regex(x => x.sku, regex_name), // Case-insensitive regex
-                    Builders<ProductMongoDbModel>.Filter.Regex(x => x.code, regex_name)  // Case-insensitive regex
-                ) 
-                & Builders<ProductMongoDbModel>.Filter.Eq(x=>x.parent_product_id, "") 
-                & Builders<ProductMongoDbModel>.Filter.Eq(x=>x.status, (int)ProductStatus.ACTIVE);
 
+                string regex_keyword_pattern = keyword;
+                var keyword_split = keyword.Split(" ");
+                if (keyword_split.Length > 0) {
+                    regex_keyword_pattern = "";
+
+                    foreach (var word  in keyword_split)
+                    {
+                        if (StringHelper.HasSpecialCharacterExceptVietnameseCharacter(word)) {
+                            //var t = StringHelper.RemoveSpecialCharacterExceptVietnameseCharacter(word);
+                            //var word_edited = "\\b\\w*["+t+"]\\w*\\b";
+                            //regex_keyword_pattern += word_edited + " ";
+                        }
+                        else
+                        {
+                            regex_keyword_pattern+= word +" ";
+                        }
+
+                    }
+                }
+                var regex = new BsonRegularExpression(regex_keyword_pattern.Trim().ToLower(), "i");
+                
+                var filter = Builders<ProductMongoDbModel>.Filter.Or(
+                   Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, regex), // Case-insensitive regex
+                   Builders<ProductMongoDbModel>.Filter.Regex(x => x.sku, regex), // Case-insensitive regex
+                   Builders<ProductMongoDbModel>.Filter.Regex(x => x.code, regex)  // Case-insensitive regex
+               )
+               & Builders<ProductMongoDbModel>.Filter.Eq(x => x.parent_product_id, "")
+               & Builders<ProductMongoDbModel>.Filter.Eq(x => x.status, (int)ProductStatus.ACTIVE);
                 var model = _productDetailCollection.Find(filter);
                 var items = await model.ToListAsync();
                 long count = await model.CountDocumentsAsync();

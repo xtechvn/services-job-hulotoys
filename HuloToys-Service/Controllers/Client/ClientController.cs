@@ -18,6 +18,7 @@ using HuloToys_Front_End.Models.Products;
 using HuloToys_Service.MongoDb;
 using HuloToys_Service.RedisWorker;
 using Entities.Models;
+using HuloToys_Service.Utilities.lib;
 
 namespace HuloToys_Service.Controllers
 {
@@ -323,40 +324,117 @@ namespace HuloToys_Service.Controllers
                         var client = clientESService.GetById((long)account_client.clientid);
                         if (client != null && client.id > 0)
                         {
-                            string forgot_password_token = "";
-                            //Generate new Forgot password token:
-                            AccountClientViewModel model = new AccountClientViewModel()
+                            var forgot_password_object = new ClientForgotPasswordTokenModel()
                             {
-                                ClientId =client.id,
-                                ClientType = 0,
-                                Email = null,
-                                Id = account_client.id,
-                                isReceiverInfoEmail = null,
-                                Name = null,
-                                Password = null,
-                                Phone = null,
-                                Status = 0,
-                                UserName = null,
-                                ForgotPasswordToken = forgot_password_token
+                                account_client_id=account_client.id,
+                                client_id=client.id,
+                                email=client.email,
+                                user_name=account_client.username,
+                                created_time=DateTime.Now,
+                                exprire_time=DateTime.Now.AddMinutes(30)
                             };
-                            var queue_model = new ClientConsumerQueueModel()
-                            {
-                                data_push = JsonConvert.SerializeObject(model),
-                                type = QueueType.UPDATE_USER
-                            };
-                            bool result = workQueueClient.InsertQueueSimple( JsonConvert.SerializeObject(queue_model), QueueName.queue_app_push);
-                            if (result)
-                            {
-                                return Ok(new
+                            string forgot_password_token = EncryptAES.EncryptMessage(JsonConvert.SerializeObject(forgot_password_object), configuration["config_value:key"], configuration["config_value:iv"]);
+                            if (forgot_password_token != null && forgot_password_token.Trim()!="") {
+                                //Generate new Forgot password token:
+                                AccountClientViewModel model = new AccountClientViewModel()
                                 {
-                                    status = (int)ResponseType.SUCCESS,
-                                    msg = "Success"
-                                });
+                                    ClientId = client.id,
+                                    ClientType = 0,
+                                    Email = null,
+                                    Id = account_client.id,
+                                    isReceiverInfoEmail = null,
+                                    Name = null,
+                                    Password = null,
+                                    Phone = null,
+                                    Status = 0,
+                                    UserName = null,
+                                    ForgotPasswordToken = forgot_password_token
+                                };
+                                var queue_model = new ClientConsumerQueueModel()
+                                {
+                                    data_push = JsonConvert.SerializeObject(model),
+                                    type = QueueType.UPDATE_USER
+                                };
+                                bool result = workQueueClient.InsertQueueSimple(JsonConvert.SerializeObject(queue_model), QueueName.queue_app_push);
+
+                                if (result)
+                                {
+                                    return Ok(new
+                                    {
+                                        status = (int)ResponseType.SUCCESS,
+                                        msg = "Success"
+                                    });
+                                }
+
+
                             }
                         }
                     }
                    
 
+                }
+
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                return Ok(new
+                {
+                    status = (int)ResponseType.FAILED,
+                    msg = ResponseMessages.FunctionExcutionFailed
+                });
+            }
+            return Ok(new
+            {
+                status = (int)ResponseType.FAILED,
+                msg = ResponseMessages.DataInvalid
+            });
+
+        }
+        [HttpPost("validate-change-password")]
+        public async Task<ActionResult> ValidateChangePassword ([FromBody] APIRequestGenericModel input)
+        {
+            try
+            {
+
+
+                JArray objParr = null;
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+                {
+                    var request = JsonConvert.DeserializeObject<ClientValidateForgotPasswordRequestModel>(objParr[0].ToString());
+                    if (request == null || request.token == null || request.token.Trim() == "")
+                    {
+
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    string forgot_password_object = EncryptAES.DecryptMessage(request.token, configuration["config_value:key"], configuration["config_value:iv"]);
+                    if (forgot_password_object != null && forgot_password_object.Trim() != "")
+                    {
+                        var forgot_password_detail = JsonConvert.DeserializeObject<ClientForgotPasswordTokenModel>(forgot_password_object);
+                        if(forgot_password_detail!=null && forgot_password_detail.account_client_id > 0)
+                        {
+                            var account_client = accountClientESService.GetById(forgot_password_detail.account_client_id);
+                            var client = clientESService.GetById(forgot_password_detail.client_id);
+                            ClientValidateForgotPasswordResponseModel response = new ClientValidateForgotPasswordResponseModel()
+                            {
+                                account_client_id = account_client.id,
+                                client_id = client.id,
+                                email = client.email,
+                            };
+                            return Ok(new
+                            {
+                                status = (int)ResponseType.SUCCESS,
+                                msg = "Success",
+                                data = response
+                            });
+                        }
+
+                    }
                 }
 
             }
