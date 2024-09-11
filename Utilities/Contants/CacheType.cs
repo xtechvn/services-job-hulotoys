@@ -15,6 +15,7 @@
         public const string ARTICLE_FOOTER_MENU = "ARTICLE_FOOTER_MENU";
 
         public const string PRODUCT_LISTING = "PRODUCT_LISTING_";
+        public const string PRODUCT_SEARCH = "PRODUCT_SEARCH_";
         public const string PRODUCT_DETAIL = "PRODUCT_DETAIL_";
         public const string ORDER_DETAIL_FE = "ORDER_DETAIL_FE_";
 

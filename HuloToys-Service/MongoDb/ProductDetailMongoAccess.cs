@@ -2,6 +2,8 @@
 using HuloToys_Front_End.Models.Products;
 using HuloToys_Service.Utilities.constants.Product;
 using HuloToys_Service.Utilities.Lib;
+using Microsoft.Extensions.FileSystemGlobbing.Internal;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using System.Reflection;
@@ -125,7 +127,7 @@ namespace HuloToys_Service.MongoDb
                 return null;
             }
         }
-        public async Task<ProductListResponseModel> ResponseListing(string keyword = "", int group_id = -1, int page_index = 1, int page_size = 10)
+        public async Task<ProductListResponseModel> ResponseListing(string keyword = "", int group_id = -1)
         {
             try
             {
@@ -133,8 +135,7 @@ namespace HuloToys_Service.MongoDb
                 var filterDefinition = filter.Empty;
                 if (keyword != null && keyword.Trim() != "")
                 {
-                    filterDefinition &= Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, keyword);
-
+                    filterDefinition |= Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, keyword);
                 }
                 if (group_id > 0)
                 {
@@ -142,17 +143,41 @@ namespace HuloToys_Service.MongoDb
                 }
                 filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.parent_product_id, "");
                 filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.status, (int)ProductStatus.ACTIVE);
-
                 var sort_filter = Builders<ProductMongoDbModel>.Sort;
                 var sort_filter_definition = sort_filter.Descending(x => x.updated_last);
                 var model = _productDetailCollection.Find(filterDefinition);
                 long count = await model.CountDocumentsAsync();
-                model.Options.Skip = page_index < 1 ? 0 : (page_index - 1) * page_size;
-                model.Options.Limit = page_size;
-
+                var items = await model.ToListAsync();
                 return new ProductListResponseModel()
                 {
-                    items = await model.ToListAsync(),
+                    items = items,
+                    count = count
+                };
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public async Task<ProductListResponseModel> Search(string keyword = "")
+        {
+            try
+            {
+                var regex_name = new BsonRegularExpression(keyword.Trim().ToLower(), "i");
+                var filter = Builders<ProductMongoDbModel>.Filter.Or(
+                    Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, regex_name), // Case-insensitive regex
+                    Builders<ProductMongoDbModel>.Filter.Regex(x => x.sku, regex_name), // Case-insensitive regex
+                    Builders<ProductMongoDbModel>.Filter.Regex(x => x.code, regex_name)  // Case-insensitive regex
+                ) 
+                & Builders<ProductMongoDbModel>.Filter.Eq(x=>x.parent_product_id, "") 
+                & Builders<ProductMongoDbModel>.Filter.Eq(x=>x.status, (int)ProductStatus.ACTIVE);
+
+                var model = _productDetailCollection.Find(filter);
+                var items = await model.ToListAsync();
+                long count = await model.CountDocumentsAsync();
+                return new ProductListResponseModel()
+                {
+                    items = items,
                     count = count
                 };
             }
