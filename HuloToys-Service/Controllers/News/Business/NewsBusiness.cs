@@ -131,24 +131,27 @@ namespace HuloToys_Service.Controllers.News.Business
                         {
                             var _article = articleESService.GetDetailById((long)item.ArticleId);
                             if (_article == null) continue;
-                            var detail_model = new ArticleFeModel
-                            {
-                                id = _article.Id,
-                                title = _article.Title,
-                                lead = _article.Lead,
-                                image_169 = _article.Image169,
-                                image_43 = _article.Image43,
-                                image_11 = _article.Image11,
-                                publish_date = (DateTime)_article.PublishDate,
-                                body = _article.Body
-                            };
+                          
                             if (_article.Status == ArticleStatus.PUBLISH)
+                            {
+                                var detail_model = new ArticleFeModel
+                                {
+                                    id = _article.Id,
+                                    title = _article.Title,
+                                    lead = _article.Lead,
+                                    image_169 = _article.Image169,
+                                    image_43 = _article.Image43,
+                                    image_11 = _article.Image11,
+                                    publish_date = (DateTime)_article.PublishDate,
+                                    body = _article.Body
+                                };
                                 list_article.Add(detail_model);
+                            }
+                               
                         }
                     }
                     if(list_article!=null && list_article.Count > 0)
                     {
-                        list_article = list_article.Where(x => x.body != null && x.body.Trim() != "" && x.lead != null && x.lead.Trim() != "" && x.title != null && x.title.Trim() != "").ToList();
                         list_article = list_article.OrderBy(x => x.modifiedon).ToList();
                     }
             
