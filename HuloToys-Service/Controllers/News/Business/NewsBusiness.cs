@@ -146,8 +146,12 @@ namespace HuloToys_Service.Controllers.News.Business
                                 list_article.Add(detail_model);
                         }
                     }
-                    list_article = list_article.Where(x => x.body != null && x.body.Trim() != "" && x.lead != null && x.lead.Trim() != "" && x.title != null && x.title.Trim() != "").ToList();
-                    list_article = list_article.OrderBy(x => x.modifiedon).ToList();
+                    if(list_article!=null && list_article.Count > 0)
+                    {
+                        list_article = list_article.Where(x => x.body != null && x.body.Trim() != "" && x.lead != null && x.lead.Trim() != "" && x.title != null && x.title.Trim() != "").ToList();
+                        list_article = list_article.OrderBy(x => x.modifiedon).ToList();
+                    }
+            
                     return list_article;
                 }
                 catch
