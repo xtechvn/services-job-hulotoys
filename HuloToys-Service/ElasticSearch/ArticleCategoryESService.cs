@@ -20,7 +20,7 @@ namespace HuloToys_Service.ElasticSearch
             index = _configuration["DataBaseConfig:Elastic:Index:ArticleCategory"];
 
         }
-        public List<ArticleCategoryViewModel> GetByArticleId(long id)
+        public List<ArticleCategoryESModel> GetByArticleId(long id)
         {
             try
             {
@@ -39,16 +39,8 @@ namespace HuloToys_Service.ElasticSearch
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<ArticleCategoryESModel>;
-                    var result = data.Select(a => new ArticleCategoryViewModel
-                    {
 
-                        Id = a.id,
-                        ArticleId = a.articleid,
-                        CategoryId = a.categoryid,
-
-
-                    }).ToList();
-                    return result;
+                    return data;
                 }
             }
             catch (Exception ex)
@@ -58,7 +50,7 @@ namespace HuloToys_Service.ElasticSearch
             }
             return null;
         }
-        public List<ArticleCategoryViewModel> GetListArticleCategory()
+        public List<ArticleCategoryESModel> GetListArticleCategory()
         {
             try
             {
@@ -76,16 +68,8 @@ namespace HuloToys_Service.ElasticSearch
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<ArticleCategoryESModel>;
-                    var result = data.Select(a => new ArticleCategoryViewModel
-                    {
-
-                        Id = a.id,
-                        ArticleId = a.articleid,
-                        CategoryId = a.categoryid,
-
-
-                    }).ToList();
-                    return result;
+           
+                    return data;
                 }
             }
             catch (Exception ex)
@@ -95,7 +79,7 @@ namespace HuloToys_Service.ElasticSearch
             }
             return null;
         }
-        public List<ArticleCategoryViewModel> GetByCategoryId(long CategoryId)
+        public List<ArticleCategoryESModel> GetByCategoryId(long CategoryId)
         {
             try
             {
@@ -106,25 +90,24 @@ namespace HuloToys_Service.ElasticSearch
 
                 var query = elasticClient.Search<ArticleCategoryESModel>(sd => sd
                                .Index(index)
-                               .Size(4000)
                                .Query(q => q
-                                   .Match(m => m.Field("categoryid").Query(CategoryId.ToString())
+                                   .Term(m => m.Field("categoryid").Value(CategoryId)
                                )));
 
                 if (query.IsValid)
                 {
 
                     var data = query.Documents as List<ArticleCategoryESModel>;
-                    var result = data.Select(a => new ArticleCategoryViewModel
-                    {
+                    //var result = data.Select(a => new ArticleCategoryViewModel
+                    //{
 
-                        Id = a.id,
-                        ArticleId = a.articleid,
-                        CategoryId = a.categoryid,
+                    //    Id = a.id,
+                    //    ArticleId = a.articleid,
+                    //    CategoryId = a.categoryid,
 
 
-                    }).ToList();
-                    return result;
+                    //}).ToList();
+                    return data;
                 }
             }
             catch (Exception ex)

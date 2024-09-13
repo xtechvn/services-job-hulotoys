@@ -20,7 +20,7 @@ namespace HuloToys_Service.ElasticSearch
             index = _configuration["DataBaseConfig:Elastic:Index:ArticleTag"];
 
         }
-        public List<ArticleTagViewModel> GetListArticleTagByArticleId(long articleid)
+        public List<ArticleTagESModel> GetListArticleTagByArticleId(long articleid)
         {
             try
             {
@@ -39,16 +39,16 @@ namespace HuloToys_Service.ElasticSearch
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<ArticleTagESModel>;
-                    var result = data.Select(a => new ArticleTagViewModel
-                    {
+                    //var result = data.Select(a => new ArticleTagViewModel
+                    //{
 
-                        Id = a.id,
-                        ArticleId = a.articleid,
-                        TagId = a.tagid,
+                    //    Id = a.id,
+                    //    ArticleId = a.articleid,
+                    //    TagId = a.tagid,
 
 
-                    }).ToList();
-                    return result;
+                    //}).ToList();
+                    return data;
                 }
             }
             catch (Exception ex)
@@ -58,7 +58,7 @@ namespace HuloToys_Service.ElasticSearch
             }
             return null;
         }
-        public List<ArticleTagViewModel> GetListArticleTagByTagid(long tagid)
+        public List<ArticleTagESModel> GetListArticleTagByTagid(long tagid)
         {
             try
             {
@@ -77,13 +77,13 @@ namespace HuloToys_Service.ElasticSearch
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<ArticleTagESModel>;
-                    var result = data.Select(a => new ArticleTagViewModel
-                    {
-                        Id = a.id,
-                        ArticleId = a.articleid,
-                        TagId = a.tagid,
-                    }).ToList();
-                    return result;
+                    //var result = data.Select(a => new ArticleTagViewModel
+                    //{
+                    //    Id = a.id,
+                    //    ArticleId = a.articleid,
+                    //    TagId = a.tagid,
+                    //}).ToList();
+                    return data;
                 }
             }
             catch (Exception ex)

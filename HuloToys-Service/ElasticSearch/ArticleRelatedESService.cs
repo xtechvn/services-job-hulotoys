@@ -21,7 +21,7 @@ namespace HuloToys_Service.ElasticSearch
             index = _configuration["DataBaseConfig:Elastic:Index:ArticleRelated"];
 
         }
-        public List<ArticleRelatedViewModel> GetListArticleRelatedByArticleId(long articleid)
+        public List<ArticleRelatedESmodel> GetListArticleRelatedByArticleId(long articleid)
         {
             try
             {
@@ -40,16 +40,16 @@ namespace HuloToys_Service.ElasticSearch
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<ArticleRelatedESmodel>;
-                    var result = data.Select(a => new ArticleRelatedViewModel
-                    {
+                    //var result = data.Select(a => new ArticleRelatedViewModel
+                    //{
 
-                        Id = a.id,
-                        ArticleId = a.articleid,
-                        ArticleRelatedId = a.articleRelatedid,
+                    //    Id = a.id,
+                    //    ArticleId = a.articleid,
+                    //    ArticleRelatedId = a.articleRelatedid,
 
 
-                    }).ToList();
-                    return result;
+                    //}).ToList();
+                    return data;
                 }
             }
             catch (Exception ex)

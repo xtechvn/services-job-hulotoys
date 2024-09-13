@@ -19,7 +19,7 @@ namespace HuloToys_Service.ElasticSearch
             configuration = _configuration;
             index = _configuration["DataBaseConfig:Elastic:Index:Article"];
         }
-        public ArticleViewModel GetDetailById(long id)
+        public ArticleESModel GetDetailById(long id)
         {
             try
             {
@@ -31,36 +31,15 @@ namespace HuloToys_Service.ElasticSearch
                 var query = elasticClient.Search<ArticleESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field("id").Query(id.ToString())
+                                   .Term(m => m.Field("id").Value(id)
                                )));
 
                 if (query.IsValid)
                 {
 
                     var data = query.Documents as List<ArticleESModel>;
-                    var result = data.Select(a => new ArticleViewModel
-                    {
 
-                        Id = a.id,
-                        Title = a.title,
-                        Lead = a.lead,
-                        Body = a.body,
-                        Status = a.status,
-                        ArticleType = a.articletype,
-                        PageView = a.pageview,
-                        PublishDate = a.publishdate,
-                        AuthorId = a.authorid,
-                        Image169 = a.image169,
-                        Image43 = a.image43,
-                        Image11 = a.image11,
-                        CreatedOn = a.createdon,
-                        ModifiedOn = a.modifiedon,
-                        DownTime = a.downtime,
-                        UpTime = a.uptime,
-                        Position = a.position,
-
-                    }).ToList();
-                    return result.FirstOrDefault();
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
@@ -70,7 +49,7 @@ namespace HuloToys_Service.ElasticSearch
             }
             return null;
         }
-        public List<ArticleViewModel> GetListArticle()
+        public List<ArticleESModel> GetListArticle()
         {
             try
             {
@@ -81,36 +60,36 @@ namespace HuloToys_Service.ElasticSearch
 
                 var query = elasticClient.Search<ArticleESModel>(sd => sd
                                .Index(index)
-                               .Size(4000)
+                               .Size(100)
                                .Query(q => q.MatchAll()
                                ));
 
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<ArticleESModel>;
-                    var result = data.Select(a => new ArticleViewModel
-                    {
+                    //var result = data.Select(a => new ArticleViewModel
+                    //{
 
-                        Id = a.id,
-                        Title = a.title,
-                        Lead = a.lead,
-                        Body = a.body,
-                        Status = a.status,
-                        ArticleType = a.articletype,
-                        PageView = a.pageview,
-                        PublishDate = a.publishdate,
-                        AuthorId = a.authorid,
-                        Image169 = a.image169,
-                        Image43 = a.image43,
-                        Image11 = a.image11,
-                        CreatedOn = a.createdon,
-                        ModifiedOn = a.modifiedon,
-                        DownTime = a.downtime,
-                        UpTime = a.uptime,
-                        Position = a.position,
+                    //    Id = a.id,
+                    //    Title = a.title,
+                    //    Lead = a.lead,
+                    //    Body = a.body,
+                    //    Status = a.status,
+                    //    ArticleType = a.articletype,
+                    //    PageView = a.pageview,
+                    //    PublishDate = a.publishdate,
+                    //    AuthorId = a.authorid,
+                    //    Image169 = a.image169,
+                    //    Image43 = a.image43,
+                    //    Image11 = a.image11,
+                    //    CreatedOn = a.createdon,
+                    //    ModifiedOn = a.modifiedon,
+                    //    DownTime = a.downtime,
+                    //    UpTime = a.uptime,
+                    //    Position = a.position,
 
-                    }).ToList();
-                    return result;
+                    //}).ToList();
+                    return data;
                 }
             }
             catch (Exception ex)
@@ -120,7 +99,7 @@ namespace HuloToys_Service.ElasticSearch
             }
             return null;
         }
-        public List<ArticleViewModel> GetListArticlePosition()
+        public List<ArticleESModel> GetListArticlePosition()
         {
             try
             {
@@ -131,36 +110,35 @@ namespace HuloToys_Service.ElasticSearch
 
                 var query = elasticClient.Search<ArticleESModel>(sd => sd
                                .Index(index)
-                               .Size(4000)
                                .Query(q => q
                                    .Range(m => m.Field("position").GreaterThanOrEquals(1).LessThanOrEquals(7)
                                )));
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<ArticleESModel>;
-                    var result = data.Select(a => new ArticleViewModel
-                    {
+                    //var result = data.Select(a => new ArticleViewModel
+                    //{
 
-                        Id = a.id,
-                        Title = a.title,
-                        Lead = a.lead,
-                        Body = a.body,
-                        Status = a.status,
-                        ArticleType = a.articletype,
-                        PageView = a.pageview,
-                        PublishDate = a.publishdate,
-                        AuthorId = a.authorid,
-                        Image169 = a.image169,
-                        Image43 = a.image43,
-                        Image11 = a.image11,
-                        CreatedOn = a.createdon,
-                        ModifiedOn = a.modifiedon,
-                        DownTime = a.downtime,
-                        UpTime = a.uptime,
-                        Position = a.position,
+                    //    Id = a.id,
+                    //    Title = a.title,
+                    //    Lead = a.lead,
+                    //    Body = a.body,
+                    //    Status = a.status,
+                    //    ArticleType = a.articletype,
+                    //    PageView = a.pageview,
+                    //    PublishDate = a.publishdate,
+                    //    AuthorId = a.authorid,
+                    //    Image169 = a.image169,
+                    //    Image43 = a.image43,
+                    //    Image11 = a.image11,
+                    //    CreatedOn = a.createdon,
+                    //    ModifiedOn = a.modifiedon,
+                    //    DownTime = a.downtime,
+                    //    UpTime = a.uptime,
+                    //    Position = a.position,
 
-                    }).ToList();
-                    return result;
+                    //}).ToList();
+                    return data;
                 }
             }
             catch (Exception ex)
