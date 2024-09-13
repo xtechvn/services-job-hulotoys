@@ -1,8 +1,8 @@
-﻿using Entities.ViewModels.Products;
+﻿using Models.MongoDb;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Models.MongoDb
+namespace HuloToys_Service.Models.Orders
 {
     public class OrderDetailMongoDbModel
     {
@@ -17,7 +17,7 @@ namespace Models.MongoDb
         public int delivery_type { get; set; }
         public long order_id { get; set; }
         public string order_no { get; set; }
-       
+
         public double total_amount { get; set; }
         public double? total_price { get; set; }
         public double? total_profit { get; set; }
@@ -38,6 +38,5 @@ namespace Models.MongoDb
         public string? wardid { get; set; }
 
         public string address { get; set; }
-
     }
 }

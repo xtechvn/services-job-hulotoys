@@ -9,6 +9,10 @@ using APP_CHECKOUT.Utilities.constants;
 using Microsoft.Extensions.Configuration;
 using APP_CHECKOUT.Elasticsearch;
 using Newtonsoft.Json;
+using HuloToys_Service.Models.Location;
+using Nest;
+using Caching.RedisWorker;
+using Utilities.Contants;
 
 namespace APP_CHECKOUT.Repositories
 {
@@ -21,11 +25,14 @@ namespace APP_CHECKOUT.Repositories
         private readonly OrderDetailDAL orderDetailDAL;
         private readonly AccountClientESService accountClientESService;
         private readonly ClientESService clientESService;
+        private readonly RedisConn _redisService;
         public MainServices(IConfiguration configuration, ILoggingService loggingService) {
 
             _configuration=configuration;
             logging_service=loggingService;
             orderDetailMongoDbModel = new OrderMongodbService(configuration);
+            _redisService = new RedisConn(configuration);
+            _redisService.Connect();
             orderDAL = new OrderDAL(configuration["ConnectionString"]);
             orderDetailDAL = new OrderDetailDAL(configuration["ConnectionString"]);
             accountClientESService = new AccountClientESService(configuration["Elastic:Host"], configuration);
@@ -87,21 +94,21 @@ namespace APP_CHECKOUT.Repositories
                     name_url = name_url.Replace(" ", "-").Trim();
                     details.Add(new OrderDetail()
                     { 
-                        Amount = cart.product.amount,
                         CreatedDate=DateTime.Now,
                         Discount=cart.product.discount,
                         OrderDetailId=0,
                         OrderId=0,
-                        Price=cart.product.amount,
-                        ProductCode=cart.product.code,
+                        Price=cart.product.price,
+                        Profit = cart.product.profit,
+                        Quantity = cart.quanity,
+                        Amount = cart.product.amount,
+                        ProductCode = cart.product.code,
                         ProductId=cart.product._id,
                         ProductLink = _configuration["Setting:Domain"] + "/san-pham/"+ name_url + "--"+ cart.product._id,
-                        Profit=cart.product.profit,
-                        Quantity=cart.quanity,
-                        TotalAmount=cart.product.amount * cart.quanity,
+                        TotalPrice = cart.product.price * cart.quanity,
+                        TotalProfit = cart.product.profit * cart.quanity,
+                        TotalAmount =cart.product.amount * cart.quanity,
                         TotalDiscount= cart.product.discount * cart.quanity,
-                        TotalPrice=cart.product.price*cart.quanity,
-                        TotalProfit=cart.product.profit*cart.quanity,
                         UpdatedDate= DateTime.Now,
                         UserCreate = Convert.ToInt32(_configuration["Setting:BOT_UserID"]),
                         UserUpdated= Convert.ToInt32(_configuration["Setting:BOT_UserID"])
@@ -117,6 +124,7 @@ namespace APP_CHECKOUT.Repositories
                 }
                 var account_client=accountClientESService.GetById(order.account_client_id);
                 var client = clientESService.GetById((long)account_client.clientid);
+               
                 order_summit = new Order()
                 {
                     Amount = total_amount,
@@ -131,7 +139,7 @@ namespace APP_CHECKOUT.Repositories
                     PaymentType=Convert.ToInt16(order.payment_type),
                     Price=total_price,
                     Profit=total_profit,
-                    Status=0,
+                    OrderStatus=0,
                     UpdateLast=DateTime.Now,
                     UserGroupIds="",
                     UserId = Convert.ToInt32(_configuration["Setting:BOT_UserID"]),
@@ -139,8 +147,32 @@ namespace APP_CHECKOUT.Repositories
                     UtmSource=order.utm_source,
                     VoucherId=order.voucher_id,
                     CreatedBy = Convert.ToInt32(_configuration["Setting:BOT_UserID"]),
-                    UserUpdateId = Convert.ToInt32(_configuration["Setting:BOT_UserID"])
+                    UserUpdateId = Convert.ToInt32(_configuration["Setting:BOT_UserID"]),
+                    Address=order.address,
+                    ReceiverName=order.receivername,
+                    Phone=order.phone
                 };
+                var provinces = _redisService.Get(CacheType.PROVINCE, Convert.ToInt32(_configuration["Redis:Database:db_common"]));
+                var districts = _redisService.Get(CacheType.DISTRICT, Convert.ToInt32(_configuration["Redis:Database:db_common"]));
+                var wards = _redisService.Get(CacheType.WARD, Convert.ToInt32(_configuration["Redis:Database:db_common"]));
+                if (order.provinceid != null && order.provinceid.Trim() != "" && provinces != null && provinces.Trim() != "")
+                {
+                    var data = JsonConvert.DeserializeObject<List<Province>>(provinces);
+                    var province = data.FirstOrDefault(x => x.ProvinceId == order.provinceid);
+                    order_summit.ProvinceId = province != null ? province.Id : null;
+                }
+                if (order.districtid != null && order.districtid.Trim() != "" && districts != null && districts.Trim() != "")
+                {
+                    var data = JsonConvert.DeserializeObject<List<District>>(districts);
+                    var district = data.FirstOrDefault(x => x.DistrictId == order.districtid);
+                    order_summit.DistrictId = district != null ? district.Id : null;
+                }
+                if (order.wardid != null && order.wardid.Trim() != "" && wards != null && wards.Trim() != "")
+                {
+                    var data = JsonConvert.DeserializeObject<List<Ward>>(wards);
+                    var ward = data.FirstOrDefault(x => x.WardId == order.wardid);
+                    order_summit.WardId = ward != null ? ward.Id : null;
+                }
                 var order_id = await orderDAL.CreateOrder(order_summit);
                 Console.WriteLine("Created Order - " + order.order_no+": "+ order_id);
                 logging_service.LoggingAppOutput("Order Created - " + order.order_no + " - " + total_amount, true, false);
