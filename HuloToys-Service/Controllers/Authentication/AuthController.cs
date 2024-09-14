@@ -87,7 +87,7 @@ namespace HuloToys_Service.Controllers
                     issuer: null,
                     audience: null,
                     claims: claims,
-                    expires: DateTime.Now.AddMinutes(30),
+                    expires: DateTime.Now.AddDays(1),
                     signingCredentials: credentials);
                 return new JwtSecurityTokenHandler().WriteToken(token);
 
