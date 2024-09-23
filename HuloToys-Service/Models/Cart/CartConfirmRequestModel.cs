@@ -9,7 +9,7 @@ namespace Models.APIRequest
 {
     public class CartConfirmRequestModel
     {
-        public long account_client_id { get; set; }
+        public string token  { get; set; }
         public int payment_type { get; set; }
         public int delivery_type { get; set; }
         public List<CartConfirmItemRequestModel> carts { get; set; }

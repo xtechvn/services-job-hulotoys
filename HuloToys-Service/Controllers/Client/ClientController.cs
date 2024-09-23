@@ -19,6 +19,7 @@ using HuloToys_Service.MongoDb;
 using HuloToys_Service.RedisWorker;
 using Entities.Models;
 using HuloToys_Service.Utilities.lib;
+using HuloToys_Service.Controllers.Client.Business;
 
 namespace HuloToys_Service.Controllers
 {
@@ -32,6 +33,7 @@ namespace HuloToys_Service.Controllers
         private readonly AccountClientESService accountClientESService;
         private readonly ClientESService clientESService;
         private readonly IdentiferService _identifierServiceRepository;
+        private readonly ClientServices clientServices;
         private readonly RedisConn _redisService;
 
         public ClientController(IConfiguration _configuration, RedisConn redisService) {
@@ -42,14 +44,14 @@ namespace HuloToys_Service.Controllers
             _identifierServiceRepository = new IdentiferService(_configuration);
             _redisService = new RedisConn(configuration);
             _redisService.Connect();
+            clientServices = new ClientServices(configuration);
         }
         [HttpPost("login")]
         public async Task<ActionResult> ClientLogin([FromBody] APIRequestGenericModel input)
         {
             try
             {
-
-
+                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
                 JArray objParr = null;
                 if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
@@ -77,16 +79,19 @@ namespace HuloToys_Service.Controllers
                                     var client = clientESService.GetById((long)account_client.clientid);
                                     if (client != null && client.id > 0)
                                     {
-
+                                        var token = await clientServices.GenerateToken(account_client.username, ipAddress);
                                         return Ok(new
                                         {
                                             status = (int)ResponseType.SUCCESS,
                                             msg = "Success",
-                                            data = new
-                                            {
-                                                account_client_id = account_client.id,
+                                            data = new ClientLoginResponseModel()
+                                            {   
+                                                //account_client_id = account_client_exists.id,
                                                 user_name = account_client.username,
-                                                name = client.clientname
+                                                name = client.clientname,
+                                                token= token,
+                                                ip=ipAddress,
+                                                time_expire= clientServices.GetExpiredTimeFromToken(token)
                                             }
                                         });
 
@@ -103,15 +108,19 @@ namespace HuloToys_Service.Controllers
                                         var account_client_exists = accountClientESService.GetByClientIdAndPassword(client.id, request.password);
                                         if (account_client_exists != null && account_client_exists.id > 0)
                                         {
+                                            var token = await clientServices.GenerateToken(account_client.username, ipAddress);
                                             return Ok(new
                                             {
                                                 status = (int)ResponseType.SUCCESS,
                                                 msg = "Success",
-                                                data = new
+                                                data = new ClientLoginResponseModel()
                                                 {
-                                                    account_client_id = account_client_exists.id,
-                                                    user_name = account_client_exists.username,
-                                                    name = client.clientname
+                                                    //account_client_id = account_client_exists.id,
+                                                    user_name = account_client.username,
+                                                    name = client.clientname,
+                                                    token = token,
+                                                    ip = ipAddress,
+                                                    time_expire = clientServices.GetExpiredTimeFromToken(token)
                                                 }
                                             });
                                         }
@@ -126,15 +135,19 @@ namespace HuloToys_Service.Controllers
                                         var account_client_exists = accountClientESService.GetByClientIdAndPassword(client.id, request.password);
                                         if (account_client_exists != null && account_client_exists.id > 0)
                                         {
+                                            var token = await clientServices.GenerateToken(account_client.username, ipAddress);
                                             return Ok(new
                                             {
                                                 status = (int)ResponseType.SUCCESS,
                                                 msg = "Success",
-                                                data = new
+                                                data = new ClientLoginResponseModel()
                                                 {
-                                                    account_client_id = account_client_exists.id,
-                                                    user_name = account_client_exists.username,
-                                                    name = client.clientname
+                                                    //account_client_id = account_client_exists.id,
+                                                    user_name = account_client.username,
+                                                    name = client.clientname,
+                                                    token = token,
+                                                    ip = ipAddress,
+                                                    time_expire = clientServices.GetExpiredTimeFromToken(token)
                                                 }
                                             });
                                         }
@@ -151,18 +164,21 @@ namespace HuloToys_Service.Controllers
                                     if (client != null && client.id > 0)
                                     {
 
+                                        var token = await clientServices.GenerateToken(account_client.username, ipAddress);
                                         return Ok(new
                                         {
                                             status = (int)ResponseType.SUCCESS,
                                             msg = "Success",
-                                            data = new
+                                            data = new ClientLoginResponseModel()
                                             {
-                                                account_client_id = account_client.id,
+                                                //account_client_id = account_client_exists.id,
                                                 user_name = account_client.username,
-                                                name = client.clientname
+                                                name = client.clientname,
+                                                token = token,
+                                                ip = ipAddress,
+                                                time_expire = clientServices.GetExpiredTimeFromToken(token)
                                             }
                                         });
-
                                     }
 
                                 }
@@ -202,7 +218,7 @@ namespace HuloToys_Service.Controllers
         {
             try
             {
-                
+                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
                 JArray objParr = null;
                 if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
@@ -270,11 +286,21 @@ namespace HuloToys_Service.Controllers
                     bool result= workQueueClient.InsertQueueSimple(JsonConvert.SerializeObject(queue_model),QueueName.queue_app_push);
                     if (result)
                     {
+
+                        var token = await clientServices.GenerateToken(username_generate, ipAddress);
                         return Ok(new
                         {
                             status = (int)ResponseType.SUCCESS,
                             msg = "Success",
-                            data= username_generate
+                            data = new ClientLoginResponseModel()
+                            {
+                                //account_client_id = account_client_exists.id,
+                                user_name = username_generate,
+                                name = request.user_name.Trim(),
+                                token = token,
+                                ip = ipAddress,
+                                time_expire = clientServices.GetExpiredTimeFromToken(token)
+                            }
                         });
                     }
                     
@@ -333,7 +359,7 @@ namespace HuloToys_Service.Controllers
                                 created_time=DateTime.Now,
                                 exprire_time=DateTime.Now.AddMinutes(30)
                             };
-                            string forgot_password_token = EncryptAES.EncryptMessage(JsonConvert.SerializeObject(forgot_password_object), configuration["config_value:key"], configuration["config_value:iv"]);
+                            string forgot_password_token = CommonHelper.Encode(JsonConvert.SerializeObject(forgot_password_object), configuration["KEY:private_key"]);
                             if (forgot_password_token != null && forgot_password_token.Trim()!="") {
                                 //Generate new Forgot password token:
                                 AccountClientViewModel model = new AccountClientViewModel()
@@ -412,7 +438,7 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    string forgot_password_object = EncryptAES.DecryptMessage(request.token, configuration["config_value:key"], configuration["config_value:iv"]);
+                    string forgot_password_object = CommonHelper.Decode(request.token, configuration["KEY:private_key"]);
                     if (forgot_password_object != null && forgot_password_object.Trim() != "")
                     {
                         var forgot_password_detail = JsonConvert.DeserializeObject<ClientForgotPasswordTokenModel>(forgot_password_object);

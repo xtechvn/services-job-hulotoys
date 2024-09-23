@@ -2,6 +2,6 @@
 {
     public class ClientAddressGeneralRequestModel
     {
-        public long account_client_id { get; set; }   
+        public string token { get; set; }   
     }
 }

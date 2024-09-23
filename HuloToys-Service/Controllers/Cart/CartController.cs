@@ -13,6 +13,7 @@ using HuloToys_Front_End.Models.Products;
 using HuloToys_Service.Models.Cart;
 using HuloToys_Service.Models.APIRequest;
 using HuloToys_Service.Controllers.Cart.Business;
+using HuloToys_Service.Controllers.Client.Business;
 
 namespace HuloToys_Service.Controllers
 {
@@ -27,6 +28,7 @@ namespace HuloToys_Service.Controllers
         private readonly CartService _cartService;
         private readonly ProductDetailMongoAccess _productDetailMongoAccess;
         private readonly OrderMongodbService orderMongodbService;
+        private readonly ClientServices clientServices;
 
         public CartController(IConfiguration configuration)
         {
@@ -36,7 +38,8 @@ namespace HuloToys_Service.Controllers
             _cartMongodbService = new CartMongodbService(configuration);
             _productDetailMongoAccess = new ProductDetailMongoAccess(configuration);
             _cartService = new CartService(configuration);
-           
+            clientServices = new ClientServices(configuration);
+
         }
         [HttpPost("add")]
         public async Task<IActionResult> AddToCart([FromBody] APIRequestGenericModel input)
@@ -55,7 +58,16 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var data = await _cartMongodbService.FindByProductId(request.product_id, request.account_client_id);
+                    long account_client_id = await clientServices.GetAccountClientIdFromToken(request.token);
+                    if (account_client_id <= 0)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    var data = await _cartMongodbService.FindByProductId(request.product_id, account_client_id);
                     int id = 0;
                     if (data == null || data.product == null)
                     {
@@ -63,7 +75,7 @@ namespace HuloToys_Service.Controllers
 
                         await _cartMongodbService.Insert(new CartItemMongoDbModel()
                         {
-                            account_client_id = request.account_client_id,
+                            account_client_id = account_client_id,
                             product = product,
                             quanity = request.quanity,
                             total_amount=product.amount * request.quanity,
@@ -108,7 +120,7 @@ namespace HuloToys_Service.Controllers
                 if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, _configuration["KEY:private_key"]))
                 {
                     var request = JsonConvert.DeserializeObject<ProductCartCountRequestModel>(objParr[0].ToString());
-                    if (request == null || request.account_client_id <= 0)
+                    if (request == null)
                     {
                         return Ok(new
                         {
@@ -116,7 +128,16 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var data = await _cartMongodbService.Count(request.account_client_id);
+                    long account_client_id = await clientServices.GetAccountClientIdFromToken(request.token);
+                    if (account_client_id <= 0)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    var data = await _cartMongodbService.Count(account_client_id);
 
                     return Ok(new
                     {
@@ -193,7 +214,16 @@ namespace HuloToys_Service.Controllers
                 if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, _configuration["KEY:private_key"]))
                 {
                     var request = JsonConvert.DeserializeObject<ProductCartCountRequestModel>(objParr[0].ToString());
-                    if (request == null || request.account_client_id <= 0)
+                    long account_client_id = await clientServices.GetAccountClientIdFromToken(request.token);
+                    if (account_client_id <= 0)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    if (request == null || account_client_id <= 0)
                     {
                         return Ok(new
                         {
@@ -202,7 +232,7 @@ namespace HuloToys_Service.Controllers
                         });
                     }
                     //var data = await _cartMongodbService.GetList(request.account_client_id);
-                    var data = await _cartService.GetList(request.account_client_id);
+                    var data = await _cartService.GetList(account_client_id);
 
                     return Ok(new
                     {
@@ -241,7 +271,16 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var data = await _cartMongodbService.FindByProductId(request.product_id, request.account_client_id);
+                    long account_client_id = await clientServices.GetAccountClientIdFromToken(request.token);
+                    if (account_client_id <= 0)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    var data = await _cartMongodbService.FindByProductId(request.product_id, account_client_id);
                     if (data != null && data.product != null)
                     {
                         data.quanity = request.quanity;
