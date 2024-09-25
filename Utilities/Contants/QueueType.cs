@@ -9,5 +9,6 @@
         public const int ADDRESS_DETAIL = 4;
         public const int ADD_COMMENT = 5;
         public const int ADD_RECEIVER_INFO_EMAIL = 6;
+        public const int INSERT_PRODUCT_RATING = 7;
     }
 }

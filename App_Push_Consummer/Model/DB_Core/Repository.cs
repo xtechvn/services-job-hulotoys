@@ -199,5 +199,30 @@ namespace App_Push_Consummer.Model.DB_Core
                 return -1;
             }
         }
+        public static int InsertProductRaiting(ProductRaitingPushQueueModel model)
+        {
+            try
+            {
+                SqlParameter[] objParam_order = new SqlParameter[]{
+                    new SqlParameter("@OrderId", model.OrderId),
+                    new SqlParameter("@ProductId", model.ProductId),
+                    new SqlParameter("@Star", model.Star),
+                    new SqlParameter("@Comment", model.Comment),
+                    new SqlParameter("@ImgLink", model.ImgLink),
+                    new SqlParameter("@VideoLink", model.VideoLink),
+                    new SqlParameter("@UserId", model.UserId),
+                    new SqlParameter("@CreatedDate", model.CreatedDate),
+
+                };
+
+                var id = DBWorker.ExecuteNonQuery("sp_InsertRating", objParam_order);
+                return id;
+            }
+            catch (Exception ex)
+            {
+                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "GetDataset =>InsertProductRaiting error queue = " + ex.ToString());
+                return -1;
+            }
+        }
     }
 }

@@ -19,6 +19,7 @@ using HuloToys_Service.Models.Orders;
 using HuloToys_Service.Models.APIRequest;
 using HuloToys_Service.Models.Location;
 using HuloToys_Service.Controllers.Client.Business;
+using App_Push_Consummer.Model.Comments;
 
 namespace HuloToys_Service.Controllers
 {
@@ -519,6 +520,78 @@ namespace HuloToys_Service.Controllers
                         status = (int)ResponseType.SUCCESS,
                         msg = "Success",
                         data = new OrderConfirmResponseModel { order_no = order_no, id = result, pushed= pushed_queue }
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                return Ok(new
+                {
+                    status = (int)ResponseType.FAILED,
+                    msg = ResponseMessages.FunctionExcutionFailed
+                });
+
+            }
+            return Ok(new
+            {
+                status = (int)ResponseType.FAILED,
+                msg = ResponseMessages.FunctionExcutionFailed
+            });
+        } 
+        
+        [HttpPost("insert-raiting")]
+        public async Task<ActionResult> InsertRaiting([FromBody] APIRequestGenericModel input)
+        {
+            try
+            {
+
+
+                JArray objParr = null;
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+                {
+                    var request = JsonConvert.DeserializeObject<ProductRaitingRequestModel>(objParr[0].ToString());
+                    if (request == null 
+                        || request.order_id <= 0
+                        || request.token == null || request.token.Trim()=="")
+                    {
+
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    long account_client_id = await clientServices.GetAccountClientIdFromToken(request.token);
+                    if (account_client_id <= 0)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    var account_client = accountClientESService.GetById(account_client_id);
+                    ProductRaitingPushQueueModel queue_model = new ProductRaitingPushQueueModel()
+                    {
+                         UserId= (long)account_client.clientid,
+                         Comment= request.comment,
+                         CreatedDate=DateTime.Now,
+                         ImgLink=request.img_link,
+                         OrderId=request.order_id,
+                         ProductId=request.product_id,
+                         VideoLink=request.video_link,
+                         Star=request.star,
+                        
+                    };
+
+                    var pushed_queue=work_queue.InsertQueueSimpleDurable(JsonConvert.SerializeObject(queue_model) , QueueName.queue_app_push);
+                   
+                    return Ok(new
+                    {
+                        status = (int)ResponseType.SUCCESS,
+                        msg = "Success",
                     });
                 }
             }
