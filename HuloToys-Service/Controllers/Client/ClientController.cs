@@ -108,7 +108,7 @@ namespace HuloToys_Service.Controllers
                                         var account_client_exists = accountClientESService.GetByClientIdAndPassword(client.id, request.password);
                                         if (account_client_exists != null && account_client_exists.id > 0)
                                         {
-                                            var token = await clientServices.GenerateToken(account_client.username, ipAddress);
+                                            var token = await clientServices.GenerateToken(account_client_exists.username, ipAddress);
                                             return Ok(new
                                             {
                                                 status = (int)ResponseType.SUCCESS,
@@ -116,7 +116,7 @@ namespace HuloToys_Service.Controllers
                                                 data = new ClientLoginResponseModel()
                                                 {
                                                     //account_client_id = account_client_exists.id,
-                                                    user_name = account_client.username,
+                                                    user_name = account_client_exists.username,
                                                     name = client.clientname,
                                                     token = token,
                                                     ip = ipAddress,
@@ -135,7 +135,7 @@ namespace HuloToys_Service.Controllers
                                         var account_client_exists = accountClientESService.GetByClientIdAndPassword(client.id, request.password);
                                         if (account_client_exists != null && account_client_exists.id > 0)
                                         {
-                                            var token = await clientServices.GenerateToken(account_client.username, ipAddress);
+                                            var token = await clientServices.GenerateToken(account_client_exists.username, ipAddress);
                                             return Ok(new
                                             {
                                                 status = (int)ResponseType.SUCCESS,
@@ -143,7 +143,7 @@ namespace HuloToys_Service.Controllers
                                                 data = new ClientLoginResponseModel()
                                                 {
                                                     //account_client_id = account_client_exists.id,
-                                                    user_name = account_client.username,
+                                                    user_name = account_client_exists.username,
                                                     name = client.clientname,
                                                     token = token,
                                                     ip = ipAddress,

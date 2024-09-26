@@ -13,7 +13,7 @@ namespace HuloToys_Service.ElasticSearch
 {
     public class RaitingESService : ESRepository<RatingESModel>
     {
-        public string index = "article_tag_hulotoys_store";
+        public string index = "raiting_hulotoys_store";
         private readonly IConfiguration configuration;
         private static string _ElasticHost;
         private static ElasticClient elasticClient;
@@ -22,11 +22,11 @@ namespace HuloToys_Service.ElasticSearch
         {
             _ElasticHost = Host;
             configuration = _configuration;
-            index = _configuration["DataBaseConfig:Elastic:Index:ArticleTag"];
+            index = _configuration["DataBaseConfig:Elastic:Index:Raiting"];
             var nodes = new Uri[] { new Uri(_ElasticHost) };
             var connectionPool = new StaticConnectionPool(nodes);
-            var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
-            var elasticClient = new ElasticClient(connectionSettings);
+            var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex(index);
+            elasticClient = new ElasticClient(connectionSettings);
         }
         public List<RatingESModel> GetListByFilter(ProductRaitingRequestModel request)
         {
@@ -115,6 +115,11 @@ namespace HuloToys_Service.ElasticSearch
                 // Build the search request
                 var searchRequest = new SearchRequest<RatingESModel>
                 {
+                    Query = new TermQuery
+                    {
+                        Field = Infer.Field<RatingESModel>(p => p.productid), // Filter by product ID
+                        Value = product_id
+                    },
                     Size = 0, // No hits needed, just aggregations
                     Aggregations = new AggregationDictionary
                     {
@@ -156,6 +161,9 @@ namespace HuloToys_Service.ElasticSearch
                                     new ExistsQuery { Field = Infer.Field<RatingESModel>(x => x.comment) }, // Count products with 'description'
                                 }
                             }
+                        },
+                        {
+                            "total_product_count", new ValueCountAggregation("total_product_count", Infer.Field<RatingESModel>(x => x.id))
                         }
                     }
                 };
@@ -180,6 +188,9 @@ namespace HuloToys_Service.ElasticSearch
                 // Process the field data counts (description and information)
                 var comment_agg = response.Aggregations.Filters("comment_count");
                 result.has_comment_count = comment_agg.Buckets.First().DocCount; // Products with 'description' field
+                                                                                 // Process the field data counts (description and information)
+                var total_product_count = response.Aggregations.Filters("total_product_count");
+                result.total_count = comment_agg.Buckets.First().DocCount; // Products with 'description' field
 
             }
             catch (Exception ex)

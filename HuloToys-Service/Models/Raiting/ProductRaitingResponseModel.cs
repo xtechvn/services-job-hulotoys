@@ -15,6 +15,7 @@
         public Dictionary<int, long> comment_count_by_star { get; set; }
         public long has_comment_count { get; set; }
         public long has_media_count { get; set; }
+        public long total_count { get; set; }
 
         public int page_index { get; set; }
         public int page_size { get; set; }

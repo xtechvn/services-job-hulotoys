@@ -551,7 +551,7 @@ namespace HuloToys_Service.Controllers
                 JArray objParr = null;
                 if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
-                    var request = JsonConvert.DeserializeObject<ProductRaitingRequestModel>(objParr[0].ToString());
+                    var request = JsonConvert.DeserializeObject<ProductInsertRaitingRequestModel>(objParr[0].ToString());
                     if (request == null 
                         || request.order_id <= 0
                         || request.token == null || request.token.Trim()=="")
@@ -573,7 +573,7 @@ namespace HuloToys_Service.Controllers
                         });
                     }
                     var account_client = accountClientESService.GetById(account_client_id);
-                    ProductRaitingPushQueueModel queue_model = new ProductRaitingPushQueueModel()
+                    ProductRaitingPushQueueModel model = new ProductRaitingPushQueueModel()
                     {
                          UserId= (long)account_client.clientid,
                          Comment= request.comment,
@@ -585,8 +585,12 @@ namespace HuloToys_Service.Controllers
                          Star=request.star,
                         
                     };
-
-                    var pushed_queue=work_queue.InsertQueueSimpleDurable(JsonConvert.SerializeObject(queue_model) , QueueName.queue_app_push);
+                    var queue_model = new
+                    {
+                        type = QueueType.INSERT_PRODUCT_RATING,
+                        data_push = JsonConvert.SerializeObject(model)
+                    };
+                    var pushed_queue=work_queue.InsertQueueSimple(JsonConvert.SerializeObject(queue_model) , QueueName.queue_app_push);
                    
                     return Ok(new
                     {

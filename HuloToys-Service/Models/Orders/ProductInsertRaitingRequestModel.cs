@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace App_Push_Consummer.Model.Comments
 {
-    public class ProductRaitingRequestModel
+    public class ProductInsertRaitingRequestModel
     {
         public long order_id { get; set; }
         public long product_id { get; set; }
