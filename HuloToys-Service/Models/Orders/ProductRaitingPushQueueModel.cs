@@ -9,7 +9,7 @@ namespace App_Push_Consummer.Model.Comments
     public class ProductRaitingPushQueueModel
     {
         public long OrderId { get; set; }
-        public long ProductId { get; set; }
+        public string ProductId { get; set; }
         public float Star { get; set; }
         public string Comment { get; set; }
         public string ImgLink { get; set; }
