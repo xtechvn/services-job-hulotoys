@@ -38,5 +38,7 @@ namespace APP_CHECKOUT.Models.Orders
         public string? wardid { get; set; }
 
         public string address { get; set; }
+        public long address_id { get; set; }
+
     }
 }

@@ -38,5 +38,6 @@ namespace HuloToys_Service.Models.Orders
         public string? wardid { get; set; }
 
         public string address { get; set; }
+        public long address_id { get; set; }
     }
 }
