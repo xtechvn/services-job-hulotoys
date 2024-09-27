@@ -573,11 +573,12 @@ namespace HuloToys_Service.Controllers
                         });
                     }
                     var account_client = accountClientESService.GetById(account_client_id);
+
                     ProductRaitingPushQueueModel model = new ProductRaitingPushQueueModel()
                     {
                          UserId= (long)account_client.clientid,
                          Comment= request.comment,
-                         CreatedDate=DateTime.Now,
+                         CreatedDate=DateTime.UtcNow.ToLocalTime(),
                          ImgLink=request.img_link,
                          OrderId=request.order_id,
                          ProductId=request.product_id,

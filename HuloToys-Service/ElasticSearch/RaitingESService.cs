@@ -37,6 +37,11 @@ namespace HuloToys_Service.ElasticSearch
                 {
                     From = (request.page_index - 1) <0?0: (request.page_index - 1)*request.page_size, // Set the starting point of the result set
                     Size = request.page_size, // Set the number of documents to return
+                    Sort = new List<ISort>
+                    {
+                         new FieldSort { Field = Infer.Field<RatingESModel>(x => x.createddate), Order = SortOrder.Descending },
+
+                    },
                     Query = new BoolQuery
                     {
                         Must = new List<QueryContainer>(),
@@ -86,7 +91,8 @@ namespace HuloToys_Service.ElasticSearch
                 searchRequest.Query = new BoolQuery
                 {
                     Must = mustQueries,
-                    Should=shouldQueries
+                    Should=shouldQueries,
+                    
                 };
 
                // Execute search
