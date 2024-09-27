@@ -36,6 +36,12 @@ namespace APP_CHECKOUT.DAL
                      new SqlParameter("@UserId", request.UserId),
                      new SqlParameter("@UserGroupIds", request.UserGroupIds),
                      new SqlParameter("@CreatedBy", request.CreatedBy),
+                     new SqlParameter("@ProvinceId", request.ProvinceId),
+                     new SqlParameter("@DistrictId", request.DistrictId),
+                     new SqlParameter("@WardId", request.WardId),
+                     new SqlParameter("@Address", request.Address),
+                     new SqlParameter("@Phone", request.Phone),
+                     new SqlParameter("@ReceiverName", request.ReceiverName),
 
                 };
                 request.OrderId = _DbWorker.ExecuteNonQuery(SPName.CREATE_ORDER, objParam);

@@ -17,7 +17,7 @@ namespace Caching.Elasticsearch
         {
             _ElasticHost = Host;
             configuration = _configuration;
-            index = _configuration["DataBaseConfig:Elastic:Index:AddressClient"];
+            index = _configuration["Elastic:Index:AddressClient"];
 
 
         }
@@ -54,7 +54,7 @@ namespace Caching.Elasticsearch
             }
             return null;
         }
-        public AddressClientESModel GetById(long id,long client_id)
+        public AddressClientESModel GetById(long id)
         {
             AddressClientESModel result = new AddressClientESModel();
             try
@@ -68,8 +68,6 @@ namespace Caching.Elasticsearch
                             .Query(q => q
                                 .Match(m => m.Field(x => x.id).Query(id.ToString())
                                 ) 
-                                && 
-                                q.Match(m => m.Field(x => x.clientid).Query(client_id.ToString()))
                                 )
                             .Size(100)
 

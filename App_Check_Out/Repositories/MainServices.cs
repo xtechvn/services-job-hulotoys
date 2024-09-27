@@ -130,7 +130,7 @@ namespace APP_CHECKOUT.Repositories
                 }
                 var account_client=accountClientESService.GetById(order.account_client_id);
                 var client = clientESService.GetById((long)account_client.clientid);
-                var address_client = addressClientESService.GetById(order.address_id, (long)account_client.clientid);
+                var address_client = addressClientESService.GetById(order.address_id);
                
                 order_summit = new Order()
                 {
@@ -179,6 +179,8 @@ namespace APP_CHECKOUT.Repositories
                     var ward = wards.FirstOrDefault(x => x.WardId == address_client.wardid);
                     order_summit.WardId = ward != null ? ward.Id : null;
                 }
+                order_summit.ReceiverName = address_client.receivername;
+                order_summit.Phone = address_client.phone;
                 order_summit.Address = address_client.address;
 
                 var order_id = await orderDAL.CreateOrder(order_summit);
