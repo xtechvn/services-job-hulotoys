@@ -24,7 +24,7 @@ namespace HuloToys_Service.ElasticSearch
             index = _configuration["DataBaseConfig:Elastic:Index:GroupProduct"];
 
         }
-        public List<GroupProduct> GetListGroupProductByParentId(long parent_id)
+        public List<GroupProductESModel> GetListGroupProductByParentId(long parent_id)
         {
             try
             {
@@ -49,24 +49,24 @@ namespace HuloToys_Service.ElasticSearch
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<GroupProductESModel>;
-                    var result = data.Select(a => new GroupProduct
-                    {
-                        Id = a.id,
-                        ParentId = a.parentid,
-                        PositionId = a.positionid,
-                        Name = a.name,
-                        ImagePath = a.imagepath,
-                        OrderNo = a.orderno,
-                        Path = a.path,
-                        Status = a.status,
-                        CreatedOn = a.createdon,
-                        ModifiedOn = a.modifiedon,
-                        Description = a.description,
-                        IsShowHeader = a.isshowheader,
-                        IsShowFooter = a.isshowfooter,
+                    //var result = data.Select(a => new GroupProduct
+                    //{
+                    //    Id = a.id,
+                    //    ParentId = a.parentid,
+                    //    PositionId = a.positionid,
+                    //    Name = a.name,
+                    //    ImagePath = a.imagepath,
+                    //    OrderNo = a.orderno,
+                    //    Path = a.path,
+                    //    Status = a.status,
+                    //    CreatedOn = a.createdon,
+                    //    ModifiedOn = a.modifiedon,
+                    //    Description = a.description,
+                    //    IsShowHeader = a.isshowheader,
+                    //    IsShowFooter = a.isshowfooter,
 
-                    }).ToList();
-                    return result;
+                    //}).ToList();
+                    return data;
                 }
             }
             catch (Exception ex)
@@ -76,7 +76,7 @@ namespace HuloToys_Service.ElasticSearch
             }
             return null;
         }
-        public GroupProduct GetDetailGroupProductById(long id)
+        public GroupProductESModel GetDetailGroupProductById(long id)
         {
             try
             {
@@ -100,24 +100,24 @@ namespace HuloToys_Service.ElasticSearch
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<GroupProductESModel>;
-                    var result = data.Select(a => new GroupProduct
-                    {
-                        Id = a.id,
-                        ParentId = a.parentid,
-                        PositionId = a.positionid,
-                        Name = a.name,
-                        ImagePath = a.imagepath,
-                        OrderNo = a.orderno,
-                        Path = a.path,
-                        Status = a.status,
-                        CreatedOn = a.createdon,
-                        ModifiedOn = a.modifiedon,
-                        Description = a.description,
-                        IsShowHeader = a.isshowheader,
-                        IsShowFooter = a.isshowfooter,
+                    //var result = data.Select(a => new GroupProduct
+                    //{
+                    //    Id = a.id,
+                    //    ParentId = a.parentid,
+                    //    PositionId = a.positionid,
+                    //    Name = a.name,
+                    //    ImagePath = a.imagepath,
+                    //    OrderNo = a.orderno,
+                    //    Path = a.path,
+                    //    Status = a.status,
+                    //    CreatedOn = a.createdon,
+                    //    ModifiedOn = a.modifiedon,
+                    //    Description = a.description,
+                    //    IsShowHeader = a.isshowheader,
+                    //    IsShowFooter = a.isshowfooter,
 
-                    }).ToList();
-                    return result.FirstOrDefault();
+                    //}).ToList();
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)

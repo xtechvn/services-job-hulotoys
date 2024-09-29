@@ -46,11 +46,11 @@ namespace HuloToys_Service.Controllers
                         msg = "Thông tin đăng nhập không đúng. Xin vui lòng thử lại"
                     });
                 }
-
+                var Password = CommonHelper.MD5Hash(user.Password);
                 var accountClient = accountApiESService.GetByUsername(user.Username);
                 if (accountClient == null) { return Ok(new { status = (int)ResponseType.ERROR, msg = "Tài khoản " + user.Username + " không tồn tại" }); }
                 if (accountClient.status != (int)AccountClientStatusType.BINH_THUONG) { return Ok(new { status = (int)ResponseType.ERROR, msg = "Tài khoản đã khóa" }); }
-                if (user.Username == accountClient.username && user.Password == accountClient.password)
+                if (user.Username == accountClient.username && Password == accountClient.password)
                 {
                     var token = GenerateJwtToken(user.Username);
                     return Ok(new { status = (int)ResponseType.SUCCESS, token });
@@ -87,7 +87,7 @@ namespace HuloToys_Service.Controllers
                     issuer: null,
                     audience: null,
                     claims: claims,
-                    expires: DateTime.Now.AddMinutes(30),
+                    expires: DateTime.Now.AddDays(1),
                     signingCredentials: credentials);
                 return new JwtSecurityTokenHandler().WriteToken(token);
 

@@ -1,6 +1,7 @@
 ﻿using App_Push_Consummer.Behaviors;
 using App_Push_Consummer.Common;
 using App_Push_Consummer.Engines.Address;
+using App_Push_Consummer.Engines.ProductRaiting;
 using App_Push_Consummer.Interfaces;
 using App_Push_Consummer.Model.Address;
 using App_Push_Consummer.Model.Comments;
@@ -20,12 +21,15 @@ namespace App_Push_Consummer.Engines
         private readonly IAddressBusiness address_business;
         private readonly IAccountClientBusiness accountclient_business;
         private readonly ICommentsBusiness comments_business;
+        private readonly IProductRaitingService productRaitingService;
 
-        public Factory(IAddressBusiness _address_business, IAccountClientBusiness _accountclient_business, ICommentsBusiness _comments_business)
+        public Factory(IAddressBusiness _address_business, IAccountClientBusiness _accountclient_business, ICommentsBusiness _comments_business,
+            IProductRaitingService _productRaitingService)
         {
             address_business = _address_business;
             accountclient_business = _accountclient_business;
             comments_business = _comments_business;
+            productRaitingService = _productRaitingService;
         }
 
         public async void DoSomeRealWork(string data_queue)
@@ -92,6 +96,16 @@ namespace App_Push_Consummer.Engines
                             if (comments_id < 0)
                             {
                                 ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "Lưu thông tin comment thất bại");
+                            }
+                            break;
+                        }
+                    case QueueType.INSERT_PRODUCT_RATING:
+                        {
+                            var model = JsonConvert.DeserializeObject<ProductRaitingPushQueueModel>(queue_info.data_push);
+                            var id = await productRaitingService.InsertRaiting(model);
+                            if (id < 0)
+                            {
+                                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "Lưu thông tin raiting thất bại");
                             }
                             break;
                         }

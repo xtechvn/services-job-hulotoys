@@ -1,6 +1,7 @@
 ﻿using Caching.Elasticsearch;
 using Entities.Models;
 using HuloToys_Service.Controllers.Address.Business;
+using HuloToys_Service.Controllers.Client.Business;
 using HuloToys_Service.Models;
 using HuloToys_Service.Models.Address;
 using HuloToys_Service.Models.APIRequest;
@@ -34,6 +35,8 @@ namespace HuloToys_Service.Controllers.Address
         private readonly AddressClientService addressClientService;
         private readonly RedisConn redisService;
         private readonly WorkQueueClient work_queue;
+        private readonly ClientServices clientServices;
+
         public AddressController(IConfiguration _configuration, RedisConn _redisService)
         {
             configuration = _configuration;
@@ -43,6 +46,7 @@ namespace HuloToys_Service.Controllers.Address
             addressClientESService = new AddressClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
             redisService.Connect();
             addressClientService = new AddressClientService(_configuration, redisService);
+            clientServices = new ClientServices(configuration);
 
         }
         [HttpPost("insert-address")]
@@ -57,8 +61,21 @@ namespace HuloToys_Service.Controllers.Address
                     var request = JsonConvert.DeserializeObject<AddressViewModel>(objParr[0].ToString());
                     bool response_queue = false;
                     
-                    if (request != null && request.AccountClientId>0)
+                    if (request != null )
                     {
+                        if (request.AccountClientId <= 0)
+                        {
+                            request.AccountClientId = await clientServices.GetAccountClientIdFromToken(request.token);
+                            if (request.AccountClientId <= 0)
+                            {
+                                return Ok(new
+                                {
+                                    status = (int)ResponseType.FAILED,
+                                    msg = ResponseMessages.DataInvalid
+                                });
+                            }
+
+                        }
                         var account_client = accountClientESService.GetById(request.AccountClientId);
                         request.ClientId =(long)account_client.clientid;
                         var j_param = new Dictionary<string, object>
@@ -121,8 +138,21 @@ namespace HuloToys_Service.Controllers.Address
                     bool response_queue = false;
                     var work_queue = new WorkQueueClient(configuration);
                   
-                    if (request != null && request.AccountClientId > 0)
+                    if (request != null)
                     {
+                        if (request.AccountClientId <= 0)
+                        {
+                            request.AccountClientId = await clientServices.GetAccountClientIdFromToken(request.token);
+                            if (request.AccountClientId <= 0)
+                            {
+                                return Ok(new
+                                {
+                                    status = (int)ResponseType.FAILED,
+                                    msg = ResponseMessages.DataInvalid
+                                });
+                            }
+
+                        }
                         var account_client = accountClientESService.GetById(request.AccountClientId);
                         request.ClientId = (long)account_client.clientid;
                         var j_param = new Dictionary<string, object>
@@ -194,7 +224,16 @@ namespace HuloToys_Service.Controllers.Address
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var cache_name = CacheType.ADDRESS_CLIENT + request.account_client_id;
+                    long account_client_id = await clientServices.GetAccountClientIdFromToken(request.token);
+                    if (account_client_id <=0)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    var cache_name = CacheType.ADDRESS_CLIENT + account_client_id;
                     var j_data = await redisService.GetAsync(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
                     if (j_data != null && j_data.Trim() != "")
                     {
@@ -251,7 +290,16 @@ namespace HuloToys_Service.Controllers.Address
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var cache_name = CacheType.ADDRESS_CLIENT + request.account_client_id;
+                    long account_client_id = await clientServices.GetAccountClientIdFromToken(request.token);
+                    if (account_client_id <= 0)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    var cache_name = CacheType.ADDRESS_CLIENT + account_client_id;
                     var j_data = await redisService.GetAsync(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
                     if (j_data != null && j_data.Trim() != "")
                     {
@@ -304,7 +352,7 @@ namespace HuloToys_Service.Controllers.Address
                 if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
                     var request = JsonConvert.DeserializeObject<ClientAddressDetailRequestModel>(objParr[0].ToString());
-                    if (request == null || request.account_client_id <= 0 || request.id <= 0)
+                    if (request == null )
                     {
                         return Ok(new
                         {
@@ -312,7 +360,16 @@ namespace HuloToys_Service.Controllers.Address
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var cache_name = CacheType.ADDRESS_CLIENT_DETAIL + request.id + request.account_client_id;
+                    long account_client_id = await clientServices.GetAccountClientIdFromToken(request.token);
+                    if (account_client_id <= 0)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    var cache_name = CacheType.ADDRESS_CLIENT_DETAIL + request.id + account_client_id;
                     var j_data = await redisService.GetAsync(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
                     if (j_data != null && j_data.Trim() != "")
                     {
@@ -327,7 +384,7 @@ namespace HuloToys_Service.Controllers.Address
                             });
                         }
                     }
-                    var account_client = accountClientESService.GetById(request.account_client_id);
+                    var account_client = accountClientESService.GetById(account_client_id);
                     var detail = addressClientESService.GetById(request.id, (long)account_client.clientid);
                     if (detail != null && detail.id > 0)
                     {

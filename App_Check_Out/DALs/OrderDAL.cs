@@ -25,7 +25,7 @@ namespace APP_CHECKOUT.DAL
                      new SqlParameter("@Profit", request.Profit),
                      new SqlParameter("@Discount", request.Discount),
                      new SqlParameter("@Amount", request.Amount),
-                     new SqlParameter("@Status", request.Status),
+                     new SqlParameter("@Status", request.OrderStatus),
                      new SqlParameter("@PaymentType", request.PaymentType),
                      new SqlParameter("@PaymentStatus", request.PaymentStatus),
                      new SqlParameter("@UtmSource", request.UtmSource),
@@ -36,6 +36,12 @@ namespace APP_CHECKOUT.DAL
                      new SqlParameter("@UserId", request.UserId),
                      new SqlParameter("@UserGroupIds", request.UserGroupIds),
                      new SqlParameter("@CreatedBy", request.CreatedBy),
+                     new SqlParameter("@ProvinceId", request.ProvinceId),
+                     new SqlParameter("@DistrictId", request.DistrictId),
+                     new SqlParameter("@WardId", request.WardId),
+                     new SqlParameter("@Address", request.Address),
+                     new SqlParameter("@Phone", request.Phone),
+                     new SqlParameter("@ReceiverName", request.ReceiverName),
 
                 };
                 request.OrderId = _DbWorker.ExecuteNonQuery(SPName.CREATE_ORDER, objParam);
@@ -61,7 +67,7 @@ namespace APP_CHECKOUT.DAL
                      new SqlParameter("@Profit", request.Profit),
                      new SqlParameter("@Discount", request.Discount),
                      new SqlParameter("@Amount", request.Amount),
-                     new SqlParameter("@Status", request.Status),
+                     new SqlParameter("@Status", request.OrderStatus),
                      new SqlParameter("@PaymentType", request.PaymentType),
                      new SqlParameter("@PaymentStatus", request.PaymentStatus),
                      new SqlParameter("@UtmSource", request.UtmSource),

@@ -9,6 +9,12 @@ using APP_CHECKOUT.Utilities.constants;
 using Microsoft.Extensions.Configuration;
 using APP_CHECKOUT.Elasticsearch;
 using Newtonsoft.Json;
+using HuloToys_Service.Models.Location;
+using Nest;
+using Caching.RedisWorker;
+using Utilities.Contants;
+using Caching.Elasticsearch;
+using DAL;
 
 namespace APP_CHECKOUT.Repositories
 {
@@ -18,18 +24,25 @@ namespace APP_CHECKOUT.Repositories
         private readonly ILoggingService logging_service;
         private readonly OrderMongodbService orderDetailMongoDbModel;
         private readonly OrderDAL orderDAL;
+        private readonly LocationDAL locationDAL;
         private readonly OrderDetailDAL orderDetailDAL;
         private readonly AccountClientESService accountClientESService;
         private readonly ClientESService clientESService;
+        private readonly AddressClientESService addressClientESService;
+        private readonly RedisConn _redisService;
         public MainServices(IConfiguration configuration, ILoggingService loggingService) {
 
             _configuration=configuration;
             logging_service=loggingService;
             orderDetailMongoDbModel = new OrderMongodbService(configuration);
+            _redisService = new RedisConn(configuration);
+            _redisService.Connect();
             orderDAL = new OrderDAL(configuration["ConnectionString"]);
+            locationDAL = new LocationDAL(configuration["ConnectionString"]);
             orderDetailDAL = new OrderDetailDAL(configuration["ConnectionString"]);
             accountClientESService = new AccountClientESService(configuration["Elastic:Host"], configuration);
             clientESService = new ClientESService(configuration["Elastic:Host"], configuration);
+            addressClientESService = new AddressClientESService(configuration["Elastic:Host"], configuration);
         }
         public async Task Excute(CheckoutQueueModel request)
         {
@@ -87,21 +100,21 @@ namespace APP_CHECKOUT.Repositories
                     name_url = name_url.Replace(" ", "-").Trim();
                     details.Add(new OrderDetail()
                     { 
-                        Amount = cart.product.amount,
                         CreatedDate=DateTime.Now,
                         Discount=cart.product.discount,
                         OrderDetailId=0,
                         OrderId=0,
-                        Price=cart.product.amount,
-                        ProductCode=cart.product.code,
+                        Price=cart.product.price,
+                        Profit = cart.product.profit,
+                        Quantity = cart.quanity,
+                        Amount = cart.product.amount,
+                        ProductCode = cart.product.code,
                         ProductId=cart.product._id,
                         ProductLink = _configuration["Setting:Domain"] + "/san-pham/"+ name_url + "--"+ cart.product._id,
-                        Profit=cart.product.profit,
-                        Quantity=cart.quanity,
-                        TotalAmount=cart.product.amount * cart.quanity,
+                        TotalPrice = cart.product.price * cart.quanity,
+                        TotalProfit = cart.product.profit * cart.quanity,
+                        TotalAmount =cart.product.amount * cart.quanity,
                         TotalDiscount= cart.product.discount * cart.quanity,
-                        TotalPrice=cart.product.price*cart.quanity,
-                        TotalProfit=cart.product.profit*cart.quanity,
                         UpdatedDate= DateTime.Now,
                         UserCreate = Convert.ToInt32(_configuration["Setting:BOT_UserID"]),
                         UserUpdated= Convert.ToInt32(_configuration["Setting:BOT_UserID"])
@@ -117,6 +130,8 @@ namespace APP_CHECKOUT.Repositories
                 }
                 var account_client=accountClientESService.GetById(order.account_client_id);
                 var client = clientESService.GetById((long)account_client.clientid);
+                var address_client = addressClientESService.GetById(order.address_id);
+               
                 order_summit = new Order()
                 {
                     Amount = total_amount,
@@ -131,7 +146,7 @@ namespace APP_CHECKOUT.Repositories
                     PaymentType=Convert.ToInt16(order.payment_type),
                     Price=total_price,
                     Profit=total_profit,
-                    Status=0,
+                    OrderStatus=0,
                     UpdateLast=DateTime.Now,
                     UserGroupIds="",
                     UserId = Convert.ToInt32(_configuration["Setting:BOT_UserID"]),
@@ -139,8 +154,35 @@ namespace APP_CHECKOUT.Repositories
                     UtmSource=order.utm_source,
                     VoucherId=order.voucher_id,
                     CreatedBy = Convert.ToInt32(_configuration["Setting:BOT_UserID"]),
-                    UserUpdateId = Convert.ToInt32(_configuration["Setting:BOT_UserID"])
+                    UserUpdateId = Convert.ToInt32(_configuration["Setting:BOT_UserID"]),
+                    Address=order.address,
+                    ReceiverName=order.receivername,
+                    Phone=order.phone,
+                   
                 };
+                List<Province> provinces = GetProvince();
+                List<District> districts = GetDistrict();
+                List<Ward> wards = GetWards();
+
+                if (address_client.provinceid != null && address_client.provinceid.Trim() != "" && provinces != null && provinces.Count>0)
+                {
+                    var province = provinces.FirstOrDefault(x => x.ProvinceId == address_client.provinceid);
+                    order_summit.ProvinceId = province != null ? province.Id : null;
+                }
+                if (address_client.districtid != null && address_client.districtid.Trim() != "" && districts != null && districts.Count > 0)
+                {
+                    var district = districts.FirstOrDefault(x => x.DistrictId == address_client.districtid);
+                    order_summit.DistrictId = district != null ? district.Id : null;
+                }
+                if (address_client.wardid != null && address_client.wardid.Trim() != "" && wards != null && wards.Count > 0)
+                {
+                    var ward = wards.FirstOrDefault(x => x.WardId == address_client.wardid);
+                    order_summit.WardId = ward != null ? ward.Id : null;
+                }
+                order_summit.ReceiverName = address_client.receivername;
+                order_summit.Phone = address_client.phone;
+                order_summit.Address = address_client.address;
+
                 var order_id = await orderDAL.CreateOrder(order_summit);
                 Console.WriteLine("Created Order - " + order.order_no+": "+ order_id);
                 logging_service.LoggingAppOutput("Order Created - " + order.order_no + " - " + total_amount, true, false);
@@ -171,6 +213,100 @@ namespace APP_CHECKOUT.Repositories
                 logging_service.LoggingAppOutput(err, true, true);
 
             }
+        }
+        private List<Province> GetProvince()
+        {
+            List<Province> provinces = new List<Province>();
+            string provinces_string = "";
+
+            try
+            {
+                try
+                {
+                    provinces_string = _redisService.Get(CacheType.PROVINCE, Convert.ToInt32(_configuration["Redis:Database:db_common"]));
+                } catch{}
+                if (provinces_string == null || provinces_string.Trim() == "")
+                {
+                    provinces = locationDAL.GetListProvinces();
+                    try
+                    {
+                        _redisService.Set(CacheType.PROVINCE, JsonConvert.SerializeObject(provinces), Convert.ToInt32(_configuration["Redis:Database:db_common"]));
+                    }catch{}
+                }
+                else
+                {
+                    provinces = JsonConvert.DeserializeObject<List<Province>>(provinces_string);
+                }
+            }
+            catch
+            {
+
+            }
+            return provinces;
+        }
+        private List<District> GetDistrict()
+        {
+            List<District> districts = new List<District>();
+            string districts_string = "";
+
+            try
+            {
+                try
+                {
+                    districts_string = _redisService.Get(CacheType.DISTRICT, Convert.ToInt32(_configuration["Redis:Database:db_common"]));
+                }
+                catch { }
+                if (districts_string == null || districts_string.Trim() == "")
+                {
+                    districts = locationDAL.GetListDistrict();
+                    try
+                    {
+                        _redisService.Set(CacheType.DISTRICT, JsonConvert.SerializeObject(districts), Convert.ToInt32(_configuration["Redis:Database:db_common"]));
+                    }
+                    catch { }
+                }
+                else
+                {
+                    districts = JsonConvert.DeserializeObject<List<District>>(districts_string);
+                }
+            }
+            catch
+            {
+
+            }
+            return districts;
+        }
+        private List<Ward> GetWards()
+        {
+            List<Ward> wards = new List<Ward>();
+            string wards_string = "";
+
+            try
+            {
+                try
+                {
+                    wards_string = _redisService.Get(CacheType.WARD, Convert.ToInt32(_configuration["Redis:Database:db_common"]));
+                }
+                catch { }
+                if (wards_string == null || wards_string.Trim() == "")
+                {
+                    wards = locationDAL.GetListWard();
+                    try
+                    {
+                        _redisService.Set(CacheType.DISTRICT, JsonConvert.SerializeObject(wards), Convert.ToInt32(_configuration["Redis:Database:db_common"]));
+                    }
+                    catch { }
+                }
+                else
+                {
+                    wards = JsonConvert.DeserializeObject<List<Ward>>(wards_string);
+                }
+            }
+            catch
+            {
+
+            }
+            return wards;
         }
     }
 }

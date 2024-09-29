@@ -1,10 +1,15 @@
 ﻿using Entities.ViewModels.Products;
 using HuloToys_Front_End.Models.Products;
 using HuloToys_Service.Utilities.constants.Product;
+using HuloToys_Service.Utilities.lib;
 using HuloToys_Service.Utilities.Lib;
+using Microsoft.Extensions.FileSystemGlobbing.Internal;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace HuloToys_Service.MongoDb
 {
@@ -112,7 +117,7 @@ namespace HuloToys_Service.MongoDb
                 }
                 var sort_filter = Builders<ProductMongoDbModel>.Sort;
                 var sort_filter_definition = sort_filter.Descending(x => x.updated_last);
-                var model = _productDetailCollection.Find(filterDefinition);
+                var model = _productDetailCollection.Find(filterDefinition).Sort(sort_filter_definition);
                 model.Options.Skip = page_index < 1 ? 0 : (page_index - 1) * page_size;
                 model.Options.Limit = page_size;
                 var result = await model.ToListAsync();
@@ -125,7 +130,7 @@ namespace HuloToys_Service.MongoDb
                 return null;
             }
         }
-        public async Task<ProductListResponseModel> ResponseListing(string keyword = "", int group_id = -1, int page_index = 1, int page_size = 10)
+        public async Task<ProductListResponseModel> ResponseListing(string keyword = "", int group_id = -1)
         {
             try
             {
@@ -133,8 +138,7 @@ namespace HuloToys_Service.MongoDb
                 var filterDefinition = filter.Empty;
                 if (keyword != null && keyword.Trim() != "")
                 {
-                    filterDefinition &= Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, keyword);
-
+                    filterDefinition |= Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, keyword);
                 }
                 if (group_id > 0)
                 {
@@ -142,17 +146,58 @@ namespace HuloToys_Service.MongoDb
                 }
                 filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.parent_product_id, "");
                 filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.status, (int)ProductStatus.ACTIVE);
-
                 var sort_filter = Builders<ProductMongoDbModel>.Sort;
                 var sort_filter_definition = sort_filter.Descending(x => x.updated_last);
                 var model = _productDetailCollection.Find(filterDefinition);
                 long count = await model.CountDocumentsAsync();
-                model.Options.Skip = page_index < 1 ? 0 : (page_index - 1) * page_size;
-                model.Options.Limit = page_size;
-
+                var items = await model.ToListAsync();
                 return new ProductListResponseModel()
                 {
-                    items = await model.ToListAsync(),
+                    items = items,
+                    count = count
+                };
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public async Task<ProductListResponseModel> Search(string keyword = "")
+        {
+            try
+            {
+
+                string regex_keyword_pattern = keyword;
+                var keyword_split = keyword.Split(" ");
+                if (keyword_split.Length > 0) {
+                    regex_keyword_pattern = "";
+
+                    foreach (var word  in keyword_split)
+                    {
+                        string w=word.Trim();
+                        if (StringHelper.HasSpecialCharacterExceptVietnameseCharacter(word)) {
+                            w = StringHelper.RemoveSpecialCharacterExceptVietnameseCharacter(word);
+                        }
+                        regex_keyword_pattern += "(?=.*"+w+".*)";
+
+                    }
+                }
+                regex_keyword_pattern = "^" + regex_keyword_pattern + ".*$";
+                var regex = new BsonRegularExpression(regex_keyword_pattern.Trim().ToLower(), "i");
+                
+                var filter = Builders<ProductMongoDbModel>.Filter.Or(
+                   Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, regex), // Case-insensitive regex
+                   Builders<ProductMongoDbModel>.Filter.Regex(x => x.sku, regex), // Case-insensitive regex
+                   Builders<ProductMongoDbModel>.Filter.Regex(x => x.code, regex)  // Case-insensitive regex
+               )
+               & Builders<ProductMongoDbModel>.Filter.Eq(x => x.parent_product_id, "")
+               & Builders<ProductMongoDbModel>.Filter.Eq(x => x.status, (int)ProductStatus.ACTIVE);
+                var model = _productDetailCollection.Find(filter);
+                var items = await model.ToListAsync();
+                long count = await model.CountDocumentsAsync();
+                return new ProductListResponseModel()
+                {
+                    items = items,
                     count = count
                 };
             }

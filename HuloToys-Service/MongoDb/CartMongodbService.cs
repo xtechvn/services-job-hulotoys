@@ -140,7 +140,10 @@ namespace HuloToys_Service.MongoDb
                 var filterDefinition = filter.Empty;
                 filterDefinition &= Builders<CartItemMongoDbModel>.Filter.Eq(x => x.account_client_id, client_id);
 
-                var model = await bookingCollection.Find(filterDefinition).ToListAsync();
+
+                var model = await bookingCollection.Find(filterDefinition)
+                    .Sort(Builders<CartItemMongoDbModel>.Sort.Descending(c => c.created_date))
+                    .ToListAsync();
                 if (model != null)
                 {
                     return model;

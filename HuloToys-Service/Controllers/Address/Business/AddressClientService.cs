@@ -1,5 +1,6 @@
 ﻿using Caching.Elasticsearch;
 using Entities.Models;
+using HuloToys_Service.Controllers.Client.Business;
 using HuloToys_Service.Models.Client;
 using HuloToys_Service.Models.Location;
 using HuloToys_Service.RabitMQ;
@@ -17,12 +18,16 @@ namespace HuloToys_Service.Controllers.Address.Business
         private readonly AccountClientESService accountClientESService;
         private readonly AddressClientESService addressClientESService;
         private readonly RedisConn redisService;
+        private readonly ClientServices clientServices;
+
         public AddressClientService(IConfiguration _configuration, RedisConn _redisService)
         {
             configuration = _configuration;
             redisService = _redisService;
             accountClientESService = new AccountClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
             addressClientESService = new AddressClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
+            clientServices = new ClientServices(configuration);
+
         }
         public ClientAddressListResponseModel AddressByClient(ClientAddressGeneralRequestModel request)
         {
@@ -32,7 +37,12 @@ namespace HuloToys_Service.Controllers.Address.Business
             };
             try
             {
-                var account_client = accountClientESService.GetById(request.account_client_id);
+                long account_client_id =  clientServices.GetAccountClientIdFromToken(request.token).Result;
+                if (account_client_id <= 0)
+                {
+                    return model;
+                }
+                var account_client = accountClientESService.GetById(account_client_id);
                 var client_id = (long)account_client.clientid;
                
                 var list = addressClientESService.GetByClientID(client_id);
@@ -68,7 +78,12 @@ namespace HuloToys_Service.Controllers.Address.Business
             AddressClientFEModel model = new AddressClientFEModel();
             try
             {
-                var account_client = accountClientESService.GetById(request.account_client_id);
+                long account_client_id = clientServices.GetAccountClientIdFromToken(request.token).Result;
+                if (account_client_id <= 0)
+                {
+                    return model;
+                }
+                var account_client = accountClientESService.GetById(account_client_id);
                 var client_id = (long)account_client.clientid;
 
                 var list = addressClientESService.GetByClientID(client_id);

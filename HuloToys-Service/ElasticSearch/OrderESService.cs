@@ -9,6 +9,7 @@ using Utilities;
 using HuloToys_Service.Models.ElasticSearch;
 using HuloToys_Service.Models.Orders;
 using Azure.Core;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
 namespace Caching.Elasticsearch
 {
@@ -225,19 +226,24 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<OrderESModel>(sd => sd
+
+                var query = elasticClient.Count<OrderESModel>(sd => sd
                                    .Index(index)
                                   .Query(q =>
                                    q.Bool(
                                        qb => qb.Must(
-                                          q => q.DateRange(m => m.Field(x => x.createddate).GreaterThan(new DateTime(DateTime.Now.Year, 01, 01, 0, 0, 0))
+                                          q => q.DateRange(m => m
+                                          .Name("createddate")
+                                          .GreaterThanOrEquals(new DateTime(DateTime.Now.Year, 01, 01, 0, 0, 0).ToString("dd/MM/yyyy"))
+                                          .Format("dd/MM/yyyy")
+                                          .TimeZone("+07:00")
                                            )
                                            )
                                        )
                                   ));
                 if (query.IsValid)
                 {
-                    return query.Documents.Count;
+                    return query.Count;
                 }
                 else
                 {

@@ -1,9 +1,7 @@
-﻿using Models.MongoDb;
-using HuloToys_Service.Utilities.Lib;
+﻿using HuloToys_Service.Utilities.Lib;
 using MongoDB.Driver;
-using System.Collections.Concurrent;
 using System.Reflection;
-using Nest;
+using HuloToys_Service.Models.Orders;
 
 namespace HuloToys_Service.MongoDb
 {
@@ -68,7 +66,8 @@ namespace HuloToys_Service.MongoDb
                 var filterDefinition = filter.Empty;
                 filterDefinition &= Builders<OrderDetailMongoDbModel>.Filter.In(x => x.order_id, ids);
 
-                return await bookingCollection.Find(filterDefinition).ToListAsync();
+                return await bookingCollection.Find(filterDefinition)
+                    .ToListAsync(); 
                
             }
             catch (Exception ex)
