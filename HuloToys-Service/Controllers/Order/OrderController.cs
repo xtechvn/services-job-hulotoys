@@ -20,6 +20,7 @@ using HuloToys_Service.Models.APIRequest;
 using HuloToys_Service.Models.Location;
 using HuloToys_Service.Controllers.Client.Business;
 using App_Push_Consummer.Model.Comments;
+using HuloToys_Service.ElasticSearch;
 
 namespace HuloToys_Service.Controllers
 {
@@ -40,6 +41,7 @@ namespace HuloToys_Service.Controllers
         private readonly RedisConn _redisService;
         private readonly ClientServices clientServices;
         private readonly ClientESService clientESService;
+        private readonly RaitingESService raitingESService;
 
         public OrderController(IConfiguration _configuration, RedisConn redisService)
         {
@@ -47,6 +49,7 @@ namespace HuloToys_Service.Controllers
 
             workQueueClient = new WorkQueueClient(configuration);
             orderESRepository = new OrderESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
+            raitingESService = new RaitingESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
             accountClientESService = new AccountClientESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
             orderMongodbService = new OrderMongodbService( configuration);
             _productDetailMongoAccess = new ProductDetailMongoAccess( configuration);
@@ -396,6 +399,8 @@ namespace HuloToys_Service.Controllers
                         var data = JsonConvert.DeserializeObject<List<Ward>>(ward);
                         result.ward = data.FirstOrDefault(x => x.Id == result.data.wardid);
                     }
+                    var raiting_count = raitingESService.CountCommentByOrderID(request.id);
+                    result.has_raiting=raiting_count> 0;
                     if (result != null)
                     {
                         return Ok(new
@@ -618,5 +623,6 @@ namespace HuloToys_Service.Controllers
                 msg = ResponseMessages.FunctionExcutionFailed
             });
         }
+        
     }
 }

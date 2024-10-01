@@ -169,7 +169,14 @@ namespace HuloToys_Service.ElasticSearch
                             }
                         },
                         {
-                            "total_product_count", new ValueCountAggregation("total_product_count", Infer.Field<RatingESModel>(x => x.id))
+                           "total_product_count", new FiltersAggregation("total_product_count")
+                           {
+                                Filters = new List<QueryContainer>()
+                                {
+                                   new ExistsQuery { Field = Infer.Field<RatingESModel>(x => x.id) },
+
+                                }
+                           }
                         }
                     }
                 };
@@ -189,14 +196,14 @@ namespace HuloToys_Service.ElasticSearch
 
                 // Process the field data counts (description and information)
                 var fieldDataAgg = response.Aggregations.Filters("media_count");
-                result.has_media_count = fieldDataAgg.Buckets.First().DocCount ; // Products with 'description' field
+                result.has_media_count = fieldDataAgg.Buckets.First().DocCount; // Products with 'description' field
 
-                // Process the field data counts (description and information)
+                //// Process the field data counts (description and information)
                 var comment_agg = response.Aggregations.Filters("comment_count");
                 result.has_comment_count = comment_agg.Buckets.First().DocCount; // Products with 'description' field
-                                                                                 // Process the field data counts (description and information)
+                // Process the field data counts (description and information)
                 var total_product_count = response.Aggregations.Filters("total_product_count");
-                result.total_count = comment_agg.Buckets.First().DocCount; // Products with 'description' field
+                result.total_count = total_product_count.Buckets.First().DocCount; // Products with 'description' field
 
             }
             catch (Exception ex)
@@ -206,7 +213,49 @@ namespace HuloToys_Service.ElasticSearch
             }
             return result;
         }
+        public long CountCommentByOrderID(long order_id)
+        {
+            long total_count = 0;
+            try
+            {
+                // Build the search request
+                var searchRequest = new SearchRequest<RatingESModel>
+                {
+                    Query = new TermQuery
+                    {
+                        Field = Infer.Field<RatingESModel>(p => p.orderid), // Filter by product ID
+                        Value = order_id
+                    },
+                    Size = 0, // No hits needed, just aggregations
+                    Aggregations = new AggregationDictionary
+                    {
+                        
+                        {
+                           "total_product_count", new FiltersAggregation("total_product_count")
+                           {
+                                Filters = new List<QueryContainer>()
+                                {
+                                   new ExistsQuery { Field = Infer.Field<RatingESModel>(x => x.id) },
 
+                                }
+                           }
+                        }
+                    }
+                };
+                var response = elasticClient.Search<RatingESModel>(searchRequest);
+
+                // Process the field data counts (description and information)
+                var total_product_count = response.Aggregations.Filters("total_product_count");
+                total_count = total_product_count.Buckets.First().DocCount; // Products with 'description' field
+
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+            }
+            return total_count;
+        }
     }
 
 }
