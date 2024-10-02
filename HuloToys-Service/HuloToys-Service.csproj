@@ -46,4 +46,10 @@
     <Folder Include="Controllers\Location\Business\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Template\Email\forgot-password.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
