@@ -43,7 +43,7 @@ namespace HuloToys_Service.Controllers.Product.Bussiness
                         try
                         {
                             var client = _clientESService.GetById((int)r.userid);
-                            var product = await _productDetailMongoAccess.GetByID(r.productid);
+                            var product = await _productDetailMongoAccess.GetByID(r.productdetailid);
                             r.client_avatar = client.avartar;
                             r.client_name = client.clientname;
                             r.variation_detail = "";

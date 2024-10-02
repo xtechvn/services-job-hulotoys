@@ -10,6 +10,7 @@ public partial class RatingESModel
     public int? orderid { get; set; }
 
     public string productid { get; set; }
+    public string productdetailid { get; set; }
 
     public decimal? star { get; set; }
 

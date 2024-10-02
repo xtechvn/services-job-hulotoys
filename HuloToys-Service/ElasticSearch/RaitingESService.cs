@@ -213,7 +213,7 @@ namespace HuloToys_Service.ElasticSearch
             }
             return result;
         }
-        public long CountCommentByOrderID(long order_id)
+        public long CountCommentByOrderID(long order_id,long client_id)
         {
             long total_count = 0;
             try
@@ -235,8 +235,18 @@ namespace HuloToys_Service.ElasticSearch
                            {
                                 Filters = new List<QueryContainer>()
                                 {
-                                   new ExistsQuery { Field = Infer.Field<RatingESModel>(x => x.id) },
 
+                                    new BoolQuery
+                                    {
+                                        Must = new List<QueryContainer>
+                                        {
+                                              new TermQuery
+                                              {
+                                                    Field = Infer.Field<RatingESModel>(x => x.userid),
+                                                    Value = client_id
+                                              }
+                                        },
+                                    }
                                 }
                            }
                         }

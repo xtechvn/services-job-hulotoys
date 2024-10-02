@@ -206,6 +206,7 @@ namespace App_Push_Consummer.Model.DB_Core
                 SqlParameter[] objParam_order = new SqlParameter[]{
                     new SqlParameter("@OrderId", model.OrderId),
                     new SqlParameter("@ProductId", model.ProductId),
+                    new SqlParameter("@ProductDetailId", model.ProductDetailId),
                     new SqlParameter("@Star", model.Star),
                     new SqlParameter("@Comment", model.Comment),
                     new SqlParameter("@ImgLink", model.ImgLink),

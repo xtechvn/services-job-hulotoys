@@ -318,7 +318,8 @@ namespace HuloToys_Service.Controllers
                 if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
                     var request = JsonConvert.DeserializeObject<OrdersGeneralRequestModel>(objParr[0].ToString());
-                    if (request == null || request.id == null || request.id.Trim() == "")
+                    if (request == null || request.id == null || request.id.Trim() == ""
+                        )
                     {
 
                         return Ok(new
@@ -367,7 +368,7 @@ namespace HuloToys_Service.Controllers
                 if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
                     var request = JsonConvert.DeserializeObject<OrderHistoryDetailRequestModel>(objParr[0].ToString());
-                    if (request == null || request.id <= 0)
+                    if (request == null || request.id <= 0 || request.token == null || request.token.Trim() == "")
                     {
 
                         return Ok(new
@@ -399,7 +400,19 @@ namespace HuloToys_Service.Controllers
                         var data = JsonConvert.DeserializeObject<List<Ward>>(ward);
                         result.ward = data.FirstOrDefault(x => x.Id == result.data.wardid);
                     }
-                    var raiting_count = raitingESService.CountCommentByOrderID(request.id);
+
+                    long account_client_id = await clientServices.GetAccountClientIdFromToken(request.token);
+                    if (account_client_id <= 0)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    var account_client = accountClientESService.GetById(account_client_id);
+
+                    var raiting_count = raitingESService.CountCommentByOrderID(request.id, (long)account_client.clientid);
                     result.has_raiting=raiting_count> 0;
                     if (result != null)
                     {
@@ -593,6 +606,7 @@ namespace HuloToys_Service.Controllers
                          ImgLink=request.img_link,
                          OrderId=request.order_id,
                          ProductId= main_product_id,
+                         ProductDetailId=request.product_id,
                          VideoLink=request.video_link,
                          Star=request.star,
                         
