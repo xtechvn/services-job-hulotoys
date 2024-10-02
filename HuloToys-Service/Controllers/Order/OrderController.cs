@@ -579,7 +579,12 @@ namespace HuloToys_Service.Controllers
                         });
                     }
                     var account_client = accountClientESService.GetById(account_client_id);
-
+                    string main_product_id = request.product_id;
+                    var product = await _productDetailMongoAccess.GetByID(request.product_id);
+                    if(product!=null && product.parent_product_id!=null && product.parent_product_id.Trim() != "")
+                    {
+                        main_product_id=product.parent_product_id;
+                    }
                     ProductRaitingPushQueueModel model = new ProductRaitingPushQueueModel()
                     {
                          UserId= (long)account_client.clientid,
@@ -587,7 +592,7 @@ namespace HuloToys_Service.Controllers
                          CreatedDate=DateTime.UtcNow.ToLocalTime(),
                          ImgLink=request.img_link,
                          OrderId=request.order_id,
-                         ProductId=request.product_id,
+                         ProductId= main_product_id,
                          VideoLink=request.video_link,
                          Star=request.star,
                         
