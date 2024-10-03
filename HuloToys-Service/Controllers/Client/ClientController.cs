@@ -345,10 +345,10 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var account_client = accountClientESService.GetByUsername(request.name);
-                    if (account_client != null&& account_client.id >0&& account_client.clientid >0) {
-                        var client = clientESService.GetById((long)account_client.clientid);
-                        if (client != null && client.id > 0)
+                    var client = clientESService.GetExactByEmail(request.name);
+                    if (client != null&& client.id > 0) {
+                        var account_client = accountClientESService.GetByClientID((long)client.id);
+                        if (client != null && client.id > 0 && account_client != null && account_client.id > 0)
                         {
                             var forgot_password_object = new ClientForgotPasswordTokenModel()
                             {
@@ -418,69 +418,7 @@ namespace HuloToys_Service.Controllers
             });
 
         }
-        [HttpPost("validate-change-password")]
-        public async Task<ActionResult> ValidateChangePassword ([FromBody] APIRequestGenericModel input)
-        {
-            try
-            {
-
-
-                JArray objParr = null;
-                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
-                {
-                    var request = JsonConvert.DeserializeObject<ClientValidateForgotPasswordRequestModel>(objParr[0].ToString());
-                    if (request == null || request.token == null || request.token.Trim() == "")
-                    {
-
-                        return Ok(new
-                        {
-                            status = (int)ResponseType.FAILED,
-                            msg = ResponseMessages.DataInvalid
-                        });
-                    }
-                    string forgot_password_object = CommonHelper.Decode(request.token, configuration["KEY:private_key"]);
-                    if (forgot_password_object != null && forgot_password_object.Trim() != "")
-                    {
-                        var forgot_password_detail = JsonConvert.DeserializeObject<ClientForgotPasswordTokenModel>(forgot_password_object);
-                        if(forgot_password_detail!=null && forgot_password_detail.account_client_id > 0)
-                        {
-                            var account_client = accountClientESService.GetById(forgot_password_detail.account_client_id);
-                            var client = clientESService.GetById(forgot_password_detail.client_id);
-                            ClientValidateForgotPasswordResponseModel response = new ClientValidateForgotPasswordResponseModel()
-                            {
-                                account_client_id = account_client.id,
-                                client_id = client.id,
-                                email = client.email,
-                            };
-                            return Ok(new
-                            {
-                                status = (int)ResponseType.SUCCESS,
-                                msg = "Success",
-                                data = response
-                            });
-                        }
-
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
-                return Ok(new
-                {
-                    status = (int)ResponseType.FAILED,
-                    msg = ResponseMessages.FunctionExcutionFailed
-                });
-            }
-            return Ok(new
-            {
-                status = (int)ResponseType.FAILED,
-                msg = ResponseMessages.DataInvalid
-            });
-
-        }
+       
         [HttpPost("change-password")]
         public async Task<ActionResult> ChangePassword([FromBody] APIRequestGenericModel input)
         {
@@ -526,7 +464,7 @@ namespace HuloToys_Service.Controllers
                                 Phone = null,
                                 Status = 0,
                                 UserName = null,
-                                ForgotPasswordToken = null
+                                ForgotPasswordToken = ""
                             };
                             var queue_model = new ClientConsumerQueueModel()
                             {

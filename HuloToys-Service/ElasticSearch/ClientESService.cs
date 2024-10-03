@@ -132,5 +132,33 @@ namespace Caching.Elasticsearch
             }
             return 0;
         }
+        public ClientESModel GetExactByEmail(string email)
+        {
+            try
+            {
+                var nodes = new Uri[] { new Uri(_ElasticHost) };
+                var connectionPool = new StaticConnectionPool(nodes);
+                var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
+                var elasticClient = new ElasticClient(connectionSettings);
+
+                var query = elasticClient.Search<ClientESModel>(sd => sd
+                               .Index(index)
+                               .Query(q => q
+                                   .Match(m => m.Field(x=>x.email).Query(email)
+                               )));
+
+                if (query.IsValid)
+                {
+                    var result = query.Documents as List<ClientESModel>;
+                    return result.FirstOrDefault();
+                }
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+            }
+            return null;
+        }
     }
 }
