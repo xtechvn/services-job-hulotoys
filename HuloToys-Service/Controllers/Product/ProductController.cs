@@ -1,4 +1,5 @@
-﻿using Entities.ViewModels.Products;
+﻿using Caching.Elasticsearch;
+using Entities.ViewModels.Products;
 using HuloToys_Front_End.Models.Products;
 using HuloToys_Service.Controllers.Product.Bussiness;
 using HuloToys_Service.ElasticSearch;
@@ -24,6 +25,7 @@ namespace WEB.CMS.Controllers
         private readonly ProductDetailMongoAccess _productDetailMongoAccess;
         private readonly CartMongodbService _cartMongodbService;
         private readonly RaitingESService _raitingESService;
+        private readonly OrderDetailESService orderDetailESService;
         private readonly IConfiguration _configuration;
         private readonly RedisConn _redisService;
         private readonly GroupProductESService groupProductESService;
@@ -34,6 +36,7 @@ namespace WEB.CMS.Controllers
             _productDetailMongoAccess = new ProductDetailMongoAccess(configuration);
             _cartMongodbService = new CartMongodbService(configuration);
             productRaitingService = new ProductRaitingService(configuration);
+            orderDetailESService = new OrderDetailESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
             groupProductESService = new GroupProductESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
             _raitingESService = new RaitingESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
 
@@ -274,6 +277,7 @@ namespace WEB.CMS.Controllers
                         });
                     }
                     ProductRaitingResponseModel result = _raitingESService.CountCommentByProductId(request.id);
+                    result.total_sold = orderDetailESService.CountByProductId(request.id);
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,

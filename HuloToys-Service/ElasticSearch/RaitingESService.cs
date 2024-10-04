@@ -204,6 +204,7 @@ namespace HuloToys_Service.ElasticSearch
                 // Process the field data counts (description and information)
                 var total_product_count = response.Aggregations.Filters("total_product_count");
                 result.total_count = total_product_count.Buckets.First().DocCount; // Products with 'description' field
+                result.total_sold = result.total_count; 
 
             }
             catch (Exception ex)
