@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using entities.models;
 using HuloToys_Service.Models;
 using Azure;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Caching.Elasticsearch
 {
@@ -34,33 +35,59 @@ namespace Caching.Elasticsearch
             elasticClient = new ElasticClient(connectionSettings);
 
         }
-        public long CountByProductId(string product_id)
+        public long CountByProductId(List<string> product_id)
         {
             try
             {
-                // Build the search request
+                //// Build the search request
+                //var searchRequest = new SearchRequest<OrderDetailESModel>
+                //{
+                //    Query = new TermQuery
+                //    {
+                //        Field = Infer.Field<OrderDetailESModel>(p => p.productid), // Filter by product ID
+                //        Value = product_id
+                //    },
+                //    Size = 0, // No hits needed, just aggregations
+                //    Aggregations = new AggregationDictionary
+                //    {
+                //         {
+                //           "total_product_count", new FiltersAggregation("total_product_count")
+                //           {
+                //                Filters = new List<QueryContainer>()
+                //                {
+                //                   new ExistsQuery { Field = Infer.Field<OrderDetailESModel>(x => x.orderdetailid) },
+
+                //                }
+                //           }
+                //        }
+                //    }
+                //};
+                //var response = elasticClient.Search<OrderDetailESModel>(searchRequest);
+
+                //// Process the field data counts (description and information)
+                //var total_product_count = response.Aggregations.Filters("total_product_count");
+                //return total_product_count.Buckets.First().DocCount; // Products with 'description' field
                 var searchRequest = new SearchRequest<OrderDetailESModel>
                 {
-                    Query = new TermQuery
+                    Query = new TermsQuery
                     {
-                        Field = Infer.Field<OrderDetailESModel>(p => p.productid), // Filter by product ID
-                        Value = product_id
+                        Field = Infer.Field<OrderDetailESModel>(p => p.productid), // Field selector for ProductId
+                        Terms = product_id // The list of product IDs
                     },
                     Size = 0, // No hits needed, just aggregations
                     Aggregations = new AggregationDictionary
-                    {
-                       
                         {
-                           "total_product_count", new FiltersAggregation("total_product_count")
-                           {
-                                Filters = new List<QueryContainer>()
-                                {
-                                   new ExistsQuery { Field = Infer.Field<OrderDetailESModel>(x => x.orderdetailid) },
+                             {
+                               "total_product_count", new FiltersAggregation("total_product_count")
+                               {
+                                    Filters = new List<QueryContainer>()
+                                    {
+                                       new ExistsQuery { Field = Infer.Field<OrderDetailESModel>(x => x.orderdetailid) },
 
-                                }
-                           }
+                                    }
+                               }
+                            }
                         }
-                    }
                 };
                 var response = elasticClient.Search<OrderDetailESModel>(searchRequest);
 

@@ -50,6 +50,7 @@ namespace WEB.CMS.Controllers
         {
             try
             {
+                //input.token = "F081O1oSKR4nJktCB3d5ekEyMysRMQY0LBBoCGN6TgYGUTYtKygpBxF9Xn85";
                 JArray objParr = null;
                 if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, _configuration["KEY:private_key"]))
                 {
@@ -277,7 +278,16 @@ namespace WEB.CMS.Controllers
                         });
                     }
                     ProductRaitingResponseModel result = _raitingESService.CountCommentByProductId(request.id);
-                    result.total_sold = orderDetailESService.CountByProductId(request.id);
+                    List<string> product_ids = new List<string>()
+                    {
+                        request.id
+                    };
+                    var product=await _productDetailMongoAccess.SubListing(request.id);
+                    if(product!=null && product.Count > 0)
+                    {
+                        product_ids.AddRange(product.Select(x => x._id));
+                    }
+                    result.total_sold = orderDetailESService.CountByProductId(product_ids);
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
