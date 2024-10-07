@@ -225,5 +225,32 @@ namespace App_Push_Consummer.Model.DB_Core
                 return -1;
             }
         }
+        public static List<Rating> GetRaitingByProductID(string product_id)
+        {
+            try
+            {
+                int page_index = 1;
+                int page_size = 4000;
+                SqlParameter[] objParam_order = new SqlParameter[]
+                {
+                    new SqlParameter("@ProductId", product_id),
+                    new SqlParameter("@UserId", DBNull.Value),
+                    new SqlParameter("@PageIndex", page_index),
+                    new SqlParameter("@PageSize", page_size),
+                };
+
+                DataTable tb = DBWorker.GetDataTable("SP_GetListRatingByProductId", objParam_order);
+                if (tb != null && tb.Rows.Count > 0)
+                {
+                    var data = tb.ToList<Rating>();
+                    return data;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "GetDataset =>GetClientByAccountClientId error queue = " + ex.ToString());
+            }
+            return null;
+        }
     }
 }
