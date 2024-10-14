@@ -47,6 +47,10 @@ namespace Entities.ViewModels.Products
 
         public string parent_product_id { get; set; }
         public int status { get; set; }
-
+        public bool? is_one_weight { get; set; }
+        public float? weight { get; set; }
+        public float? package_width { get; set; }
+        public float? package_height { get; set; }
+        public float? package_depth { get; set; }
     }
 }

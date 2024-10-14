@@ -373,7 +373,17 @@ namespace WEB.CMS.Controllers
                         var value = string.Join(",", data.items.Select(x => x.group_product_id));
                         var ids = value.Split(",").Where(x=>x!=null && x.Trim()!="").Select(x => Convert.ToInt64(x)).ToList();
                         groups =  groupProductESService.GetGroupProductByIDs(ids);
-                        brands = data.items.SelectMany(x => x.specification).Where(x=>x.attribute_id==1).Distinct().ToList();
+                        brands = data.items.Where(x=>x.specification!=null && x.specification.Count>0).SelectMany(x => x.specification).Where(x=>x.attribute_id==1).Distinct().ToList();
+                        brands = brands.Where(x => x.value != null &&x.value != "null" && x.value.Trim() != "").DistinctBy(x => x.value).ToList();
+                        string brand_split = string.Join(",", brands.Select(x => x.value));
+                        brands = brand_split.Split(",").Distinct().Select(x => new ProductSpecificationDetailMongoDbModel()
+                        {
+                            attribute_id = 1,
+                            value = x,
+                            value_type = 1,
+                            type_ids = "1",
+                            _id = ""
+                        }).ToList();
                         items = new ProductListResponseModel()
                         {
                             items = data.items.Take(12).ToList(),
@@ -420,22 +430,12 @@ namespace WEB.CMS.Controllers
                     if (request.page_index == null || request.page_index <= 0) request.page_index = 1;
                     if (request.page_size == null || request.page_size <= 0) request.page_index = 12;
                     var data = await _productDetailMongoAccess.GlobalSearch(request.keyword, request.stars, request.group_product_id, request.brands, (int)request.page_index, (int)request.page_size);
-                    List<ProductSpecificationDetailMongoDbModel> brands = new List<ProductSpecificationDetailMongoDbModel>();
-                    List<GroupProductESModel> groups = new List<GroupProductESModel>();
-                    if (data != null && data.items != null && data.items.Count > 0)
-                    {
-                        var value = string.Join(",", data.items.Select(x => x.group_product_id));
-                        var ids = value.Split(",").Where(x => x != null && x.Trim() != "").Select(x => Convert.ToInt64(x)).ToList();
-                        groups = groupProductESService.GetGroupProductByIDs(ids);
-                        brands = data.items.SelectMany(x => x.specification).Where(x => x.attribute_id == 1).Distinct().ToList();
-                    }
+                  
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
                         msg = ResponseMessages.Success,
-                        data = data,
-                        brands = brands,
-                        groups = groups
+                        data = data
                     });
                 }
             }
