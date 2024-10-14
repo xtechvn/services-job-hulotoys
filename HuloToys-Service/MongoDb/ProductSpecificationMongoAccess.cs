@@ -18,7 +18,7 @@ namespace HuloToys_Service.MongoDb
             _configuration = configuration;
             string url = "mongodb://" + configuration["DataBaseConfig:MongoServer:Host"] + "";
             var client = new MongoClient("mongodb://" + configuration["DataBaseConfig:MongoServer:Host"] + "");
-            IMongoDatabase db = client.GetDatabase(configuration["DataBaseConfig:MongoServer:catalog"]);
+            IMongoDatabase db = client.GetDatabase(configuration["DataBaseConfig:MongoServer:catalog_core"]);
             _product_specification_collection = db.GetCollection<ProductSpecificationMongoDbModel>("ProductSpecification");
         }
         public async Task<string> AddNewAsync(ProductSpecificationMongoDbModel model)
