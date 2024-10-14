@@ -347,6 +347,59 @@ namespace WEB.CMS.Controllers
                 msg = ResponseMessages.DataInvalid,
             });
         }
+        [HttpPost("global-search-filter")]
+        public async Task<IActionResult> ProductGlobalSearchFilter([FromBody] APIRequestGenericModel input)
+        {
+            try
+            {
+                JArray objParr = null;
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, _configuration["KEY:private_key"]))
+                {
+                    var request = JsonConvert.DeserializeObject<ProductGlobalSearchRequestModel>(objParr[0].ToString());
+                    if (request == null || request.keyword == null)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    var data = await _productDetailMongoAccess.GlobalSearch("", 0, "", "", 1, 500);
+                    List<ProductSpecificationDetailMongoDbModel> brands = new List<ProductSpecificationDetailMongoDbModel>();
+                    List<GroupProductESModel> groups = new List<GroupProductESModel>();
+                    ProductListResponseModel items = new ProductListResponseModel();
+                    if (data!=null && data.items!=null && data.items.Count > 0)
+                    {
+                        var value = string.Join(",", data.items.Select(x => x.group_product_id));
+                        var ids = value.Split(",").Where(x=>x!=null && x.Trim()!="").Select(x => Convert.ToInt64(x)).ToList();
+                        groups =  groupProductESService.GetGroupProductByIDs(ids);
+                        brands = data.items.SelectMany(x => x.specification).Where(x=>x.attribute_id==1).Distinct().ToList();
+                        items = new ProductListResponseModel()
+                        {
+                            items = data.items.Take(12).ToList(),
+                            count = data.count
+                        };
+                    }
+                    return Ok(new
+                    {
+                        status = (int)ResponseType.SUCCESS,
+                        msg = ResponseMessages.Success,
+                        data= items,
+                        brands = brands,
+                        groups= groups
+                    });
+                }
+            }
+            catch
+            {
+
+            }
+            return Ok(new
+            {
+                status = (int)ResponseType.FAILED,
+                msg = ResponseMessages.DataInvalid,
+            });
+        }
         [HttpPost("global-search")]
         public async Task<IActionResult> ProductGlobalSearch([FromBody] APIRequestGenericModel input)
         {
@@ -364,17 +417,17 @@ namespace WEB.CMS.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                   if(request.page_index==null|| request.page_index<=0) request.page_index = 1;
-                   if(request.page_size==null|| request.page_size <= 0) request.page_index = 12;
-                    var data = await _productDetailMongoAccess.GlobalSearch(request.keyword,request.stars,request.group_product_id,request.brands, (int)request.page_index, (int)request.page_size);
+                    if (request.page_index == null || request.page_index <= 0) request.page_index = 1;
+                    if (request.page_size == null || request.page_size <= 0) request.page_index = 12;
+                    var data = await _productDetailMongoAccess.GlobalSearch(request.keyword, request.stars, request.group_product_id, request.brands, (int)request.page_index, (int)request.page_size);
                     List<ProductSpecificationDetailMongoDbModel> brands = new List<ProductSpecificationDetailMongoDbModel>();
                     List<GroupProductESModel> groups = new List<GroupProductESModel>();
-                    if(data!=null && data.items!=null && data.items.Count > 0)
+                    if (data != null && data.items != null && data.items.Count > 0)
                     {
                         var value = string.Join(",", data.items.Select(x => x.group_product_id));
-                        var ids = value.Split(",").Where(x=>x!=null && x.Trim()!="").Select(x => Convert.ToInt64(x)).ToList();
-                        groups =  groupProductESService.GetGroupProductByIDs(ids);
-                        brands = data.items.SelectMany(x => x.specification).Where(x=>x.attribute_id==1).Distinct().ToList();
+                        var ids = value.Split(",").Where(x => x != null && x.Trim() != "").Select(x => Convert.ToInt64(x)).ToList();
+                        groups = groupProductESService.GetGroupProductByIDs(ids);
+                        brands = data.items.SelectMany(x => x.specification).Where(x => x.attribute_id == 1).Distinct().ToList();
                     }
                     return Ok(new
                     {
@@ -382,7 +435,7 @@ namespace WEB.CMS.Controllers
                         msg = ResponseMessages.Success,
                         data = data,
                         brands = brands,
-                        groups= groups
+                        groups = groups
                     });
                 }
             }
