@@ -4,6 +4,7 @@ using HuloToys_Front_End.Models.Products;
 using HuloToys_Service.Controllers.Product.Bussiness;
 using HuloToys_Service.ElasticSearch;
 using HuloToys_Service.Models.APIRequest;
+using HuloToys_Service.Models.ElasticSearch;
 using HuloToys_Service.Models.Raiting;
 using HuloToys_Service.MongoDb;
 using HuloToys_Service.RedisWorker;
@@ -23,6 +24,7 @@ namespace WEB.CMS.Controllers
     public class ProductController : ControllerBase
     {
         private readonly ProductDetailMongoAccess _productDetailMongoAccess;
+        private readonly ProductSpecificationMongoAccess _productSpecificationMongoAccess;
         private readonly CartMongodbService _cartMongodbService;
         private readonly RaitingESService _raitingESService;
         private readonly OrderDetailESService orderDetailESService;
@@ -34,6 +36,7 @@ namespace WEB.CMS.Controllers
         public ProductController(IConfiguration configuration, RedisConn redisService)
         {
             _productDetailMongoAccess = new ProductDetailMongoAccess(configuration);
+            _productSpecificationMongoAccess = new ProductSpecificationMongoAccess(configuration);
             _cartMongodbService = new CartMongodbService(configuration);
             productRaitingService = new ProductRaitingService(configuration);
             orderDetailESService = new OrderDetailESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
@@ -331,6 +334,55 @@ namespace WEB.CMS.Controllers
                         status = (int)ResponseType.SUCCESS,
                         msg = ResponseMessages.Success,
                         data = data
+                    });
+                }
+            }
+            catch
+            {
+
+            }
+            return Ok(new
+            {
+                status = (int)ResponseType.FAILED,
+                msg = ResponseMessages.DataInvalid,
+            });
+        }
+        [HttpPost("global-search")]
+        public async Task<IActionResult> ProductGlobalSearch([FromBody] APIRequestGenericModel input)
+        {
+            try
+            {
+                JArray objParr = null;
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, _configuration["KEY:private_key"]))
+                {
+                    var request = JsonConvert.DeserializeObject<ProductGlobalSearchRequestModel>(objParr[0].ToString());
+                    if (request == null || request.keyword == null)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                   if(request.page_index==null|| request.page_index<=0) request.page_index = 1;
+                   if(request.page_size==null|| request.page_size <= 0) request.page_index = 12;
+                    var data = await _productDetailMongoAccess.GlobalSearch(request.keyword,request.stars,request.group_product_id,request.brands, (int)request.page_index, (int)request.page_size);
+                    List<ProductSpecificationDetailMongoDbModel> brands = new List<ProductSpecificationDetailMongoDbModel>();
+                    List<GroupProductESModel> groups = new List<GroupProductESModel>();
+                    if(data!=null && data.items!=null && data.items.Count > 0)
+                    {
+                        var value = string.Join(",", data.items.Select(x => x.group_product_id));
+                        var ids = value.Split(",").Where(x=>x!=null && x.Trim()!="").Select(x => Convert.ToInt64(x)).ToList();
+                        groups =  groupProductESService.GetGroupProductByIDs(ids);
+                        brands = data.items.SelectMany(x => x.specification).Where(x=>x.attribute_id==1).Distinct().ToList();
+                    }
+                    return Ok(new
+                    {
+                        status = (int)ResponseType.SUCCESS,
+                        msg = ResponseMessages.Success,
+                        data = data,
+                        brands = brands,
+                        groups= groups
                     });
                 }
             }

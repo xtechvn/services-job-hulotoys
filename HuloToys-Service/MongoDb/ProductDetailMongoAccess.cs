@@ -247,6 +247,70 @@ namespace HuloToys_Service.MongoDb
             return null;
 
         }
+        public async Task<ProductListResponseModel> GlobalSearch(string keyword = "",int? stars=0,string? group_product_id="",string? brands="",int page_index=1,int page_size=12)
+        {
+            try
+            {
 
+                string regex_keyword_pattern = keyword;
+                var keyword_split = keyword.Split(" ");
+                if (keyword_split.Length > 0)
+                {
+                    regex_keyword_pattern = "";
+
+                    foreach (var word in keyword_split)
+                    {
+                        string w = word.Trim();
+                        if (StringHelper.HasSpecialCharacterExceptVietnameseCharacter(word))
+                        {
+                            w = StringHelper.RemoveSpecialCharacterExceptVietnameseCharacter(word);
+                        }
+                        regex_keyword_pattern += "(?=.*" + w + ".*)";
+
+                    }
+                }
+                regex_keyword_pattern = "^" + regex_keyword_pattern + ".*$";
+                var regex = new BsonRegularExpression(regex_keyword_pattern.Trim().ToLower(), "i");
+
+                var filter = Builders<ProductMongoDbModel>.Filter.Or(
+                   Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, regex), // Case-insensitive regex
+                   Builders<ProductMongoDbModel>.Filter.Regex(x => x.sku, regex), // Case-insensitive regex
+                   Builders<ProductMongoDbModel>.Filter.Regex(x => x.code, regex)  // Case-insensitive regex
+               )
+               & Builders<ProductMongoDbModel>.Filter.Eq(x => x.parent_product_id, "")
+               & Builders<ProductMongoDbModel>.Filter.Eq(x => x.status, (int)ProductStatus.ACTIVE);
+                if(stars!=null && stars>0)
+                {
+                    filter &= Builders<ProductMongoDbModel>.Filter.Gte(x => x.star, (int)stars);
+                }
+                if (group_product_id != null && group_product_id.Trim()!="")
+                {
+                    string filter_regex = group_product_id.Replace(",", "|");
+                    filter &= Builders<ProductMongoDbModel>.Filter.Regex(x => x.group_product_id, filter_regex);
+                }
+                if (brands != null && brands.Trim() != "")
+                {
+                    string filter_regex = brands.Replace(",", "|");
+                    filter &= Builders<ProductMongoDbModel>.Filter.ElemMatch(
+                                        p => p.specification,
+                                        attr => brands.Contains(attr.value)
+                                    );
+                }
+                var model = _productDetailCollection.Find(filter);
+                long count = await model.CountDocumentsAsync();
+                model.Options.Skip = page_index < 1 ? 0 : (page_index - 1) * page_size;
+                model.Options.Limit = page_size;
+                var items = await model.ToListAsync();
+                return new ProductListResponseModel()
+                {
+                    items = items,
+                    count = count
+                };
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
     }
 }
