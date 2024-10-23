@@ -6,18 +6,9 @@ using System.Reflection;
 using HuloToys_Service.Utilities.Lib;
 using Utilities;
 using Utilities.Contants;
-using Models.Queue;
-using HuloToys_Service.RabitMQ;
 using Caching.Elasticsearch;
-using HuloToys_Service.Models.Queue;
-using HuloToys_Service.Utilities.constants;
-using HuloToys_Service.Controllers.Order.Business;
-using HuloToys_Service.Models.Client;
 using HuloToys_Service.Models.APIRequest;
-using HuloToys_Front_End.Models.Products;
-using HuloToys_Service.MongoDb;
 using HuloToys_Service.RedisWorker;
-using Entities.Models;
 using HuloToys_Service.Models.Location;
 
 namespace HuloToys_Service.Controllers
@@ -28,22 +19,11 @@ namespace HuloToys_Service.Controllers
     public class LocationController : ControllerBase
     {
         private readonly IConfiguration configuration;
-        private readonly WorkQueueClient workQueueClient;
-        private readonly AccountClientESService accountClientESService;
-        private readonly ClientESService clientESService;
-        private readonly AddressClientESService addressClientESService;
-        private readonly IdentiferService _identifierServiceRepository;
-        private readonly RedisConn _redisService;
+        private readonly LocationESService locationESService;
 
         public LocationController(IConfiguration _configuration, RedisConn redisService) {
             configuration= _configuration;
-            workQueueClient=new WorkQueueClient(configuration);
-            accountClientESService = new AccountClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
-            clientESService = new ClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
-            addressClientESService = new AddressClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
-            _identifierServiceRepository = new IdentiferService(_configuration);
-            _redisService = new RedisConn(configuration);
-            _redisService.Connect();
+            locationESService = new LocationESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
         }
         [HttpPost("province")]
         public async Task<ActionResult> Province([FromBody] APIRequestGenericModel input)
@@ -65,18 +45,26 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var provinces = _redisService.Get(CacheType.PROVINCE, Convert.ToInt32(configuration["Redis:Database:db_common"]));
-                    if (provinces != null)
+                    var province_es = locationESService.GetAllProvinces();
+                    if (province_es != null && province_es.Count > 0)
                     {
-                        var data = JsonConvert.DeserializeObject<List<Province>>(provinces);
+                        List<Province> data = province_es.Select(x => new Models.Location.Province()
+                        {
+                            CreatedDate = x.createddate,
+                            Id = x.id,
+                            Name = x.name,
+                            NameNonUnicode = x.namenonunicode,
+                            ProvinceId = x.provinceid,
+                            Status = x.status,
+                            Type = x.type
+                        }).ToList();
                         return Ok(new
                         {
                             status = (int)ResponseType.SUCCESS,
                             msg = "Success",
-                            data = JsonConvert.DeserializeObject<List<Province>>(provinces)
+                            data = data
                         });
                     }
-
                 }
 
             }
@@ -117,21 +105,28 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var district = _redisService.Get(CacheType.DISTRICT, Convert.ToInt32(configuration["Redis:Database:db_common"]));
-
-                    if (district != null && district.Trim()!="")
+                    var district_es = locationESService.GetAllDistrictByProvinces(request.id);
+                    if (district_es != null && district_es.Count > 0)
                     {
-                        var data = JsonConvert.DeserializeObject<List<District>>(district);
-                        if(data!=null && data.Count > 0)
+                        List<District> data = district_es.Select(x => new Models.Location.District()
                         {
-                            return Ok(new
-                            {
-                                status = (int)ResponseType.SUCCESS,
-                                msg = "Success",
-                                data = data.Where(x => x.ProvinceId == request.id)
-                            });
-                        }
-                        
+                            CreatedDate = x.createddate,
+                            Id = x.id,
+                            Name = x.name,
+                            NameNonUnicode = x.namenonunicode,
+                            ProvinceId = x.provinceid,
+                            Status = x.status,
+                            Type = x.type,
+                            DistrictId = x.districtid,
+                            Location = x.location
+
+                        }).ToList();
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.SUCCESS,
+                            msg = "Success",
+                            data = data
+                        });
                     }
 
                 }
@@ -174,21 +169,27 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var ward = _redisService.Get(CacheType.WARD, Convert.ToInt32(configuration["Redis:Database:db_common"]));
-
-                    if (ward != null && ward.Trim() != "")
+                    var ward_es = locationESService.GetAllWardsByDistrictId(request.id);
+                    if (ward_es != null && ward_es.Count > 0)
                     {
-                        var data = JsonConvert.DeserializeObject<List<Ward>>(ward);
-                        if (data != null && data.Count > 0)
+                        List<Ward> data = ward_es.Select(x => new Models.Location.Ward()
                         {
-                            return Ok(new
-                            {
-                                status = (int)ResponseType.SUCCESS,
-                                msg = "Success",
-                                data = data.Where(x => x.DistrictId == request.id)
-                            });
-                        }
-
+                            CreatedDate = x.createddate,
+                            Id = x.id,
+                            Name = x.name,
+                            NameNonUnicode = x.namenonunicode,
+                            WardId = x.wardid,
+                            Status = x.status,
+                            Type = x.type,
+                            DistrictId = x.districtid,
+                            Location = x.location
+                        }).ToList();
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.SUCCESS,
+                            msg = "Success",
+                            data = data
+                        });
                     }
 
                 }

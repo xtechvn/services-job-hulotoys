@@ -20,4 +20,26 @@ public class District
     public string ProvinceId { get; set; }
 
     public short? Status { get; set; }
+    public DateTime? CreatedDate { get; set; }
+
+}
+public class DistrictESModel
+{
+    public int id { get; set; }
+
+    public string districtid { get; set; }
+
+    public string name { get; set; }
+
+    public string namenonunicode { get; set; }
+
+    public string type { get; set; }
+
+    public string location { get; set; }
+
+    public string provinceid { get; set; }
+
+    public short? status { get; set; }
+    public DateTime? createddate { get; set; }
+
 }
