@@ -128,10 +128,17 @@ namespace App_Push_Consummer.Model.DB_Core
         {
             try
             {
-                SqlParameter[] objParam_order = new SqlParameter[9];
+                SqlParameter[] objParam_order = new SqlParameter[10];
                 objParam_order[0] = new SqlParameter("@id", model.Id);
-                objParam_order[1] = new SqlParameter("@Password", model.Password);
-                objParam_order[2] = new SqlParameter("@PasswordBackup", model.Password);
+                objParam_order[1] = new SqlParameter("@ClientId", DBNull.Value);
+                objParam_order[2] = new SqlParameter("@ClientType", DBNull.Value);
+                objParam_order[3] = new SqlParameter("@UserName", DBNull.Value);
+                objParam_order[4] = new SqlParameter("@Password", DBNull.Value);
+                objParam_order[5] = new SqlParameter("@PasswordBackup", model.Password);
+                objParam_order[6] = new SqlParameter("@ForgotPasswordToken", model.ForgotPasswordToken);
+                objParam_order[7] = new SqlParameter("@Status", DBNull.Value);
+                objParam_order[8] = new SqlParameter("@GroupPermission", DBNull.Value);
+                objParam_order[9] = new SqlParameter("@GoogleToken", DBNull.Value);
 
                 var id = DBWorker.ExecuteNonQuery("sp_UpdateAccountClient", objParam_order);
                 return id;
