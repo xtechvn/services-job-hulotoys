@@ -6,6 +6,7 @@ using System.Reflection;
 using HuloToys_Service.Models.Orders;
 using HuloToys_Service.Models.Location;
 using Utilities.Contants;
+using Newtonsoft.Json;
 
 namespace Caching.Elasticsearch
 {
@@ -23,17 +24,18 @@ namespace Caching.Elasticsearch
             configuration = _configuration;
 
         }
-        public List<ProvinceESModel> GetAllProvinces()
+        public List<Province> GetAllProvinces()
         {
-            List<ProvinceESModel> result = new List<ProvinceESModel>();
+            List<Province> result = new List<Province>();
             try
             {
                 var nodes = new Uri[] { new Uri(_ElasticHost) };
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<ProvinceESModel>(sd => sd
+                var query = elasticClient.Search<dynamic>(sd => sd
                             .Index(index_province)
+                            .Size(4000)
                             .Query(q => q
                                 .MatchAll()
                                 )
@@ -45,7 +47,8 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    result = query.Documents as List<ProvinceESModel>;
+                    //result = query.Documents as List<Province>;
+                    result = JsonConvert.DeserializeObject<List<Province>>(JsonConvert.SerializeObject(query.Documents));
                     return result;
                 }
             }
@@ -56,17 +59,18 @@ namespace Caching.Elasticsearch
             }
             return null;
         }
-        public List<DistrictESModel> GetAllDistrict()
+        public List<District> GetAllDistrict()
         {
-            List<DistrictESModel> result = new List<DistrictESModel>();
+            List<District> result = new List<District>();
             try
             {
                 var nodes = new Uri[] { new Uri(_ElasticHost) };
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<DistrictESModel>(sd => sd
+                var query = elasticClient.Search<dynamic>(sd => sd
                             .Index(index_district)
+                             .Size(4000)
                             .Query(q => q
                                 .MatchAll()
                                 )
@@ -78,7 +82,9 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    result = query.Documents as List<DistrictESModel>;
+                    //result = query.Documents as List<District>;
+                    result = JsonConvert.DeserializeObject<List<District>>(JsonConvert.SerializeObject(query.Documents));
+
                     return result;
                 }
             }
@@ -89,22 +95,23 @@ namespace Caching.Elasticsearch
             }
             return null;
         }
-        public List<DistrictESModel> GetAllDistrictByProvinces(string provinces_id)
+        public List<District> GetAllDistrictByProvinces(string provinces_id)
         {
-            List<DistrictESModel> result = new List<DistrictESModel>();
+            List<District> result = new List<District>();
             try
             {
                 var nodes = new Uri[] { new Uri(_ElasticHost) };
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<DistrictESModel>(sd => sd
+                var query = elasticClient.Search<dynamic>(sd => sd
                             .Index(index_district)
+                            .Size(4000)
                             .Query(q => q.Bool(
                                qb => qb.Must(
-                                  q => q.Match(m => m.Field(x => x.provinceid).Query(provinces_id)
+                                  q => q.Match(m => m.Field("ProvinceId").Query(provinces_id)
                                    )
-                                   
+
                                 )))
                             );
 
@@ -114,7 +121,9 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    result = query.Documents as List<DistrictESModel>;
+                    //result = query.Documents as List<District>;
+                    result = JsonConvert.DeserializeObject<List<District>>(JsonConvert.SerializeObject(query.Documents));
+
                     return result;
                 }
             }
@@ -125,17 +134,18 @@ namespace Caching.Elasticsearch
             }
             return null;
         }
-        public List<WardESModel> GetAllWards()
+        public List<Ward> GetAllWards()
         {
-            List<WardESModel> result = new List<WardESModel>();
+            List<Ward> result = new List<Ward>();
             try
             {
                 var nodes = new Uri[] { new Uri(_ElasticHost) };
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<WardESModel>(sd => sd
+                var query = elasticClient.Search<dynamic>(sd => sd
                             .Index(index_wards)
+                            .Size(4000)
                             .Query(q => q
                                 .MatchAll()
                                 )
@@ -147,7 +157,9 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    result = query.Documents as List<WardESModel>;
+                    //result = query.Documents as List<Ward>;
+                    result = JsonConvert.DeserializeObject<List<Ward>>(JsonConvert.SerializeObject(query.Documents));
+
                     return result;
                 }
             }
@@ -158,20 +170,21 @@ namespace Caching.Elasticsearch
             }
             return null;
         }
-        public List<WardESModel> GetAllWardsByDistrictId(string district_id)
+        public List<Ward> GetAllWardsByDistrictId(string district_id)
         {
-            List<WardESModel> result = new List<WardESModel>();
+            List<Ward> result = new List<Ward>();
             try
             {
                 var nodes = new Uri[] { new Uri(_ElasticHost) };
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<WardESModel>(sd => sd
+                var query = elasticClient.Search<dynamic>(sd => sd
                             .Index(index_wards)
+                            .Size(4000)
                             .Query(q => q.Bool(
                                qb => qb.Must(
-                                  q => q.Match(m => m.Field(x => x.districtid).Query(district_id)
+                                  q => q.Match(m => m.Field("DistrictId").Query(district_id)
                                    )
 
                                 ))
@@ -184,7 +197,9 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    result = query.Documents as List<WardESModel>;
+                    //result = query.Documents as List<Ward>;
+                    result = JsonConvert.DeserializeObject<List<Ward>>(JsonConvert.SerializeObject(query.Documents));
+
                     return result;
                 }
             }

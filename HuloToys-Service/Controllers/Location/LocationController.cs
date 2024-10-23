@@ -46,25 +46,12 @@ namespace HuloToys_Service.Controllers
                         });
                     }
                     var province_es = locationESService.GetAllProvinces();
-                    if (province_es != null && province_es.Count > 0)
+                    return Ok(new
                     {
-                        List<Province> data = province_es.Select(x => new Models.Location.Province()
-                        {
-                            CreatedDate = x.createddate,
-                            Id = x.id,
-                            Name = x.name,
-                            NameNonUnicode = x.namenonunicode,
-                            ProvinceId = x.provinceid,
-                            Status = x.status,
-                            Type = x.type
-                        }).ToList();
-                        return Ok(new
-                        {
-                            status = (int)ResponseType.SUCCESS,
-                            msg = "Success",
-                            data = data
-                        });
-                    }
+                        status = (int)ResponseType.SUCCESS,
+                        msg = "Success",
+                        data = province_es !=null? JsonConvert.DeserializeObject<List<Province>>(JsonConvert.SerializeObject(province_es)) : new List<Province>()
+                    });
                 }
 
             }
@@ -105,29 +92,13 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var district_es = locationESService.GetAllDistrictByProvinces(request.id);
-                    if (district_es != null && district_es.Count > 0)
+                    var district_es =  locationESService.GetAllDistrictByProvinces(request.id);
+                    return Ok(new
                     {
-                        List<District> data = district_es.Select(x => new Models.Location.District()
-                        {
-                            CreatedDate = x.createddate,
-                            Id = x.id,
-                            Name = x.name,
-                            NameNonUnicode = x.namenonunicode,
-                            ProvinceId = x.provinceid,
-                            Status = x.status,
-                            Type = x.type,
-                            DistrictId = x.districtid,
-                            Location = x.location
-
-                        }).ToList();
-                        return Ok(new
-                        {
-                            status = (int)ResponseType.SUCCESS,
-                            msg = "Success",
-                            data = data
-                        });
-                    }
+                        status = (int)ResponseType.SUCCESS,
+                        msg = "Success",
+                        data = district_es != null ? district_es : new List<District>()
+                    });
 
                 }
 
@@ -170,27 +141,12 @@ namespace HuloToys_Service.Controllers
                         });
                     }
                     var ward_es = locationESService.GetAllWardsByDistrictId(request.id);
-                    if (ward_es != null && ward_es.Count > 0)
+                    return Ok(new
                     {
-                        List<Ward> data = ward_es.Select(x => new Models.Location.Ward()
-                        {
-                            CreatedDate = x.createddate,
-                            Id = x.id,
-                            Name = x.name,
-                            NameNonUnicode = x.namenonunicode,
-                            WardId = x.wardid,
-                            Status = x.status,
-                            Type = x.type,
-                            DistrictId = x.districtid,
-                            Location = x.location
-                        }).ToList();
-                        return Ok(new
-                        {
-                            status = (int)ResponseType.SUCCESS,
-                            msg = "Success",
-                            data = data
-                        });
-                    }
+                        status = (int)ResponseType.SUCCESS,
+                        msg = "Success",
+                        data = ward_es != null ? ward_es : new List<Ward>()
+                    });
 
                 }
 

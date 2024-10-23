@@ -19,9 +19,9 @@ public class Province
     public DateTime? CreatedDate { get; set; }
 
 }
-public class ProvinceESModel
+public class ProvinceESModel : Province
 {
-    public int id { get; set; }
+    public int _id { get; set; }
 
     public string provinceid { get; set; }
 
