@@ -20,6 +20,7 @@ using HuloToys_Service.RedisWorker;
 using Entities.Models;
 using HuloToys_Service.Utilities.lib;
 using HuloToys_Service.Controllers.Client.Business;
+using Nest;
 
 namespace HuloToys_Service.Controllers
 {
@@ -35,6 +36,7 @@ namespace HuloToys_Service.Controllers
         private readonly IdentiferService _identifierServiceRepository;
         private readonly ClientServices clientServices;
         private readonly RedisConn _redisService;
+        private readonly EmailService _emailService;
 
         public ClientController(IConfiguration _configuration, RedisConn redisService) {
             configuration= _configuration;
@@ -45,6 +47,7 @@ namespace HuloToys_Service.Controllers
             _redisService = new RedisConn(configuration);
             _redisService.Connect();
             clientServices = new ClientServices(configuration);
+            _emailService = new EmailService(configuration);
         }
         [HttpPost("login")]
         public async Task<ActionResult> ClientLogin([FromBody] APIRequestGenericModel input)
@@ -382,7 +385,7 @@ namespace HuloToys_Service.Controllers
                                     type = QueueType.UPDATE_USER
                                 };
                                 bool result = workQueueClient.InsertQueueSimple(JsonConvert.SerializeObject(queue_model), QueueName.queue_app_push);
-
+                                _emailService.SendEmailChangePassword(forgot_password_token,account_client, client);
                                 if (result)
                                 {
                                     return Ok(new
@@ -498,6 +501,79 @@ namespace HuloToys_Service.Controllers
             });
 
         }
-       
+        [HttpPost("validate-forgot-password")]
+        public async Task<ActionResult> ValidateForgotPassword([FromBody] APIRequestGenericModel input)
+        {
+            try
+            {
+
+
+                JArray objParr = null;
+                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+                {
+                    var request = JsonConvert.DeserializeObject<ClientForgotPasswordRequestModel>(objParr[0].ToString());
+                    if (request == null || request.name == null || request.name.Trim() == "")
+                    {
+
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    if (string.IsNullOrEmpty(request.name) || request.name.Trim() == "")
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    string forgot = CommonHelper.Decode(request.name.Replace("-", "+").Replace("_", "/"), configuration["KEY:private_key"]);
+                    if (forgot == null || forgot.Trim() == "")
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    var model = JsonConvert.DeserializeObject<ClientForgotPasswordTokenModel>(forgot);
+                    if (model == null || model.account_client_id <= 0 || model.exprire_time < DateTime.Now || model.created_time > DateTime.Now)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    var account = accountClientESService.GetById(model.account_client_id);
+                    if(account!=null &&request.name.Trim()== account.forgotpasswordtoken)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.SUCCESS,
+                        });
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                return Ok(new
+                {
+                    status = (int)ResponseType.FAILED,
+                    msg = ResponseMessages.FunctionExcutionFailed
+                });
+            }
+            return Ok(new
+            {
+                status = (int)ResponseType.FAILED,
+                msg = ResponseMessages.DataInvalid
+            });
+
+        }
     }
 }
