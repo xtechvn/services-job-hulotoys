@@ -19,6 +19,7 @@ namespace HuloToys_Service.Controllers.Address.Business
         private readonly AddressClientESService addressClientESService;
         private readonly RedisConn redisService;
         private readonly ClientServices clientServices;
+        private readonly LocationESService locationESService;
 
         public AddressClientService(IConfiguration _configuration, RedisConn _redisService)
         {
@@ -27,9 +28,10 @@ namespace HuloToys_Service.Controllers.Address.Business
             accountClientESService = new AccountClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
             addressClientESService = new AddressClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
             clientServices = new ClientServices(configuration);
+            locationESService = new LocationESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
 
         }
-        public ClientAddressListResponseModel AddressByClient(ClientAddressGeneralRequestModel request)
+        public  ClientAddressListResponseModel AddressByClient(ClientAddressGeneralRequestModel request)
         {
             ClientAddressListResponseModel model = new ClientAddressListResponseModel()
             {
@@ -46,21 +48,14 @@ namespace HuloToys_Service.Controllers.Address.Business
                 var client_id = (long)account_client.clientid;
                
                 var list = addressClientESService.GetByClientID(client_id);
-                var provinces = redisService.Get(CacheType.PROVINCE, Convert.ToInt32(configuration["Redis:Database:db_common"]));
-                var district = redisService.Get(CacheType.DISTRICT, Convert.ToInt32(configuration["Redis:Database:db_common"]));
-                var ward = redisService.Get(CacheType.WARD, Convert.ToInt32(configuration["Redis:Database:db_common"]));
-                var data_provinces = JsonConvert.DeserializeObject<List<Province>>(provinces);
-                var data_district =  JsonConvert.DeserializeObject<List<District>>(district);
-                var data_ward =JsonConvert.DeserializeObject<List<Ward>>(ward);
-
                 if (list!=null && list.Count > 0)
                 {
                     foreach (var item in list) {
                         AddressClientFEModel submit_item = JsonConvert.DeserializeObject<AddressClientFEModel>(JsonConvert.SerializeObject(item));
                         if (submit_item != null) {
-                            submit_item.province_detail = data_provinces.FirstOrDefault(x => x.ProvinceId == submit_item.provinceid);
-                            submit_item.district_detail = data_district.FirstOrDefault(x => x.DistrictId == submit_item.districtid);
-                            submit_item.ward_detail = data_ward.FirstOrDefault(x => x.WardId == submit_item.wardid);
+                            submit_item.province_detail =  locationESService.GetProvincesByProvinceId(submit_item.provinceid);
+                            submit_item.district_detail = locationESService.GetDistrictByDistrictId(submit_item.districtid);
+                            submit_item.ward_detail = locationESService.GetWardsByWardId(submit_item.wardid);
                             model.list.Add(submit_item);
                         }
                     }
