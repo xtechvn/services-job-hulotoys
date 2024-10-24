@@ -53,4 +53,10 @@ namespace Entities.ViewModels.Products
         public float? package_height { get; set; }
         public float? package_depth { get; set; }
     }
+    public class ProductMongoDbFEModel: ProductMongoDbModel
+    {
+        public float review_count { get; set; }
+        public float rating { get; set; }
+
+    }
 }

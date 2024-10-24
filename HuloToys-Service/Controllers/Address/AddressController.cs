@@ -233,26 +233,7 @@ namespace HuloToys_Service.Controllers.Address
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var cache_name = CacheType.ADDRESS_CLIENT + account_client_id;
-                    var j_data = await redisService.GetAsync(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
-                    if (j_data != null && j_data.Trim() != "")
-                    {
-                        ClientAddressListResponseModel result = JsonConvert.DeserializeObject<ClientAddressListResponseModel>(j_data);
-                        if (result != null && result.list != null && result.list.Count > 0)
-                        {
-                            return Ok(new
-                            {
-                                status = (int)ResponseType.SUCCESS,
-                                msg = ResponseMessages.Success,
-                                data = result
-                            });
-                        }
-                    }
                     var model = addressClientService.AddressByClient(request);
-                    if (model.list != null && model.list.Count > 0)
-                    {
-                        redisService.Set(cache_name, JsonConvert.SerializeObject(model), Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
-                    }
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,

@@ -32,6 +32,7 @@ namespace WEB.CMS.Controllers
         private readonly RedisConn _redisService;
         private readonly GroupProductESService groupProductESService;
         private readonly ProductRaitingService productRaitingService;
+        private readonly ProductDetailService productDetailService;
 
         public ProductController(IConfiguration configuration, RedisConn redisService)
         {
@@ -39,6 +40,7 @@ namespace WEB.CMS.Controllers
             _productSpecificationMongoAccess = new ProductSpecificationMongoAccess(configuration);
             _cartMongodbService = new CartMongodbService(configuration);
             productRaitingService = new ProductRaitingService(configuration);
+            productDetailService = new ProductDetailService(configuration);
             orderDetailESService = new OrderDetailESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
             groupProductESService = new GroupProductESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
             _raitingESService = new RaitingESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
@@ -83,8 +85,8 @@ namespace WEB.CMS.Controllers
                     //        });
                     //    }
                     //}
-                 
-                    var data = await _productDetailMongoAccess.ResponseListing(request.keyword, request.group_id);
+
+                    var data = await productDetailService.ProductListing(request);
                    
                     //if (data != null  && data.items.Count > 0)
                     //{
