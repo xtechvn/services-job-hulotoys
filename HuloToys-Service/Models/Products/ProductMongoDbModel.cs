@@ -57,6 +57,7 @@ namespace Entities.ViewModels.Products
     {
         public float review_count { get; set; }
         public float rating { get; set; }
+        public long total_sold { get; set; }
 
     }
 }

@@ -19,6 +19,7 @@ namespace HuloToys_Service.Controllers.Product.Bussiness
         private readonly ClientESService _clientESService;
         private readonly IConfiguration _configuration;
         private readonly GroupProductESService groupProductESService;
+        private readonly OrderDetailESService orderDetailESService;
 
         public ProductDetailService(IConfiguration configuration)
         {
@@ -28,6 +29,8 @@ namespace HuloToys_Service.Controllers.Product.Bussiness
             _raitingESService = new RaitingESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
             _clientESService = new ClientESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
             _configuration = configuration;
+            orderDetailESService = new OrderDetailESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
+
         }
         public async Task<ProductListFEResponseModel> ProductListing(ProductListRequestModel request)
         {
@@ -49,8 +52,14 @@ namespace HuloToys_Service.Controllers.Product.Bussiness
                             page_size = 500,
                             stars = 0
                         });
-                        i.review_count = raiting.Count;
-                        i.rating = raiting.Sum(x=> x.star==null?0:(float)x.star) / (float)raiting.Count;
+                        if(raiting!=null && raiting.Count > 0)
+                        {
+                            i.review_count = raiting.Count;
+                            i.rating = raiting.Sum(x => x.star == null ? 0 : (float)x.star) / (float)raiting.Count;
+                            i.total_sold = orderDetailESService.CountByProductId(new List<string>() { i._id });
+
+                        }
+
                     }
                 }
             }
