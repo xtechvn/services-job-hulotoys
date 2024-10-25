@@ -15,6 +15,10 @@ using Caching.RedisWorker;
 using Utilities.Contants;
 using Caching.Elasticsearch;
 using DAL;
+using RestSharp;
+using APP_CHECKOUT.Models.Orders;
+using APP_CHECKOUT.Models.NhanhVN;
+using APP_CHECKOUT.Models.Client;
 
 namespace APP_CHECKOUT.Repositories
 {
@@ -163,20 +167,31 @@ namespace APP_CHECKOUT.Repositories
                 List<Province> provinces = GetProvince();
                 List<District> districts = GetDistrict();
                 List<Ward> wards = GetWards();
-
-                if (address_client.provinceid != null && address_client.provinceid.Trim() != "" && provinces != null && provinces.Count>0)
+                if(address_client!=null && address_client.provinceid != null && address_client.districtid != null&& address_client.wardid != null)
                 {
-                    var province = provinces.FirstOrDefault(x => x.ProvinceId == address_client.provinceid);
+                    if ( address_client.provinceid.Trim() != "" && provinces != null && provinces.Count > 0)
+                    {
+                        var province = provinces.FirstOrDefault(x => x.ProvinceId == address_client.provinceid);
+                        order_summit.ProvinceId = province != null ? province.Id : null;
+                    }
+                    if ( address_client.districtid.Trim() != "" && districts != null && districts.Count > 0)
+                    {
+                        var district = districts.FirstOrDefault(x => x.DistrictId == address_client.districtid);
+                        order_summit.DistrictId = district != null ? district.Id : null;
+                    }
+                    if (address_client.wardid.Trim() != "" && wards != null && wards.Count > 0)
+                    {
+                        var ward = wards.FirstOrDefault(x => x.WardId == address_client.wardid);
+                        order_summit.WardId = ward != null ? ward.Id : null;
+                    }
+                }
+                else
+                {
+                    var province = provinces.FirstOrDefault(x => x.ProvinceId == order.provinceid);
                     order_summit.ProvinceId = province != null ? province.Id : null;
-                }
-                if (address_client.districtid != null && address_client.districtid.Trim() != "" && districts != null && districts.Count > 0)
-                {
-                    var district = districts.FirstOrDefault(x => x.DistrictId == address_client.districtid);
+                    var district = districts.FirstOrDefault(x => x.DistrictId == order.districtid);
                     order_summit.DistrictId = district != null ? district.Id : null;
-                }
-                if (address_client.wardid != null && address_client.wardid.Trim() != "" && wards != null && wards.Count > 0)
-                {
-                    var ward = wards.FirstOrDefault(x => x.WardId == address_client.wardid);
+                    var ward = wards.FirstOrDefault(x => x.WardId == order.wardid);
                     order_summit.WardId = ward != null ? ward.Id : null;
                 }
                 order_summit.ReceiverName = address_client.receivername;
@@ -202,7 +217,7 @@ namespace APP_CHECKOUT.Repositories
                         order.total_discount= total_discount;
                         await orderDetailMongoDbModel.Update(order);
                     }
-
+                    await PostToNhanhVN(order_summit,order, client, address_client);
                 }
 
             }
@@ -308,5 +323,6 @@ namespace APP_CHECKOUT.Repositories
             }
             return wards;
         }
+        
     }
 }
