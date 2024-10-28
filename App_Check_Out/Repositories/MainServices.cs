@@ -33,6 +33,7 @@ namespace APP_CHECKOUT.Repositories
         private readonly AccountClientESService accountClientESService;
         private readonly ClientESService clientESService;
         private readonly AddressClientESService addressClientESService;
+        private readonly NhanhVnService nhanhVnService;
         private readonly RedisConn _redisService;
         public MainServices(IConfiguration configuration, ILoggingService loggingService) {
 
@@ -47,6 +48,7 @@ namespace APP_CHECKOUT.Repositories
             accountClientESService = new AccountClientESService(configuration["Elastic:Host"], configuration);
             clientESService = new ClientESService(configuration["Elastic:Host"], configuration);
             addressClientESService = new AddressClientESService(configuration["Elastic:Host"], configuration);
+            nhanhVnService = new NhanhVnService( configuration,logging_service);
         }
         public async Task Excute(CheckoutQueueModel request)
         {
@@ -217,7 +219,7 @@ namespace APP_CHECKOUT.Repositories
                         order.total_discount= total_discount;
                         await orderDetailMongoDbModel.Update(order);
                     }
-                    await PostToNhanhVN(order_summit,order, client, address_client);
+                    await nhanhVnService.PostToNhanhVN(order_summit,order, client, address_client);
                 }
 
             }

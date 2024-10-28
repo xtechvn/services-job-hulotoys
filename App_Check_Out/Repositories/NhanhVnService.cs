@@ -1,4 +1,4 @@
-﻿using APP_CHECKOUT.Elasticsearch;
+﻿using APP.READ_MESSAGES.Libraries;
 using APP_CHECKOUT.Helpers;
 using APP_CHECKOUT.Models.Client;
 using APP_CHECKOUT.Models.NhanhVN;
@@ -6,15 +6,9 @@ using APP_CHECKOUT.Models.Orders;
 using Caching.Elasticsearch;
 using Entities.Models;
 using Microsoft.Extensions.Configuration;
-using Nest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace APP_CHECKOUT.Repositories
 {
@@ -22,15 +16,17 @@ namespace APP_CHECKOUT.Repositories
     {
         private readonly IConfiguration _configuration;
         private readonly LocationESService locationESService;
+        private readonly ILoggingService _logging_service;
 
-        public NhanhVnService(IConfiguration configuration)
+        public NhanhVnService(IConfiguration configuration, ILoggingService logging_service)
         {
 
             _configuration = configuration;
+            _logging_service = logging_service;
             locationESService = new LocationESService(configuration["Elastic:Host"], configuration);
 
         }
-        public async Task PostToNhanhVN(Order order_summit, OrderDetailMongoDbModel order, ClientESModel client, AddressClientESModel address_client)
+        public async Task PostToNhanhVN(Entities.Models.Order order_summit, OrderDetailMongoDbModel order, ClientESModel client, AddressClientESModel address_client)
         {
             try
             {
@@ -42,7 +38,7 @@ namespace APP_CHECKOUT.Repositories
                 request.AddParameter("version", "2.0");
                 request.AddParameter("appId", _configuration["NhanhVN:AppId"]);
                 request.AddParameter("businessId", _configuration["NhanhVN:BussinessID"]);
-                request.AddParameter("accessToken", _configuration["NhanhVN:AppId"]);
+                request.AddParameter("accessToken", _configuration["NhanhVN:AccessToken"]);
                 var city = await GetLocationByType(0);
                 string city_name = "";
                 string district_name = "";
@@ -94,7 +90,7 @@ namespace APP_CHECKOUT.Repositories
                     carrierId=null,
                     carrierServiceId=null,
                     customerShipFee=0,
-                    deliveryDate=DateTime.Now.AddDays(2).ToString("yyyy-mm-dd"),
+                    deliveryDate=DateTime.Now.AddDays(2).ToString("yyyy-MM-dd"),
                     status="New",
                     description = null,
                     privateDescription=null,
@@ -103,10 +99,10 @@ namespace APP_CHECKOUT.Repositories
                     allowTest=1,
                     saleId=null,
                     autoSend=0,
-                    sendCarrierType=2,
-                    carrierAccountId=null,
-                    carrierShopId=null,
-                    carrierServiceCode= null,
+                    //sendCarrierType=2,
+                    //carrierAccountId=null,
+                    //carrierShopId=null,
+                    //carrierServiceCode= null,
                     utmCampaign= null,
                     utmMedium= null,
                     utmSource= null,
@@ -138,7 +134,19 @@ namespace APP_CHECKOUT.Repositories
                 request.AddParameter("data", JsonConvert.SerializeObject(model));
 
                 RestResponse response = await http_client.ExecuteAsync(request);
-                Console.WriteLine(response.Content);
+                var jsonData = JObject.Parse(response.Content);
+                var status = int.Parse(jsonData["code"].ToString());
+                if (status == 1)
+                {
+                    Console.WriteLine(response.Content);
+
+                }
+                else
+                {
+                    string err = "PostToNhanhVN with [" + order._id + "] error: " + response.Content;
+                    Console.WriteLine(err);
+                    _logging_service.LoggingAppOutput(err, true, true);
+                }
 
 
             }
@@ -183,23 +191,25 @@ namespace APP_CHECKOUT.Repositories
                 request.AddParameter("version", "2.0");
                 request.AddParameter("appId", _configuration["NhanhVN:AppId"]);
                 request.AddParameter("businessId", _configuration["NhanhVN:BussinessID"]);
-                request.AddParameter("accessToken", _configuration["NhanhVN:AppId"]);
+                request.AddParameter("accessToken", _configuration["NhanhVN:AccessToken"]);
                 request.AddParameter("data", "{\"type\":\""+ type_string + "\",\"parentId\":"+ parent_id + "}");
               
                 RestResponse response = await http_client.ExecuteAsync(request);
                 var jsonData = JObject.Parse(response.Content);
                 var status = int.Parse(jsonData["code"].ToString());
 
-                if (status == 0)
+                if (status == 1)
                 {
                     var data= JsonConvert.DeserializeObject<List<NhanhVNLocationResponseLocation>>(jsonData["data"].ToString());
                     return data;
                 }
 
             }
-            catch
+            catch (Exception ex)
             {
-
+                string err = "PostToNhanhVN ->GetLocationByType with [" + type+"-"+parent_id + "] error: " + ex.ToString();
+                Console.WriteLine(err);
+                _logging_service.LoggingAppOutput(err, true, true);
             }
             return new List<NhanhVNLocationResponseLocation>();
 
