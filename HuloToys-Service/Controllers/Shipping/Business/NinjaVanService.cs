@@ -1,46 +1,73 @@
-﻿using Caching.Elasticsearch;
-using Entities.Models;
-using HuloToys_Service.Models.Client;
-using Microsoft.Extensions.Caching.Memory;
-using Nest;
+﻿using HuloToys_Service.Utilities.constants.NinjaVan;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
-using Utilities.Contants;
+using static HuloToys_Service.Utilities.constants.NinjaVan.NinjaVanShippingFee;
 
 namespace HuloToys_Service.Controllers.Shipping.Business
 {
     public class NinjaVanService
     {
         private readonly IConfiguration _configuration;
-        private IMemoryCache _MemoryCache;
-        private string token="";
         private RestClient ninja_van_client;
 
-        public NinjaVanService(IConfiguration configuration, IMemoryCache memoryCache)
+        public NinjaVanService(IConfiguration configuration)
         {
             _configuration = configuration;
             var options = new RestClientOptions(_configuration["NinjaVan:APIs:Domain"]);
             ninja_van_client = new RestClient(options);
-            _MemoryCache = memoryCache;
-            var rs= GetBearerToken().Result;
         }
-        public int CaclucateShippingFee(AddressClientESModel address, int weight_in_grams)
+        public int CaclucateShippingFee(int province_id, int weight_in_grams)
         {
-            int shipping_fee = 0;
+
             try
             {
-
+                if (province_id <= 0 || weight_in_grams<=0) return -1;
+                var area = GetShippingArea(province_id);
+                if (area < -1) return -1;
+                int shipping_fee = 0;
+                if (weight_in_grams >= NinjaVanShippingFee.MAX_STANDARD_WEIGHT)
+                {
+                    var additional_weight = weight_in_grams - NinjaVanShippingFee.MAX_STANDARD_WEIGHT;
+                    var addtional_fee_base = NinjaVanShippingFee.ADDITIONAL_FEE.First(x => x.area == area);
+                    shipping_fee += ((int)(additional_weight / (int)addtional_fee_base.unit) + 1) *addtional_fee_base.amount;
+                }
+                var base_fee=NinjaVanShippingFee.FEE.First(x=>x.area==area && weight_in_grams> x.min_weight && weight_in_grams<=x.max_weight);
+                shipping_fee += base_fee.amount;
+                return shipping_fee * NinjaVanShippingFee.RATE;
             }
             catch
             {
 
             }
-            return shipping_fee;
+            return -1;
         }
-        public async Task<bool> GetBearerToken()
+        private int GetShippingArea(int province_id)
         {
-            var result = false;
+            if (NinjaVanShippingFee.WareHouse_Province_id.Contains(province_id))
+            {
+                return (int)ShippingAreaType.IN_TOWN;
+            }
+            if (NinjaVanShippingFee.HCM_ProvinceId==province_id)
+            {
+                return (int)ShippingAreaType.BETWEEN_CITY;
+            }
+            if (NinjaVanShippingFee.AREA_NORTH_ProvinceId.Contains(province_id))
+            {
+                return (int)ShippingAreaType.IN_AREA;
+            }
+            if (NinjaVanShippingFee.AREA_CENTER_ProvinceId.Contains(province_id))
+            {
+                return (int)ShippingAreaType.BETWEEN_NEARBY_AREA;
+            }
+            if (NinjaVanShippingFee.AREA_SOUTH_ProvinceId.Contains(province_id))
+            {
+                return (int)ShippingAreaType.BETWEEN_AREA;
+            }
+            return -1;
+        }
+        public async Task<string> GetBearerToken()
+        {
             try
             {
                 var request = new RestRequest(_configuration["NinjaVan:APIs:OAuth"], Method.Post);
@@ -59,15 +86,14 @@ namespace HuloToys_Service.Controllers.Shipping.Business
 
                 if (response_token != null && response_token.Trim()!="")
                 {
-                    token= response_token.Trim();
+                    return response_token.Trim();
                 }
-                result = true;
             }
             catch
             {
 
             }
-            return result;
+            return null;
         }
     }
 }
