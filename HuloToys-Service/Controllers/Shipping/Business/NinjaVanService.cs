@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
+using System.Linq;
 using static HuloToys_Service.Utilities.constants.NinjaVan.NinjaVanShippingFee;
 
 namespace HuloToys_Service.Controllers.Shipping.Business
@@ -26,13 +27,15 @@ namespace HuloToys_Service.Controllers.Shipping.Business
                 var area = GetShippingArea(province_id);
                 if (area < -1) return -1;
                 int shipping_fee = 0;
+                var base_fee = NinjaVanShippingFee.FEE.FirstOrDefault(x => x.area == area && weight_in_grams > x.min_weight && weight_in_grams <= x.max_weight);
                 if (weight_in_grams >= NinjaVanShippingFee.MAX_STANDARD_WEIGHT)
                 {
                     var additional_weight = weight_in_grams - NinjaVanShippingFee.MAX_STANDARD_WEIGHT;
                     var addtional_fee_base = NinjaVanShippingFee.ADDITIONAL_FEE.First(x => x.area == area);
                     shipping_fee += ((int)(additional_weight / (int)addtional_fee_base.unit) + 1) *addtional_fee_base.amount;
+                    base_fee = NinjaVanShippingFee.FEE.Where(x => x.area == area).OrderByDescending(x=>x.min_weight).First();
                 }
-                var base_fee=NinjaVanShippingFee.FEE.First(x=>x.area==area && weight_in_grams> x.min_weight && weight_in_grams<=x.max_weight);
+
                 shipping_fee += base_fee.amount;
                 return shipping_fee * NinjaVanShippingFee.RATE;
             }
