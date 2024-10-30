@@ -140,7 +140,7 @@ namespace APP_CHECKOUT.Repositories
                
                 order_summit = new Order()
                 {
-                    Amount = total_amount,
+                    Amount = total_amount+ order.shipping_fee,
                     ClientId = (long)account_client.clientid,
                     CreatedDate=DateTime.Now,
                     Discount=total_discount,
@@ -164,7 +164,7 @@ namespace APP_CHECKOUT.Repositories
                     Address=order.address,
                     ReceiverName=order.receivername,
                     Phone=order.phone,
-                   
+                   ShippingFee=order.shipping_fee
                 };
                 List<Province> provinces = GetProvince();
                 List<District> districts = GetDistrict();

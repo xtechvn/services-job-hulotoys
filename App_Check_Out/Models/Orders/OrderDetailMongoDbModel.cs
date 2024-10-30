@@ -1,4 +1,5 @@
-﻿using Models.MongoDb;
+﻿using HuloToys_Service.Models.NinjaVan;
+using Models.MongoDb;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -39,6 +40,7 @@ namespace APP_CHECKOUT.Models.Orders
 
         public string address { get; set; }
         public long address_id { get; set; }
-
+        public double? shipping_fee { get; set; } = 0;
+        public ShippingFeeRequestModel delivery_detail { get; set; }
     }
 }

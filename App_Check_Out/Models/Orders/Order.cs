@@ -62,5 +62,6 @@ public partial class Order
     public int? WardId { get; set; }
 
     public string Address { get; set; }
+    public double? ShippingFee { get; set; }
 
 }
