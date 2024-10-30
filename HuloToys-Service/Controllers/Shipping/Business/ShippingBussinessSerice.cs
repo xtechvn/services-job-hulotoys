@@ -29,11 +29,9 @@ namespace HuloToys_Service.Controllers.Shipping.Business
                 {
                     from_province_id = request.from_province_id<=0 ? NinjaVanShippingFee.WareHouse_Province_id.First(): request.from_province_id,
                     to_province_id = request.to_province_id,
+                    total_shipping_fee = 0,
                     type = request.shipping_type,
-                    cart_id=request.cart_id,
-                    product_id=request.product_id,
-                    quanity=request.quanity,
-                    shipping_fee= 0
+                    detail = new List<ShippingFeeResponseShippingFee>()
 
                 };
                 //-- Delivery type
@@ -46,20 +44,29 @@ namespace HuloToys_Service.Controllers.Shipping.Business
                             {
                                 case (int)ShippingCarrier.NINJAVAN:
                                     {
-                                        var cart_detail = await _cartMongodbService.FindById(request.cart_id);
-
-                                        if (cart_detail != null && cart_detail._id != null)
+                                        var list_fee = new List<ShippingFeeResponseShippingFee>();
+                                        foreach (var cart in request.carts)
                                         {
-                                            var shipping_fee = ninjaVanService.CaclucateShippingFee(request.to_province_id, Convert.ToInt32(cart_detail.product.weight));
-                                            if (shipping_fee > 0)
+                                            var cart_detail = await _cartMongodbService.FindById(cart.id);
+
+                                            if (cart_detail != null && cart_detail._id != null)
                                             {
-                                                response.shipping_fee = shipping_fee * (request.quanity <= 1 ? 1 : request.quanity);
+                                                var shipping_fee = ninjaVanService.CaclucateShippingFee(request.to_province_id, Convert.ToInt32(cart_detail.product.weight));
+                                                if (shipping_fee > 0)
+                                                {
+                                                    list_fee.Add(new ShippingFeeResponseShippingFee()
+                                                    {
+                                                        cart_id = cart.id,
+                                                        product_id = cart.product_id,
+                                                        quanity = cart.quanity,
+                                                        shipping_fee = shipping_fee *(cart.quanity<=1?1:cart.quanity)
+                                                    });
+                                                    response.total_shipping_fee += (shipping_fee * (cart.quanity <= 1 ? 1 : cart.quanity));
+                                                }
                                             }
-                                            else
-                                            {
-                                                response.shipping_fee = -1;
-                                            }
+
                                         }
+                                        response.detail = list_fee;
                                     }
                                     break;
                             }
@@ -80,7 +87,18 @@ namespace HuloToys_Service.Controllers.Shipping.Business
                         break;
                     case (int)ShippingType.RECEIVER_AT_WAREHOUSE:
                         {
-                            response.shipping_fee = 0;
+                            var list_fee = new List<ShippingFeeResponseShippingFee>();
+                            foreach (var cart in request.carts)
+                            {
+                                list_fee.Add(new ShippingFeeResponseShippingFee()
+                                {
+                                    cart_id = cart.id,
+                                    product_id = cart.product_id,
+                                    quanity = cart.quanity,
+                                    shipping_fee = 0
+                                });
+                            }
+                            response.detail = list_fee;
                         }
                         break;
                     case (int)ShippingType.COD:
