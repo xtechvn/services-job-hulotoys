@@ -21,6 +21,7 @@ using HuloToys_Service.Models.Location;
 using HuloToys_Service.Controllers.Client.Business;
 using App_Push_Consummer.Model.Comments;
 using HuloToys_Service.ElasticSearch;
+using HuloToys_Service.Controllers.Shipping.Business;
 
 namespace HuloToys_Service.Controllers
 {
@@ -42,6 +43,7 @@ namespace HuloToys_Service.Controllers
         private readonly ClientServices clientServices;
         private readonly ClientESService clientESService;
         private readonly RaitingESService raitingESService;
+        private readonly ShippingBussinessSerice shippingBussinessSerice;
 
         public OrderController(IConfiguration _configuration, RedisConn redisService)
         {
@@ -60,6 +62,7 @@ namespace HuloToys_Service.Controllers
             _redisService.Connect();
             clientServices = new ClientServices(_configuration);
             clientESService = new ClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
+            shippingBussinessSerice = new ShippingBussinessSerice(_configuration);
 
         }
 
@@ -487,7 +490,7 @@ namespace HuloToys_Service.Controllers
                         account_client_id = account_client_id,
                         carts = new List<CartItemMongoDbModel>(),
                         payment_type = request.payment_type,
-                        delivery_type = request.delivery_type,
+                        delivery_detail = request.delivery_detail,
                         order_no = order_no,
                         total_amount=0,
                         address=request.address.address,
@@ -528,6 +531,12 @@ namespace HuloToys_Service.Controllers
                         }
 
                     }
+                    //-- Shipping fee
+                    var shipping_fee = await shippingBussinessSerice.GetShippingFeeResponse(request.delivery_detail);
+                    shipping_fee ??= new Models.NinjaVan.ShippingFeeResponseModel();
+                    if (shipping_fee.total_shipping_fee <= 0) shipping_fee.total_shipping_fee = 0;
+                    model.shipping_fee = shipping_fee.total_shipping_fee;
+                    model.total_amount += shipping_fee.total_shipping_fee;
                     //-- Mongodb:
                     var result = await orderMongodbService.Insert(model);
                     //-- Insert Queue:

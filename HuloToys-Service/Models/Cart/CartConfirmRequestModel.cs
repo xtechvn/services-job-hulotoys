@@ -1,4 +1,5 @@
 ﻿using Entities.Models;
+using HuloToys_Service.Models.NinjaVan;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace Models.APIRequest
     {
         public string token  { get; set; }
         public int payment_type { get; set; }
-        public int delivery_type { get; set; }
+        public ShippingFeeRequestModel delivery_detail { get; set; }
         public List<CartConfirmItemRequestModel> carts { get; set; }
         public AddressClientFEModel address { get; set; }
         public long address_id { get; set; }

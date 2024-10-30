@@ -10,6 +10,9 @@ using Utilities.Contants;
 using Utilities;
 using Newtonsoft.Json;
 using HuloToys_Service.Utilities.Lib;
+using HuloToys_Service.Models.NinjaVan;
+using HuloToys_Service.Utilities.constants.Shipping;
+using HuloToys_Service.Controllers.Shipping.Business;
 
 namespace HuloToys_Service.Controllers.Shipping
 {
@@ -19,12 +22,14 @@ namespace HuloToys_Service.Controllers.Shipping
     {
         private readonly IConfiguration configuration;
         private readonly RedisConn _redisService;
+        private readonly ShippingBussinessSerice shippingBussinessSerice;
 
         public ShippingController(IConfiguration _configuration, RedisConn redisService)
         {
             configuration = _configuration;
             _redisService = new RedisConn(configuration);
             _redisService.Connect();
+            shippingBussinessSerice=new ShippingBussinessSerice(_configuration);
         }
         [HttpPost("get-fee")]
 
@@ -35,10 +40,26 @@ namespace HuloToys_Service.Controllers.Shipping
                 JArray objParr = null;
                 if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
-                    var request = JsonConvert.DeserializeObject<AddressViewModel>(objParr[0].ToString());
-                    bool response_queue = false;
+                    var request = JsonConvert.DeserializeObject<ShippingFeeRequestModel>(objParr[0].ToString());
+                    if(request.to_province_id<=0|| request.carrier_id<=0|| request.shipping_type<=0|| request.carts==null || request.carts.Count <= 0)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
 
-                    
+                    var data = await shippingBussinessSerice.GetShippingFeeResponse(request);
+                    if(data!=null && data.from_province_id > 0)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.SUCCESS,
+                            msg = ResponseMessages.Success,
+                            data=data
+                        });
+                    }
                 }
 
 

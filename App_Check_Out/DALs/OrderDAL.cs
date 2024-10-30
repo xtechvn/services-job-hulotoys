@@ -42,6 +42,10 @@ namespace APP_CHECKOUT.DAL
                      new SqlParameter("@Address", request.Address),
                      new SqlParameter("@Phone", request.Phone),
                      new SqlParameter("@ReceiverName", request.ReceiverName),
+                     new SqlParameter("@ShippingFee", request.ShippingFee),
+                     new SqlParameter("@CarrierId", request.CarrierId),
+                     new SqlParameter("@ShippingType", request.ShippingType),
+                     new SqlParameter("@ShippingCode", request.ShippingCode),
 
                 };
                 request.OrderId = _DbWorker.ExecuteNonQuery(SPName.CREATE_ORDER, objParam);
