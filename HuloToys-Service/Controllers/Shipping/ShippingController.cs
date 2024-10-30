@@ -41,7 +41,7 @@ namespace HuloToys_Service.Controllers.Shipping
                 if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
                     var request = JsonConvert.DeserializeObject<ShippingFeeRequestModel>(objParr[0].ToString());
-                    if(request.to_province_id<=0|| request.carrier_id<=0|| request.shipping_type<=0|| request.carts==null || request.carts.Count <= 0)
+                    if(request.to_province_id<=0|| request.carrier_id<=0|| request.shipping_type<=0|| request.quanity<=0|| request.cart_id==null || request.cart_id.Trim() =="")
                     {
                         return Ok(new
                         {
@@ -51,13 +51,22 @@ namespace HuloToys_Service.Controllers.Shipping
                     }
 
                     var data = await shippingBussinessSerice.GetShippingFeeResponse(request);
-                    if(data!=null && data.from_province_id > 0)
+                    if(data!=null && data.shipping_fee>=0)
                     {
                         return Ok(new
                         {
                             status = (int)ResponseType.SUCCESS,
                             msg = ResponseMessages.Success,
                             data=data
+                        });
+                    }
+                    else
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = "Cannot get ShippingFee",
+                            data = data
                         });
                     }
                 }
