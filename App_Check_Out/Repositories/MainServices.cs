@@ -164,7 +164,10 @@ namespace APP_CHECKOUT.Repositories
                     Address=order.address,
                     ReceiverName=order.receivername,
                     Phone=order.phone,
-                   ShippingFee=order.shipping_fee
+                   ShippingFee=order.shipping_fee,
+                   CarrierId=order.delivery_detail.carrier_id,
+                   ShippingCode="",
+                   ShippingType=order.delivery_detail.shipping_type
                 };
                 List<Province> provinces = GetProvince();
                 List<District> districts = GetDistrict();

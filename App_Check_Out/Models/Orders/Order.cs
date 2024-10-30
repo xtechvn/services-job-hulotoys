@@ -64,4 +64,9 @@ public partial class Order
     public string Address { get; set; }
     public double? ShippingFee { get; set; }
 
+    public int? CarrierId { get; set; }
+
+    public int? ShippingType { get; set; }
+    public string ShippingCode { get; set; }
+
 }
