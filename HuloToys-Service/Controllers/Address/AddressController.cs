@@ -51,7 +51,7 @@ namespace HuloToys_Service.Controllers.Address
         }
         [HttpPost("insert-address")]
 
-        public async Task<IActionResult> insertAddress([FromBody] APIRequestGenericModel input)
+        public async Task<IActionResult> InsertOrUpdateAddress([FromBody] APIRequestGenericModel input)
         {
             try
             {
@@ -63,6 +63,7 @@ namespace HuloToys_Service.Controllers.Address
                     
                     if (request != null )
                     {
+                        //-- check account client
                         if (request.AccountClientId <= 0)
                         {
                             request.AccountClientId = await clientServices.GetAccountClientIdFromToken(request.token);
@@ -76,12 +77,41 @@ namespace HuloToys_Service.Controllers.Address
                             }
 
                         }
+                        //-- check if account client exists
                         var account_client = accountClientESService.GetById(request.AccountClientId);
-                        request.ClientId =(long)account_client.clientid;
+                        if(account_client==null || account_client.id <= 0)
+                        {
+                            return Ok(new
+                            {
+                                status = (int)ResponseType.FAILED,
+                                msg = ResponseMessages.DataInvalid
+                            });
+                        }
+                        request.ClientId = (long)account_client.clientid;
+                        bool is_add_new = true;
+                        int address_count = 1;
+                        if (request.Id > 0 )
+                        {
+                            var address_update = addressClientESService.GetById(request.Id, (long)account_client.clientid);
+                            if (address_update == null || address_update.id <= 0)
+                            {
+                                return Ok(new
+                                {
+                                    status = (int)ResponseType.FAILED,
+                                    msg = ResponseMessages.DataInvalid
+                                });
+                            }
+                           is_add_new = false;
+                        }
+                        else
+                        {
+                            var address_by_client = addressClientESService.GetByClientID((long)account_client.clientid);
+                            if (address_by_client != null) address_count = address_by_client.Count;
+                        }
                         var j_param = new Dictionary<string, object>
                         {
                             {"data_push", JsonConvert.SerializeObject(request)}, // có thể là json
-                            {"type",QueueType.ADD_ADDRESS}
+                            {"type",is_add_new?QueueType.ADD_ADDRESS:QueueType.UPDATE_ADDRESS}
                         };
                         var _data_push = JsonConvert.SerializeObject(j_param);
 
@@ -96,7 +126,8 @@ namespace HuloToys_Service.Controllers.Address
                             return Ok(new
                             {
                                 status = (int)ResponseType.SUCCESS,
-                                msg = "Success"
+                                msg = "Success",
+                                data= is_add_new ? (address_count * -1): request.Id
                             });
                         }
                         else
@@ -126,87 +157,87 @@ namespace HuloToys_Service.Controllers.Address
                 msg = ResponseMessages.DataInvalid
             });
         }
-        [HttpPost("update-address")]
-        public async Task<IActionResult> updateAddress([FromBody] APIRequestGenericModel input)
-        {
-            try
-            {
-                JArray objParr = null;
-                if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
-                {
-                    var request = JsonConvert.DeserializeObject<AddressViewModel>(objParr[0].ToString());
-                    bool response_queue = false;
-                    var work_queue = new WorkQueueClient(configuration);
+        //[HttpPost("update-address")]
+        //public async Task<IActionResult> updateAddress([FromBody] APIRequestGenericModel input)
+        //{
+        //    try
+        //    {
+        //        JArray objParr = null;
+        //        if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
+        //        {
+        //            var request = JsonConvert.DeserializeObject<AddressViewModel>(objParr[0].ToString());
+        //            bool response_queue = false;
+        //            var work_queue = new WorkQueueClient(configuration);
                   
-                    if (request != null)
-                    {
-                        if (request.AccountClientId <= 0)
-                        {
-                            request.AccountClientId = await clientServices.GetAccountClientIdFromToken(request.token);
-                            if (request.AccountClientId <= 0)
-                            {
-                                return Ok(new
-                                {
-                                    status = (int)ResponseType.FAILED,
-                                    msg = ResponseMessages.DataInvalid
-                                });
-                            }
+        //            if (request != null)
+        //            {
+        //                if (request.AccountClientId <= 0)
+        //                {
+        //                    request.AccountClientId = await clientServices.GetAccountClientIdFromToken(request.token);
+        //                    if (request.AccountClientId <= 0)
+        //                    {
+        //                        return Ok(new
+        //                        {
+        //                            status = (int)ResponseType.FAILED,
+        //                            msg = ResponseMessages.DataInvalid
+        //                        });
+        //                    }
 
-                        }
-                        var account_client = accountClientESService.GetById(request.AccountClientId);
-                        request.ClientId = (long)account_client.clientid;
-                        var j_param = new Dictionary<string, object>
-                    {
-                        {"data_push", JsonConvert.SerializeObject(request)}, // có thể là json
-                        {"type",QueueType.UPDATE_ADDRESS}
-                    };
-                        var _data_push = JsonConvert.SerializeObject(j_param);
+        //                }
+        //                var account_client = accountClientESService.GetById(request.AccountClientId);
+        //                request.ClientId = (long)account_client.clientid;
+        //                var j_param = new Dictionary<string, object>
+        //            {
+        //                {"data_push", JsonConvert.SerializeObject(request)}, // có thể là json
+        //                {"type",QueueType.UPDATE_ADDRESS}
+        //            };
+        //                var _data_push = JsonConvert.SerializeObject(j_param);
 
-                        // Execute Push Queue
+        //                // Execute Push Queue
 
-                        response_queue = work_queue.InsertQueueSimple(_data_push, QueueName.queue_app_push);
-                        //-- Clear Cache:
-                        var cache_name = CacheType.ADDRESS_CLIENT + request.AccountClientId;
-                        redisService.clear(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
-                        cache_name = CacheType.ADDRESS_CLIENT_DETAIL + request.Id + request.AccountClientId;
-                        redisService.clear(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
+        //                response_queue = work_queue.InsertQueueSimple(_data_push, QueueName.queue_app_push);
+        //                //-- Clear Cache:
+        //                var cache_name = CacheType.ADDRESS_CLIENT + request.AccountClientId;
+        //                redisService.clear(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
+        //                cache_name = CacheType.ADDRESS_CLIENT_DETAIL + request.Id + request.AccountClientId;
+        //                redisService.clear(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
 
-                        if (response_queue)
-                        {
+        //                if (response_queue)
+        //                {
 
-                            return Ok(new
-                            {
-                                status = (int)ResponseType.SUCCESS,
-                                msg = "Success"
-                            });
+        //                    return Ok(new
+        //                    {
+        //                        status = (int)ResponseType.SUCCESS,
+        //                        msg = "Success"
+        //                    });
 
-                        }
-                        else
-                        {
-                            return Ok(new
-                            {
-                                status = (int)ResponseType.FAILED,
-                                msg = "FAILED"
-                            });
+        //                }
+        //                else
+        //                {
+        //                    return Ok(new
+        //                    {
+        //                        status = (int)ResponseType.FAILED,
+        //                        msg = "FAILED"
+        //                    });
 
-                        }
-                    }
-                }
+        //                }
+        //            }
+        //        }
 
 
-            }
-            catch (Exception ex)
-            {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+        //        LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
 
-            }
-            return Ok(new
-            {
-                status = (int)ResponseType.FAILED,
-                msg = ResponseMessages.DataInvalid
-            });
-        }
+        //    }
+        //    return Ok(new
+        //    {
+        //        status = (int)ResponseType.FAILED,
+        //        msg = ResponseMessages.DataInvalid
+        //    });
+        //}
         [HttpPost("list")]
         public async Task<IActionResult> AddressByClient([FromBody] APIRequestGenericModel input)
         {
