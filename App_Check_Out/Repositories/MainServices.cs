@@ -100,6 +100,7 @@ namespace APP_CHECKOUT.Repositories
                 double total_profit = 0;
                 double total_discount = 0;
                 double total_amount = 0;
+                float total_weight = 0;
                 foreach (var cart in order.carts) {
                     string name_url = CommonHelpers.RemoveUnicode(cart.product.name);
                     name_url = CommonHelpers.RemoveSpecialCharacters(name_url);
@@ -133,6 +134,8 @@ namespace APP_CHECKOUT.Repositories
                     cart.total_discount = cart.product.discount * cart.quanity;
                     cart.total_profit = cart.product.profit * cart.quanity;
                     cart.total_amount = cart.product.amount * cart.quanity;
+                    total_weight += ((cart.product.weight==null?0: (float)cart.product.weight) * cart.quanity / 1000);
+
                 }
                 var account_client=accountClientESService.GetById(order.account_client_id);
                 var client = clientESService.GetById((long)account_client.clientid);
@@ -167,7 +170,10 @@ namespace APP_CHECKOUT.Repositories
                    ShippingFee=order.shipping_fee,
                    CarrierId=order.delivery_detail.carrier_id,
                    ShippingCode="",
-                   ShippingType=order.delivery_detail.shipping_type
+                   ShippingType=order.delivery_detail.shipping_type,
+                   ShippingStatus=0,
+                   PackageWeight=total_weight
+                   
                 };
                 List<Province> provinces = GetProvince();
                 List<District> districts = GetDistrict();
