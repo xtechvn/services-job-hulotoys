@@ -5,6 +5,7 @@ using App_Push_Consummer.Engines.ProductRaiting;
 using App_Push_Consummer.Interfaces;
 using App_Push_Consummer.Model.Address;
 using App_Push_Consummer.Model.Comments;
+using App_Push_Consummer.Model.Order;
 using App_Push_Consummer.Model.Queue;
 using HuloToys_Service.Models;
 using Newtonsoft.Json;
@@ -22,14 +23,16 @@ namespace App_Push_Consummer.Engines
         private readonly IAccountClientBusiness accountclient_business;
         private readonly ICommentsBusiness comments_business;
         private readonly IProductRaitingService productRaitingService;
+        private readonly IOrderBusiness orderBusiness;
 
         public Factory(IAddressBusiness _address_business, IAccountClientBusiness _accountclient_business, ICommentsBusiness _comments_business,
-            IProductRaitingService _productRaitingService)
+            IProductRaitingService _productRaitingService, IOrderBusiness _orderBusiness)
         {
             address_business = _address_business;
             accountclient_business = _accountclient_business;
             comments_business = _comments_business;
             productRaitingService = _productRaitingService;
+            orderBusiness = _orderBusiness;
         }
 
         public async void DoSomeRealWork(string data_queue)
@@ -106,6 +109,16 @@ namespace App_Push_Consummer.Engines
                             if (id < 0)
                             {
                                 ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "Lưu thông tin raiting thất bại");
+                            }
+                            break;
+                        }
+                    case QueueType.UPDATE_ORDER:
+                        {
+                            var model = JsonConvert.DeserializeObject<OrderModel>(queue_info.data_push);
+                            var id = await orderBusiness.UpdateOrder(model);
+                            if (id < 0)
+                            {
+                                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "Cập nhật thông tin đơn hàng thất bại");
                             }
                             break;
                         }
