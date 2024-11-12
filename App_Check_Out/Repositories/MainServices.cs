@@ -91,7 +91,8 @@ namespace APP_CHECKOUT.Repositories
             try
             {
                 var order = await orderDetailMongoDbModel.FindById(order_detail_id);
-                if (order == null || order.carts==null || order.carts.Count<=0) {
+                if (order == null || order.carts == null || order.carts.Count <= 0)
+                {
                     return;
                 }
                 Order order_summit = new Order();
@@ -101,30 +102,31 @@ namespace APP_CHECKOUT.Repositories
                 double total_discount = 0;
                 double total_amount = 0;
                 float total_weight = 0;
-                foreach (var cart in order.carts) {
+                foreach (var cart in order.carts)
+                {
                     string name_url = CommonHelpers.RemoveUnicode(cart.product.name);
                     name_url = CommonHelpers.RemoveSpecialCharacters(name_url);
                     name_url = name_url.Replace(" ", "-").Trim();
                     details.Add(new OrderDetail()
-                    { 
-                        CreatedDate=DateTime.Now,
-                        Discount=cart.product.discount,
-                        OrderDetailId=0,
-                        OrderId=0,
-                        Price=cart.product.price,
+                    {
+                        CreatedDate = DateTime.Now,
+                        Discount = cart.product.discount,
+                        OrderDetailId = 0,
+                        OrderId = 0,
+                        Price = cart.product.price,
                         Profit = cart.product.profit,
                         Quantity = cart.quanity,
                         Amount = cart.product.amount,
                         ProductCode = cart.product.code,
-                        ProductId=cart.product._id,
-                        ProductLink = _configuration["Setting:Domain"] + "/san-pham/"+ name_url + "--"+ cart.product._id,
+                        ProductId = cart.product._id,
+                        ProductLink = _configuration["Setting:Domain"] + "/san-pham/" + name_url + "--" + cart.product._id,
                         TotalPrice = cart.product.price * cart.quanity,
                         TotalProfit = cart.product.profit * cart.quanity,
-                        TotalAmount =cart.product.amount * cart.quanity,
-                        TotalDiscount= cart.product.discount * cart.quanity,
-                        UpdatedDate= DateTime.Now,
+                        TotalAmount = cart.product.amount * cart.quanity,
+                        TotalDiscount = cart.product.discount * cart.quanity,
+                        UpdatedDate = DateTime.Now,
                         UserCreate = Convert.ToInt32(_configuration["Setting:BOT_UserID"]),
-                        UserUpdated= Convert.ToInt32(_configuration["Setting:BOT_UserID"])
+                        UserUpdated = Convert.ToInt32(_configuration["Setting:BOT_UserID"])
                     });
                     total_price += (cart.product.price * cart.quanity);
                     total_profit += (cart.product.profit * cart.quanity);
@@ -134,58 +136,58 @@ namespace APP_CHECKOUT.Repositories
                     cart.total_discount = cart.product.discount * cart.quanity;
                     cart.total_profit = cart.product.profit * cart.quanity;
                     cart.total_amount = cart.product.amount * cart.quanity;
-                    total_weight += ((cart.product.weight==null?0: (float)cart.product.weight) * cart.quanity / 1000);
+                    total_weight += ((cart.product.weight == null ? 0 : (float)cart.product.weight) * cart.quanity / 1000);
 
                 }
-                var account_client=accountClientESService.GetById(order.account_client_id);
+                var account_client = accountClientESService.GetById(order.account_client_id);
                 var client = clientESService.GetById((long)account_client.clientid);
                 var address_client = addressClientESService.GetById(order.address_id);
-               
+
                 order_summit = new Order()
                 {
-                    Amount = total_amount+ order.shipping_fee,
+                    Amount = total_amount + order.shipping_fee,
                     ClientId = (long)account_client.clientid,
-                    CreatedDate=DateTime.Now,
-                    Discount=total_discount,
-                    IsDelete=0,
-                    Note="",
-                    OrderId=0,
-                    OrderNo=order.order_no,
-                    PaymentStatus=0,
-                    PaymentType=Convert.ToInt16(order.payment_type),
-                    Price=total_price,
-                    Profit=total_profit,
-                    OrderStatus=0,
-                    UpdateLast=DateTime.Now,
-                    UserGroupIds="",
+                    CreatedDate = DateTime.Now,
+                    Discount = total_discount,
+                    IsDelete = 0,
+                    Note = "",
+                    OrderId = 0,
+                    OrderNo = order.order_no,
+                    PaymentStatus = 0,
+                    PaymentType = Convert.ToInt16(order.payment_type),
+                    Price = total_price,
+                    Profit = total_profit,
+                    OrderStatus = 0,
+                    UpdateLast = DateTime.Now,
+                    UserGroupIds = "",
                     UserId = Convert.ToInt32(_configuration["Setting:BOT_UserID"]),
-                    UtmMedium=order.utm_medium,
-                    UtmSource=order.utm_source,
-                    VoucherId=order.voucher_id,
+                    UtmMedium = order.utm_medium,
+                    UtmSource = order.utm_source,
+                    VoucherId = order.voucher_id,
                     CreatedBy = Convert.ToInt32(_configuration["Setting:BOT_UserID"]),
                     UserUpdateId = Convert.ToInt32(_configuration["Setting:BOT_UserID"]),
-                    Address=order.address,
-                    ReceiverName=order.receivername,
-                    Phone=order.phone,
-                   ShippingFee=order.shipping_fee,
-                   CarrierId=order.delivery_detail.carrier_id,
-                   ShippingCode="",
-                   ShippingType=order.delivery_detail.shipping_type,
-                   ShippingStatus=0,
-                   PackageWeight=total_weight
-                   
+                    Address = order.address,
+                    ReceiverName = order.receivername,
+                    Phone = order.phone,
+                    ShippingFee = order.shipping_fee,
+                    CarrierId = order.delivery_detail.carrier_id,
+                    ShippingCode = "",
+                    ShippingType = order.delivery_detail.shipping_type,
+                    ShippingStatus = 0,
+                    PackageWeight = total_weight
+
                 };
                 List<Province> provinces = GetProvince();
                 List<District> districts = GetDistrict();
                 List<Ward> wards = GetWards();
-                if(address_client!=null && address_client.provinceid != null && address_client.districtid != null&& address_client.wardid != null)
+                if (address_client != null && address_client.provinceid != null && address_client.districtid != null && address_client.wardid != null)
                 {
-                    if ( address_client.provinceid.Trim() != "" && provinces != null && provinces.Count > 0)
+                    if (address_client.provinceid.Trim() != "" && provinces != null && provinces.Count > 0)
                     {
                         var province = provinces.FirstOrDefault(x => x.ProvinceId == address_client.provinceid);
                         order_summit.ProvinceId = province != null ? province.Id : null;
                     }
-                    if ( address_client.districtid.Trim() != "" && districts != null && districts.Count > 0)
+                    if (address_client.districtid.Trim() != "" && districts != null && districts.Count > 0)
                     {
                         var district = districts.FirstOrDefault(x => x.DistrictId == address_client.districtid);
                         order_summit.DistrictId = district != null ? district.Id : null;
@@ -195,6 +197,9 @@ namespace APP_CHECKOUT.Repositories
                         var ward = wards.FirstOrDefault(x => x.WardId == address_client.wardid);
                         order_summit.WardId = ward != null ? ward.Id : null;
                     }
+                    order_summit.ReceiverName = address_client.receivername;
+                    order_summit.Phone = address_client.phone;
+                    order_summit.Address = address_client.address;
                 }
                 else
                 {
@@ -204,14 +209,15 @@ namespace APP_CHECKOUT.Repositories
                     order_summit.DistrictId = district != null ? district.Id : null;
                     var ward = wards.FirstOrDefault(x => x.WardId == order.wardid);
                     order_summit.WardId = ward != null ? ward.Id : null;
+                    order_summit.ReceiverName = order.receivername;
+                    order_summit.Phone = order.phone;
+                    order_summit.Address = order.address;
                 }
-                order_summit.ReceiverName = address_client.receivername;
-                order_summit.Phone = address_client.phone;
-                order_summit.Address = address_client.address;
+               
 
                 var order_id = await orderDAL.CreateOrder(order_summit);
                 Console.WriteLine("Created Order - " + order.order_no+": "+ order_id);
-                logging_service.LoggingAppOutput("Order Created - " + order.order_no + " - " + total_amount, true, false);
+                logging_service.LoggingAppOutput("Order Created - " + order.order_no + " - " + total_amount, true, true);
 
                 if (order_id > 0)
                 {
@@ -319,7 +325,7 @@ namespace APP_CHECKOUT.Repositories
                     wards = locationDAL.GetListWard();
                     try
                     {
-                        _redisService.Set(CacheType.DISTRICT, JsonConvert.SerializeObject(wards), Convert.ToInt32(_configuration["Redis:Database:db_common"]));
+                        _redisService.Set(CacheType.WARD, JsonConvert.SerializeObject(wards), Convert.ToInt32(_configuration["Redis:Database:db_common"]));
                     }
                     catch { }
                 }

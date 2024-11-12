@@ -72,8 +72,8 @@ namespace APP_CHECKOUT.Repositories
                     id = order_summit.OrderId.ToString(),
                     depotId = null,
                     type = "Shipping",
-                    customerName = address_client.receivername,
-                    customerMobile = address_client.phone,
+                    customerName = address_client==null?order.receivername: address_client.receivername,
+                    customerMobile = address_client == null ? order.phone : address_client.receivername,
                     customerEmail = client.email,
                     customerAddress = order_summit.Address,
                     customerCityName = city_name,
@@ -89,7 +89,7 @@ namespace APP_CHECKOUT.Repositories
                     paymentGateway=null,
                     carrierId=null,
                     carrierServiceId=null,
-                    customerShipFee=0,
+                    customerShipFee=Convert.ToInt32(order_summit.ShippingFee),
                     deliveryDate=DateTime.Now.AddDays(2).ToString("yyyy-MM-dd"),
                     status="New",
                     description = null,
@@ -118,7 +118,7 @@ namespace APP_CHECKOUT.Repositories
                     {
                         id=c.product._id,
                         code=c.product.sku,
-                        description=CommonHelpers.RemoveSpecialCharacters(c.product.description),
+                        description="",
                         idNhanh=null,
                         imei=null,
                         name=c.product.name,
@@ -139,6 +139,7 @@ namespace APP_CHECKOUT.Repositories
                 if (status == 1)
                 {
                     Console.WriteLine(response.Content);
+                    _logging_service.LoggingAppOutput("["+order.order_no+"] -> Nhanh VN OrderCreated: "+jsonData["data"]["orderId"].ToString(), true, true);
 
                 }
                 else
@@ -150,8 +151,8 @@ namespace APP_CHECKOUT.Repositories
 
 
             }
-            catch
-            {
+            catch(Exception ex) {
+            
 
             }
 
