@@ -64,7 +64,27 @@ namespace HuloToys_Service.Controllers.Shipping.Business
                         break;
                     case (int)ShippingType.SLOW_DELIVERY:
                         {
+                            //-- switch delivery carrier
+                            switch (request.carrier_id)
+                            {
+                                case (int)ShippingCarrier.NINJAVAN:
+                                    {
+                                        float total_weight = 0;
+                                        foreach (var cart in request.carts)
+                                        {
+                                            var cart_detail = await _cartMongodbService.FindById(cart.id);
+                                            var product = await _productDetailMongoAccess.GetByID(cart.product_id);
+                                            if (product != null && product.weight != null && (float)product.weight > 0)
+                                            {
+                                                total_weight += ((float)product.weight * cart.quanity);
+                                            }
 
+                                        }
+                                        response.total_shipping_fee = ninjaVanService.CaclucateShippingFee(request.to_province_id, Convert.ToInt32(total_weight));
+
+                                    }
+                                    break;
+                            }
 
                         }
                         break;
@@ -81,8 +101,27 @@ namespace HuloToys_Service.Controllers.Shipping.Business
                         break;
                     case (int)ShippingType.COD:
                         {
+                            //-- switch delivery carrier
+                            switch (request.carrier_id)
+                            {
+                                case (int)ShippingCarrier.NINJAVAN:
+                                    {
+                                        float total_weight = 0;
+                                        foreach (var cart in request.carts)
+                                        {
+                                            var cart_detail = await _cartMongodbService.FindById(cart.id);
+                                            var product = await _productDetailMongoAccess.GetByID(cart.product_id);
+                                            if (product != null && product.weight != null && (float)product.weight > 0)
+                                            {
+                                                total_weight += ((float)product.weight * cart.quanity);
+                                            }
 
+                                        }
+                                        response.total_shipping_fee = ninjaVanService.CaclucateShippingFee(request.to_province_id, Convert.ToInt32(total_weight));
 
+                                    }
+                                    break;
+                            }
                         }
                         break;
 
