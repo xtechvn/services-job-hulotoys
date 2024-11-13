@@ -2,6 +2,7 @@
 using App_Push_Consummer.Model.Address;
 using App_Push_Consummer.Model.Client;
 using App_Push_Consummer.Model.Comments;
+using App_Push_Consummer.Model.Order;
 using HuloToys_Service.Models;
 using System.Configuration;
 using System.Data;
@@ -258,6 +259,51 @@ namespace App_Push_Consummer.Model.DB_Core
                 ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "GetDataset =>GetClientByAccountClientId error queue = " + ex.ToString());
             }
             return null;
+        }
+        public static int UpdateOrder(OrderModel model)
+        {
+            try
+            {
+                SqlParameter[] objParam_order = new SqlParameter[]{
+                    new SqlParameter("@OrderId", model.OrderId),
+                    new SqlParameter("@ClientId", model.ClientId),
+                    new SqlParameter("@OrderNo", model.OrderNo),
+                    new SqlParameter("@Price", model.Price),
+                    new SqlParameter("@Profit", model.Profit),
+                    new SqlParameter("@Discount", model.Discount),
+                    new SqlParameter("@Amount", model.Amount),
+                    new SqlParameter("@Status", model.OrderStatus),
+                    new SqlParameter("@PaymentType", model.PaymentType),
+                    new SqlParameter("@PaymentStatus", model.PaymentStatus),
+                    new SqlParameter("@UtmSource", model.UtmSource),
+                    new SqlParameter("@UtmMedium", model.UtmMedium),
+                    new SqlParameter("@Note", model.Note),
+                    new SqlParameter("@VoucherId", model.VoucherId),
+                    new SqlParameter("@IsDelete", model.IsDelete),
+                    new SqlParameter("@UserId", model.UserId),
+                    new SqlParameter("@UserGroupIds", model.UserGroupIds),
+                    new SqlParameter("@UserUpdateId", model.UserUpdateId),
+                    new SqlParameter("@ProvinceId", model.ProvinceId),
+                    new SqlParameter("@DistrictId", model.DistrictId),
+                    new SqlParameter("@WardId", model.WardId),
+                    new SqlParameter("@Address", model.Address),
+                    new SqlParameter("@ShippingFee", model.ShippingFee),
+                    new SqlParameter("@CarrierId", model.CarrierId),
+                    new SqlParameter("@ShippingType", model.ShippingType),
+                    new SqlParameter("@ShippingCode", model.ShippingCode),
+                    new SqlParameter("@ShippingStatus", model.ShippingStatus),
+                    new SqlParameter("@PackageWeight", model.PackageWeight),
+
+                };
+
+                var id = DBWorker.ExecuteNonQuery("sp_UpdateOrder", objParam_order);
+                return id;
+            }
+            catch (Exception ex)
+            {
+                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "GetDataset =>InsertProductRaiting error queue = " + ex.ToString());
+                return -1;
+            }
         }
     }
 }

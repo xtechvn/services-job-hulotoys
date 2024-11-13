@@ -497,7 +497,9 @@ namespace HuloToys_Service.Controllers
                         districtid=request.address.districtid,
                         provinceid=request.address.provinceid,
                         wardid=request.address.wardid,
-                        address_id=request.address_id
+                        address_id=request.address_id,
+                        receivername=request.address.receivername,
+                        phone=request.address.phone,
                     };
                     
                     foreach (var item in request.carts)
