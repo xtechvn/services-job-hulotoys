@@ -8,11 +8,13 @@ using HuloToys_Service.Models.ElasticSearch;
 using HuloToys_Service.Models.Raiting;
 using HuloToys_Service.MongoDb;
 using HuloToys_Service.RedisWorker;
+using HuloToys_Service.Utilities.Lib;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Reflection;
 using Utilities;
 using Utilities.Contants;
 
@@ -100,9 +102,10 @@ namespace WEB.CMS.Controllers
                     });
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return Ok(new
             {
