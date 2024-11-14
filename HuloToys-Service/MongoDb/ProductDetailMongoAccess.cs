@@ -170,7 +170,7 @@ namespace HuloToys_Service.MongoDb
                 var filterDefinition = filter.Empty;
                 if (keyword != null && keyword.Trim() != "")
                 {
-                    filterDefinition |= Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, keyword);
+                    filterDefinition &= Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, new Regex(Regex.Escape(keyword), RegexOptions.IgnoreCase));
                 }
                 if (group_id > 0)
                 {

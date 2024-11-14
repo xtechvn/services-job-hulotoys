@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace HuloToys_Service.Utilities.lib
 {
@@ -13,6 +14,13 @@ namespace HuloToys_Service.Utilities.lib
         {
             var pattern = new Regex("[^a-zA-Z0-9àáãảạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệđùúủũụưừứửữựòóỏõọôồốổỗộơờớởỡợìíỉĩịäëïîöüûñçýỳỹỵỷÀÁÃẢẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆĐÙÚỦŨỤƯỪỨỬỮỰÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÌÍỈĨỊÄËÏÎÖÜÛÑÇÝỲỸỴỶ ]");
             return pattern.Replace(text, "");
+        }
+        public static string NormalizeTextForSearch(string input)
+        {
+            return input
+                .Normalize(NormalizationForm.FormC)
+                .ToLower()
+                .Trim();
         }
     }
 }
