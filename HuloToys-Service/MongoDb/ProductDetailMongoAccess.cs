@@ -170,13 +170,16 @@ namespace HuloToys_Service.MongoDb
                 var filterDefinition = filter.Empty;
                 if (keyword != null && keyword.Trim() != "")
                 {
-                    filterDefinition |= Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, keyword);
+                    filterDefinition &= Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, new Regex(Regex.Escape(keyword), RegexOptions.IgnoreCase));
                 }
                 if (group_id > 0)
                 {
                     filterDefinition &= Builders<ProductMongoDbModel>.Filter.Regex(x => x.group_product_id, group_id.ToString());
                 }
-                filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.parent_product_id, "");
+                filterDefinition &= Builders<ProductMongoDbModel>.Filter.Or(
+                                   Builders<ProductMongoDbModel>.Filter.Eq(p => p.parent_product_id, null),
+                                   Builders<ProductMongoDbModel>.Filter.Eq(p => p.parent_product_id, "")
+                               );
                 filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.status, (int)ProductStatus.ACTIVE);
                 var sort_filter = Builders<ProductMongoDbModel>.Sort;
                 var sort_filter_definition = sort_filter.Descending(x => x.updated_last);

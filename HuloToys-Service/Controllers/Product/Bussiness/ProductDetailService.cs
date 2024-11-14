@@ -4,6 +4,7 @@ using HuloToys_Front_End.Models.Products;
 using HuloToys_Service.ElasticSearch;
 using HuloToys_Service.Models.APIRequest;
 using HuloToys_Service.MongoDb;
+using HuloToys_Service.Utilities.lib;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -37,6 +38,9 @@ namespace HuloToys_Service.Controllers.Product.Bussiness
             ProductListFEResponseModel result = new ProductListFEResponseModel();
             try
             {
+                // Chuẩn hóa từ khóa tìm kiếm
+                request.keyword = StringHelper.NormalizeTextForSearch(request.keyword);
+
                 var data = await _productDetailMongoAccess.ResponseListing(request.keyword, request.group_id,request.page_index,request.page_size);
                 result = JsonConvert.DeserializeObject<ProductListFEResponseModel>(JsonConvert.SerializeObject(data));
                 if(result!=null && result.items!=null && result.items.Count > 0)
