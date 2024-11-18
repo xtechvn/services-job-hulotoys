@@ -44,11 +44,10 @@ namespace HuloToys_Service.Controllers
                         msg = "Thông tin đăng nhập không đúng. Xin vui lòng thử lại"
                     });
                 }
-                LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "Get product listing api with [" + JsonConvert.SerializeObject(user) + "]");
 
                 var Password = CommonHelper.MD5Hash(user.Password);
                 var accountClient = accountApiESService.GetByUsername(user.Username);
-                LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "Get account api with usr=" + user.Username + ". Index: " + configuration["DataBaseConfig:Elastic:Index:AccountClient"]);
+                LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "Get account api with usr=" + user.Username + ". Index: es_hulotoys_sp_get_accountaccessapi");
 
                 if (accountClient == null) {
                     return Ok(new { status = (int)ResponseType.ERROR, msg = "Tài khoản " + user.Username + " không tồn tại" }); }

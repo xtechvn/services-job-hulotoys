@@ -17,7 +17,6 @@ namespace HuloToys_Service.ElasticSearch
         {
             _ElasticHost = Host;
             configuration = _configuration;
-            index = _configuration["DataBaseConfig:Elastic:Index:Authentication"];
 
         }
         public AccountApiESModel GetByUsername(string user_name)
