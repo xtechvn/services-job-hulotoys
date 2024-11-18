@@ -47,7 +47,6 @@ namespace HuloToys_Service.Controllers
 
                 var Password = CommonHelper.MD5Hash(user.Password);
                 var accountClient = accountApiESService.GetByUsername(user.Username);
-                LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "Get account api with usr=" + user.Username + ". Index: es_hulotoys_sp_get_accountaccessapi");
 
                 if (accountClient == null) {
                     return Ok(new { status = (int)ResponseType.ERROR, msg = "Tài khoản " + user.Username + " không tồn tại" }); }
@@ -65,6 +64,8 @@ namespace HuloToys_Service.Controllers
             }
             catch (Exception ex)
             {
+                LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "Get account api with usr=" + user.Username + ". Error" + ex.ToString());
+
                 string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
                 LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
                 return Ok(new { status = (int)ResponseType.ERROR, msg = "Thông tin đăng nhập không hợp lệ. Vui lòng liên hệ với Admin" });
