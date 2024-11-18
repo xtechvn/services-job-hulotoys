@@ -15,6 +15,7 @@ using Nest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Reflection;
+using Telegram.Bot.Types;
 using Utilities;
 using Utilities.Contants;
 
@@ -91,7 +92,8 @@ namespace WEB.CMS.Controllers
                     //}
 
                     var data = await productDetailService.ProductListing(request);
-                   
+                    LogHelper.InsertLogTelegram(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], "Get product listing api with [" + JsonConvert.SerializeObject(request) + "]. Count="+(data == null ? "0" : data.count.ToString()));
+
                     //if (data != null  && data.items.Count > 0)
                     //{
                     //    _redisService.Set(cache_name, JsonConvert.SerializeObject(data), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
