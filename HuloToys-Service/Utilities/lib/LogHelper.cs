@@ -1,9 +1,25 @@
-﻿using System.Net;
+﻿using System.Data;
+using System.Net;
+using Telegram.Bot;
 
 namespace HuloToys_Service.Utilities.Lib
 {
     public static class LogHelper
     {
+        public static int InsertLogTelegram(string bot_token, string id_group, string message)
+        {
+            var rs = 1;
+            try
+            {
+                TelegramBotClient alertMsgBot = new TelegramBotClient(bot_token);
+                var rs_push = alertMsgBot.SendTextMessageAsync(id_group, message).Result;
+            }
+            catch (Exception ex)
+            {
+                rs = -1;
+            }
+            return rs;
+        }
         public static void InsertLogTelegramByUrl(string bot_token, string id_group, string msg)
         {
             string JsonContent = string.Empty;
