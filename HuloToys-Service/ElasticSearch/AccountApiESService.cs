@@ -18,7 +18,7 @@ namespace HuloToys_Service.ElasticSearch
             _ElasticHost = Host;
             configuration = _configuration;
         }
-        public AccountESModel GetByUsername(string user_name)
+        public AccountApiESModel GetByUsername(string user_name)
         {
             try
             {
@@ -27,7 +27,7 @@ namespace HuloToys_Service.ElasticSearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<AccountESModel>(sd => sd
+                var query = elasticClient.Search<AccountApiESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
                                    .Match(m => m.Field("username").Query(user_name)
@@ -35,7 +35,7 @@ namespace HuloToys_Service.ElasticSearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<AccountESModel>;
+                    var result = query.Documents as List<AccountApiESModel>;
                     return result.FirstOrDefault();
                 }
             }
