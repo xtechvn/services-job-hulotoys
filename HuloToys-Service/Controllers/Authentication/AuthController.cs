@@ -48,12 +48,12 @@ namespace HuloToys_Service.Controllers
                 }
                 var Password = CommonHelper.MD5Hash(user.Password);
                 var accountClient = accountApiESService.GetByUsername(user.Username);
-                if (accountClient == null) {
-                    LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "Cannot find account api with usr="+user.Username);
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "Get account api with usr=" + user.Username + ". Index: " + configuration["DataBaseConfig:Elastic:Index:AccountClient"]);
 
+                if (accountClient == null) {
                     return Ok(new { status = (int)ResponseType.ERROR, msg = "Tài khoản " + user.Username + " không tồn tại" }); }
-                if (accountClient.status != (int)AccountClientStatusType.BINH_THUONG) { return Ok(new { status = (int)ResponseType.ERROR, msg = "Tài khoản đã khóa" }); }
-                if (user.Username == accountClient.username && Password == accountClient.password)
+                if (accountClient.Status != (int)AccountClientStatusType.BINH_THUONG) { return Ok(new { status = (int)ResponseType.ERROR, msg = "Tài khoản đã khóa" }); }
+                if (user.Username == accountClient.UserName && Password == accountClient.Password)
                 {
                     var token = GenerateJwtToken(user.Username);
                     return Ok(new { status = (int)ResponseType.SUCCESS, token });
