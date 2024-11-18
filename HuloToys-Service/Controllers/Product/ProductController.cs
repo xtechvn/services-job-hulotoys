@@ -68,6 +68,7 @@ namespace WEB.CMS.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
+                    if (request.keyword ==null) request.keyword  = "";
                     if (request.page_size <= 0) request.page_size = 10;
                     if (request.page_index < 1) request.page_index = 1;
                     //var cache_name = CacheType.PRODUCT_LISTING + (request.keyword ?? "") + request.group_id+ request.page_index+ request.page_size;
