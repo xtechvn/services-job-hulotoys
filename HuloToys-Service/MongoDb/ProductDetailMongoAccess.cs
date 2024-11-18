@@ -144,7 +144,10 @@ namespace HuloToys_Service.MongoDb
                 {
                     filterDefinition &= Builders<ProductMongoDbModel>.Filter.Regex(x => x.group_product_id, group_id.ToString());
                 }
-                filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.parent_product_id, "");
+                filterDefinition &= Builders<ProductMongoDbModel>.Filter.Or(
+                                                   Builders<ProductMongoDbModel>.Filter.Eq(p => p.parent_product_id, null),
+                                                   Builders<ProductMongoDbModel>.Filter.Eq(p => p.parent_product_id, "")
+                                               );
                 filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.status, (int)ProductStatus.ACTIVE);
                 var sort_filter = Builders<ProductMongoDbModel>.Sort;
                 var sort_filter_definition = sort_filter.Descending(x => x.updated_last);
@@ -229,8 +232,12 @@ namespace HuloToys_Service.MongoDb
                    Builders<ProductMongoDbModel>.Filter.Regex(x => x.sku, regex), // Case-insensitive regex
                    Builders<ProductMongoDbModel>.Filter.Regex(x => x.code, regex)  // Case-insensitive regex
                )
-               & Builders<ProductMongoDbModel>.Filter.Eq(x => x.parent_product_id, "")
+               
                & Builders<ProductMongoDbModel>.Filter.Eq(x => x.status, (int)ProductStatus.ACTIVE);
+                filter &= Builders<ProductMongoDbModel>.Filter.Or(
+                                   Builders<ProductMongoDbModel>.Filter.Eq(p => p.parent_product_id, null),
+                                   Builders<ProductMongoDbModel>.Filter.Eq(p => p.parent_product_id, "")
+                               );
                 var model = _productDetailCollection.Find(filter);
                 var items = await model.ToListAsync();
                 long count = await model.CountDocumentsAsync();
@@ -316,9 +323,13 @@ namespace HuloToys_Service.MongoDb
                    Builders<ProductMongoDbModel>.Filter.Regex(x => x.sku, regex), // Case-insensitive regex
                    Builders<ProductMongoDbModel>.Filter.Regex(x => x.code, regex)  // Case-insensitive regex
                )
-               & Builders<ProductMongoDbModel>.Filter.Eq(x => x.parent_product_id, "")
+              
                & Builders<ProductMongoDbModel>.Filter.Eq(x => x.status, (int)ProductStatus.ACTIVE);
-                if(stars!=null && stars>0)
+                filter &= Builders<ProductMongoDbModel>.Filter.Or(
+                                  Builders<ProductMongoDbModel>.Filter.Eq(p => p.parent_product_id, null),
+                                  Builders<ProductMongoDbModel>.Filter.Eq(p => p.parent_product_id, "")
+                              );
+                if (stars!=null && stars>0)
                 {
                     filter &= Builders<ProductMongoDbModel>.Filter.Gte(x => x.star, (int)stars);
                 }
