@@ -1,10 +1,8 @@
 ﻿// Create by: cuonglv
 // Create date: 24-07-2024-
-using Caching.Elasticsearch;
 using HuloToys_Service.ElasticSearch;
 using HuloToys_Service.Models;
 using HuloToys_Service.Utilities.Lib;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -46,6 +44,8 @@ namespace HuloToys_Service.Controllers
                         msg = "Thông tin đăng nhập không đúng. Xin vui lòng thử lại"
                     });
                 }
+                LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "Get product listing api with [" + JsonConvert.SerializeObject(user) + "]");
+
                 var Password = CommonHelper.MD5Hash(user.Password);
                 var accountClient = accountApiESService.GetByUsername(user.Username);
                 LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "Get account api with usr=" + user.Username + ". Index: " + configuration["DataBaseConfig:Elastic:Index:AccountClient"]);
