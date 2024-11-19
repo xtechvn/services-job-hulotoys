@@ -47,6 +47,7 @@ namespace HuloToys_Service.Controllers
 
                 var Password = CommonHelper.MD5Hash(user.Password);
                 var accountClient = accountApiESService.GetByUsername(user.Username);
+                LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "Login:" + user.Username +". "+(accountClient==null?"NULL":JsonConvert.SerializeObject(accountClient)));
 
                 if (accountClient == null) {
                     return Ok(new { status = (int)ResponseType.ERROR, msg = "Tài khoản " + user.Username + " không tồn tại" }); }

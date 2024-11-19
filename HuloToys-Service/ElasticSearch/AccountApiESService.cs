@@ -10,7 +10,7 @@ namespace HuloToys_Service.ElasticSearch
 {
     public class AccountApiESService : ESRepository<AccountApiESModel>
     {
-        public string index = "es_hulotoys_sp_get_accountaccessapi";
+        public string index = "hulotoys_sp_get_accountaccessapi";
         private readonly IConfiguration configuration;
         private static string _ElasticHost;
 
@@ -28,6 +28,7 @@ namespace HuloToys_Service.ElasticSearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
+                LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetByUsername - AccountApiESService:" + user_name);
 
                 var query = elasticClient.Search<AccountApiESModel>(sd => sd
                                .Index(index)
