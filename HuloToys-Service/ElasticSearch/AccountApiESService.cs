@@ -3,6 +3,7 @@ using HuloToys_Service.Elasticsearch;
 using HuloToys_Service.Models.Account;
 using HuloToys_Service.Utilities.Lib;
 using Nest;
+using Newtonsoft.Json;
 using System.Reflection;
 using Telegram.Bot.Types;
 
@@ -18,6 +19,7 @@ namespace HuloToys_Service.ElasticSearch
         {
             _ElasticHost = Host;
             configuration = _configuration;
+            index = _configuration["DataBaseConfig:Elastic:Index:Authentication"];
 
         }
         public AccountApiESModel GetByUsername(string user_name)
@@ -34,7 +36,7 @@ namespace HuloToys_Service.ElasticSearch
                 //               .Query(q => q
                 //                   .Match(m => m.Field("username").Query(user_name)
                 //               )));
-                var searchResponse = elasticClient.Search<AccountApiESModel>(s => s
+                var searchResponse = elasticClient.Search<dynamic>(s => s
                     .Index(index) // Specify the index
                     .From(0) // Starting point for results
                     .Size(40) // Number of results to return
@@ -42,7 +44,7 @@ namespace HuloToys_Service.ElasticSearch
                         .Bool(b => b
                             .Must(m => m
                                 .Match(ma => ma
-                                    .Field(x=>x.UserName) // Field to match
+                                    .Field("UserName") // Field to match
                                     .Query(user_name) // Value to match
                                 )
                             )
@@ -51,9 +53,8 @@ namespace HuloToys_Service.ElasticSearch
                 );
                 if (searchResponse.IsValid)
                 {
-                    var result = searchResponse.Documents as List<AccountApiESModel>;
-                    LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetByUsername - AccountApiESService Count doc:"+ searchResponse.Documents.Count+ "Data Count:" +result.Count);
-
+                    var result = searchResponse.Documents as List<dynamic>;
+                    var data=JsonConvert.DeserializeObject<List<AccountApiESModel>>(JsonConvert.SerializeObject(result));
                     return result.FirstOrDefault();
                 }
             }
