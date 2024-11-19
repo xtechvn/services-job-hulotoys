@@ -26,7 +26,7 @@ namespace HuloToys_Service.MongoDb
                 ":" + configuration["DataBaseConfig:MongoServer:pwd"] +
                 "@" + configuration["DataBaseConfig:MongoServer:Host"] +
                 ":" + configuration["DataBaseConfig:MongoServer:Port"] +
-                "/?authSource=" + configuration["DataBaseConfig:MongoServer:catalog"] + "";
+                "/?authSource=" + configuration["DataBaseConfig:MongoServer:catalog_core"] + "";
 
             var client = new MongoClient(url);
 
