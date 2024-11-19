@@ -19,6 +19,9 @@ namespace HuloToys_Service.Models.Account
     public partial class AccountApiESModel
     {
         public int Id { get; set; }
+        public string _index { get; set; }
+        public string _type { get; set; }
+        public string _id { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
         public byte? Status { get; set; }

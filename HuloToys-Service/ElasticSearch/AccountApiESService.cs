@@ -28,7 +28,6 @@ namespace HuloToys_Service.ElasticSearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetByUsername - AccountApiESService:" + user_name);
 
                 //var query = elasticClient.Search<AccountApiESModel>(sd => sd
                 //               .Index(index)
@@ -53,7 +52,7 @@ namespace HuloToys_Service.ElasticSearch
                 if (searchResponse.IsValid)
                 {
                     var result = searchResponse.Documents as List<AccountApiESModel>;
-                    LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetByUsername - AccountApiESService Count:" +result.Count);
+                    LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetByUsername - AccountApiESService Count doc:"+ searchResponse.Documents.Count+ "Data Count:" +result.Count);
 
                     return result.FirstOrDefault();
                 }
