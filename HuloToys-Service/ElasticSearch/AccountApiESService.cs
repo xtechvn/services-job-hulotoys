@@ -30,15 +30,29 @@ namespace HuloToys_Service.ElasticSearch
                 var elasticClient = new ElasticClient(connectionSettings);
                 LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetByUsername - AccountApiESService:" + user_name);
 
-                var query = elasticClient.Search<AccountApiESModel>(sd => sd
-                               .Index(index)
-                               .Query(q => q
-                                   .Match(m => m.Field("username").Query(user_name)
-                               )));
-
-                if (query.IsValid)
+                //var query = elasticClient.Search<AccountApiESModel>(sd => sd
+                //               .Index(index)
+                //               .Query(q => q
+                //                   .Match(m => m.Field("username").Query(user_name)
+                //               )));
+                var searchResponse = elasticClient.Search<AccountApiESModel>(s => s
+                    .Index(index) // Specify the index
+                    .From(0) // Starting point for results
+                    .Size(40) // Number of results to return
+                    .Query(q => q
+                        .Bool(b => b
+                            .Must(m => m
+                                .Match(ma => ma
+                                    .Field(x=>x.UserName) // Field to match
+                                    .Query(user_name) // Value to match
+                                )
+                            )
+                        )
+                    )
+                );
+                if (searchResponse.IsValid)
                 {
-                    var result = query.Documents as List<AccountApiESModel>;
+                    var result = searchResponse.Documents as List<AccountApiESModel>;
                     LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetByUsername - AccountApiESService Count:" +result.Count);
 
                     return result.FirstOrDefault();
