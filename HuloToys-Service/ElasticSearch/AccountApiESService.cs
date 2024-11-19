@@ -11,7 +11,7 @@ namespace HuloToys_Service.ElasticSearch
 {
     public class AccountApiESService : ESRepository<AccountApiESModel>
     {
-        public string index = "hulotoys_sp_get_accountaccessapi";
+        public string index = "hulotoys_sp_getaccountaccessapi";
         private readonly IConfiguration configuration;
         private static string _ElasticHost;
 
