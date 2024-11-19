@@ -55,7 +55,7 @@ namespace HuloToys_Service.ElasticSearch
                 {
                     var result = searchResponse.Documents as List<dynamic>;
                     var data=JsonConvert.DeserializeObject<List<AccountApiESModel>>(JsonConvert.SerializeObject(result));
-                    return result.FirstOrDefault();
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
