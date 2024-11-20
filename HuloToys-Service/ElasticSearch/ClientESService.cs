@@ -31,7 +31,7 @@ namespace Caching.Elasticsearch
                 var query = elasticClient.Search<ClientESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field("id").Query(id.ToString())
+                                   .Match(m => m.Field("Id").Query(id.ToString())
                                )));
 
                 if (query.IsValid)
@@ -88,7 +88,7 @@ namespace Caching.Elasticsearch
                 var query = elasticClient.Search<ClientESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field("phone").Query(phone)
+                                   .Match(m => m.Field("Phone").Query(phone)
                                )));
 
                 if (query.IsValid)
@@ -116,7 +116,7 @@ namespace Caching.Elasticsearch
                 var query = elasticClient.Search<ClientESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field("clienttype").Query(client_type.ToString())
+                                   .Match(m => m.Field("ClientType").Query(client_type.ToString())
                                )));
 
                 if (query.IsValid)

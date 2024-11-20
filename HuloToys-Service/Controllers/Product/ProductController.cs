@@ -92,7 +92,6 @@ namespace WEB.CMS.Controllers
                     //}
 
                     var data = await productDetailService.ProductListing(request);
-                    LogHelper.InsertLogTelegram(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], "Get product listing api with [" + JsonConvert.SerializeObject(request) + "]. Count="+(data == null ? "0" : data.count.ToString()));
 
                     //if (data != null  && data.items.Count > 0)
                     //{
