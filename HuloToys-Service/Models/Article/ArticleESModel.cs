@@ -2,38 +2,38 @@
 {
     public class ArticleESModel
     {
-        public long id { get; set; }
+        public long Id { get; set; }
 
-        public string title { get; set; } = null!;
+        public string Title { get; set; }
 
-        public string lead { get; set; } = null!;
+        public string Lead { get; set; }
 
-        public string body { get; set; } = null!;
+        public string Body { get; set; }
 
-        public int status { get; set; }
+        public int Status { get; set; }
 
-        public int articletype { get; set; }
+        public int ArticleType { get; set; }
 
-        public int? pageview { get; set; }
+        public int? PageView { get; set; }
 
-        public DateTime? publishdate { get; set; }
+        public DateTime? PublishDate { get; set; }
 
-        public int? authorid { get; set; }
+        public int? AuthorId { get; set; }
 
-        public string image169 { get; set; } = null!;
+        public string Image169 { get; set; }
 
-        public string? image43 { get; set; }
+        public string Image43 { get; set; }
 
-        public string? image11 { get; set; }
+        public string Image11 { get; set; }
 
-        public DateTime? createdon { get; set; }
+        public DateTime? CreatedOn { get; set; }
 
-        public DateTime? modifiedon { get; set; }
+        public DateTime? ModifiedOn { get; set; }
 
-        public DateTime? downtime { get; set; }
+        public DateTime? DownTime { get; set; }
 
-        public DateTime? uptime { get; set; }
+        public DateTime? UpTime { get; set; }
 
-        public short? position { get; set; }
+        public short? Position { get; set; }
     }
 }

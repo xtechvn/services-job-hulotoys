@@ -178,13 +178,11 @@ namespace HuloToys_Service.ElasticSearch
                     var data = query.Documents as List<ArticleESModel>;
                     var result = data.Select(a => new ArticleRelationModel
                     {
-
-                        Id = a.id,
-                        Lead = a.lead,
-                        Image = a.image169 ?? a.image43 ?? a.image11,
-                        Title = a.title,
-                        publish_date = a.publishdate ?? DateTime.Now,
-
+                        Id = a.Id,
+                        Lead = a.Lead,
+                        Image = a.Image169 ?? a.Image43 ?? a.Image11,
+                        Title = a.Title,
+                        publish_date = a.PublishDate ?? DateTime.Now,
                     }).ToList();
                     return result;
                 }

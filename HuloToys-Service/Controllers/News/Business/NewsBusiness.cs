@@ -42,24 +42,24 @@ namespace HuloToys_Service.Controllers.News.Business
                     var article = articleESService.GetDetailById(Id);
                     model = new ArticleModel
                     {
-                        Id = article.id,
-                        Title = article.title,
-                        Lead = article.lead,
-                        Body = article.body,
-                        Status = article.status,
-                        ArticleType = article.articletype,
-                        Image11 = article.image11,
-                        Image43 = article.image43,
-                        Image169 = article.image169,
-                        PublishDate = article.publishdate ?? DateTime.MinValue,
-                        DownTime = article.downtime ?? DateTime.MinValue,
-                        Position = article.position ?? 0
+                        Id = article.Id,
+                        Title = article.Title,
+                        Lead = article.Lead,
+                        Body = article.Body,
+                        Status = article.Status,
+                        ArticleType = article.ArticleType,
+                        Image11 = article.Image11,
+                        Image43 = article.Image43,
+                        Image169 = article.Image169,
+                        PublishDate = article.PublishDate ?? DateTime.MinValue,
+                        DownTime = article.DownTime ?? DateTime.MinValue,
+                        Position = article.Position ?? 0
                     };
-                    var data_ArticleTag_By_ArticleId = articleTagESService.GetListArticleTagByArticleId(article.id);
+                    var data_ArticleTag_By_ArticleId = articleTagESService.GetListArticleTagByArticleId(article.Id);
                     var TagIds = data_ArticleTag_By_ArticleId.Select(s => s.tagid).ToList();
                     var List_tag = tagESService.GetListTag();
-                    var List_articleCategory = articleCategoryESService.GetByArticleId(article.id);
-                    var List_relatedArticleIds = articleRelatedESService.GetListArticleRelatedByArticleId(article.id);
+                    var List_articleCategory = articleCategoryESService.GetByArticleId(article.Id);
+                    var List_relatedArticleIds = articleRelatedESService.GetListArticleRelatedByArticleId(article.Id);
                     model.Tags = List_tag.Where(s => TagIds.Contains(s.Id)).Select(s => s.TagName).ToList();
                     model.Categories = List_articleCategory.Select(s => (int)s.categoryid).ToList();
                     model.MainCategory = model.Categories != null || model.Categories.Count > 0 ? model.Categories[0] : -1;
@@ -71,7 +71,7 @@ namespace HuloToys_Service.Controllers.News.Business
                         {
                             var groupProductName = string.Empty;
                             var detail_article = articleESService.GetDetailById(item);
-                            var articleCategory = articleCategoryESService.GetByArticleId(detail_article.id);
+                            var articleCategory = articleCategoryESService.GetByArticleId(detail_article.Id);
                             if (articleCategory != null && articleCategory.Count > 0)
                             {
                                 foreach (var item2 in articleCategory)
@@ -83,10 +83,10 @@ namespace HuloToys_Service.Controllers.News.Business
 
                             var ArticleRelation = new ArticleRelationModel
                             {
-                                Id = detail_article.id,
-                                Image = detail_article.image169 ?? detail_article.image43 ?? detail_article.image11,
-                                Title = detail_article.title,
-                                publish_date = detail_article.publishdate ?? DateTime.Now,
+                                Id = detail_article.Id,
+                                Image = detail_article.Image169 ?? detail_article.Image43 ?? detail_article.Image11,
+                                Title = detail_article.Title,
+                                publish_date = detail_article.PublishDate ?? DateTime.Now,
                                 category_name = groupProductName ?? "Tin tức"
                             };
                             model.RelatedArticleList.Add(ArticleRelation);
@@ -133,18 +133,18 @@ namespace HuloToys_Service.Controllers.News.Business
                             var _article = articleESService.GetDetailById((long)item.articleid);
                             if (_article == null) continue;
                           
-                            if (_article.status == ArticleStatus.PUBLISH)
+                            if (_article.Status == ArticleStatus.PUBLISH)
                             {
                                 var detail_model = new ArticleFeModel
                                 {
-                                    id = _article.id,
-                                    title = _article.title,
-                                    lead = _article.lead,
-                                    image_169 = _article.image169,
-                                    image_43 = _article.image43,
-                                    image_11 = _article.image11,
-                                    publish_date = (DateTime)_article.publishdate,
-                                    body = _article.body
+                                    id = _article.Id,
+                                    title = _article.Title,
+                                    lead = _article.Lead,
+                                    image_169 = _article.Image169,
+                                    image_43 = _article.Image43,
+                                    image_11 = _article.Image11,
+                                    publish_date = (DateTime)_article.PublishDate,
+                                    body = _article.Body
                                 };
                                 list_article.Add(detail_model);
                             }
@@ -188,24 +188,24 @@ namespace HuloToys_Service.Controllers.News.Business
                 if (article == null) return null;
                 model = new ArticleFeDetailModel
                 {
-                    id = article.id,
-                    title = article.title,
-                    lead = article.lead,
-                    body = article.body,
-                    status = article.status,
-                    article_type = article.articletype,
-                    image_11 = article.image11,
-                    image_43 = article.image43,
-                    image_169 = article.image169,
-                    publish_date = article.publishdate ?? DateTime.Now,
-                    author_id = (int)article.authorid
+                    id = article.Id,
+                    title = article.Title,
+                    lead = article.Lead,
+                    body = article.Body,
+                    status = article.Status,
+                    article_type = article.ArticleType,
+                    image_11 = article.Image11,
+                    image_43 = article.Image43,
+                    image_169 = article.Image169,
+                    publish_date = article.PublishDate ?? DateTime.Now,
+                    author_id = (int)article.AuthorId
                 };
 
-                var data_ArticleTag_By_ArticleId = articleTagESService.GetListArticleTagByArticleId(article.id);
+                var data_ArticleTag_By_ArticleId = articleTagESService.GetListArticleTagByArticleId(article.Id);
                 var TagIds = data_ArticleTag_By_ArticleId.Select(s => s.tagid).ToList();
                 var List_tag = tagESService.GetListTag();
-                var List_articleCategory = articleCategoryESService.GetByArticleId(article.id);
-                var List_relatedArticleIds = articleRelatedESService.GetListArticleRelatedByArticleId(article.id);
+                var List_articleCategory = articleCategoryESService.GetByArticleId(article.Id);
+                var List_relatedArticleIds = articleRelatedESService.GetListArticleRelatedByArticleId(article.Id);
 
 
 
@@ -231,7 +231,7 @@ namespace HuloToys_Service.Controllers.News.Business
                     {
                         var groupProductName = string.Empty;
                         var detail_article = articleESService.GetDetailById(item);
-                        var articleCategory = articleCategoryESService.GetByArticleId(detail_article.id);
+                        var articleCategory = articleCategoryESService.GetByArticleId(detail_article.Id);
                         if (articleCategory != null && articleCategory.Count > 0)
                         {
                             foreach (var item2 in articleCategory)
@@ -243,10 +243,10 @@ namespace HuloToys_Service.Controllers.News.Business
 
                         var ArticleRelation = new ArticleRelationModel
                         {
-                            Id = detail_article.id,
-                            Image = detail_article.image169 ?? detail_article.image43 ?? detail_article.image11,
-                            Title = detail_article.title,
-                            publish_date = detail_article.publishdate ?? DateTime.Now,
+                            Id = detail_article.Id,
+                            Image = detail_article.Image169 ?? detail_article.Image43 ?? detail_article.Image11,
+                            Title = detail_article.Title,
+                            publish_date = detail_article.PublishDate ?? DateTime.Now,
                             category_name = groupProductName ?? "Tin tức"
                         };
                         model.RelatedArticleList.Add(ArticleRelation);
@@ -308,11 +308,11 @@ namespace HuloToys_Service.Controllers.News.Business
                                     {
                                         var ArticleRelation = new ArticleRelationModel
                                         {
-                                            Id = detail_article.id,
-                                            Lead = detail_article.lead,
-                                            Image = detail_article.image169 ?? detail_article.image43 ?? detail_article.image11,
-                                            Title = detail_article.title,
-                                            publish_date = detail_article.publishdate ?? DateTime.Now,
+                                            Id = detail_article.Id,
+                                            Lead = detail_article.Lead,
+                                            Image = detail_article.Image169 ?? detail_article.Image43 ?? detail_article.Image11,
+                                            Title = detail_article.Title,
+                                            publish_date = detail_article.PublishDate ?? DateTime.Now,
                                             category_name = groupProductName ?? "Tin tức"
                                         };
                                         list_article.Add(ArticleRelation);
@@ -392,21 +392,21 @@ namespace HuloToys_Service.Controllers.News.Business
                             }
 
                             var _article = articleESService.GetDetailById((long)item.articleid);
-                            if (_article != null && _article.status == ArticleStatus.PUBLISH)
+                            if (_article != null && _article.Status == ArticleStatus.PUBLISH)
                             {
                                 var model = new ArticleFeModel
                                 {
-                                    id = _article.id,
+                                    id = _article.Id,
                                     category_name = groupProductName,
-                                    title = _article.title,
-                                    lead = _article.lead,
-                                    image_169 = _article.image169,
-                                    image_43 = _article.image43,
-                                    image_11 = _article.image11,
-                                    publish_date = (DateTime)_article.publishdate,
-                                    article_type = _article.articletype,
-                                    update_last = (DateTime)_article.modifiedon,
-                                    position = _article.position,
+                                    title = _article.Title,
+                                    lead = _article.Lead,
+                                    image_169 = _article.Image169,
+                                    image_43 = _article.Image43,
+                                    image_11 = _article.Image11,
+                                    publish_date = (DateTime)_article.PublishDate,
+                                    article_type = _article.ArticleType,
+                                    update_last = (DateTime)_article.ModifiedOn,
+                                    position = _article.Position,
                                     category_id = groupProductId,
                                 };
                                 list_article.Add(model);
@@ -417,14 +417,14 @@ namespace HuloToys_Service.Controllers.News.Business
 
 
                     var article = articleESService.GetListArticlePosition();
-                    article = article.Where(S => S.status == ArticleStatus.PUBLISH).ToList();
+                    article = article.Where(S => S.Status == ArticleStatus.PUBLISH).ToList();
                     if (article != null && article.Count > 0)
                     {
                         foreach (var _article in article)
                         {
                             var groupProductName = string.Empty;
                             var groupProductId = string.Empty;
-                            var article_Category = articleCategoryESService.GetByArticleId(_article.id);
+                            var article_Category = articleCategoryESService.GetByArticleId(_article.Id);
                             if (article_Category != null)
                             {
                                 article_Category = article_Category.GroupBy(s => s.categoryid).Select(s => s.First()).ToList();
@@ -445,17 +445,17 @@ namespace HuloToys_Service.Controllers.News.Business
                             }
                             var model = new ArticleFeModel
                             {
-                                id = _article.id,
+                                id = _article.Id,
                                 category_name = groupProductName,
-                                title = _article.title,
-                                lead = _article.lead,
-                                image_169 = _article.image169,
-                                image_43 = _article.image43,
-                                image_11 = _article.image11,
-                                publish_date = (DateTime)_article.publishdate,
-                                position = _article.position,
-                                article_type = _article.articletype,
-                                update_last = (DateTime)_article.modifiedon,
+                                title = _article.Title,
+                                lead = _article.Lead,
+                                image_169 = _article.Image169,
+                                image_43 = _article.Image43,
+                                image_11 = _article.Image11,
+                                publish_date = (DateTime)_article.PublishDate,
+                                position = _article.Position,
+                                article_type = _article.ArticleType,
+                                update_last = (DateTime)_article.ModifiedOn,
                                 category_id = groupProductId,
                             };
 
@@ -552,16 +552,16 @@ namespace HuloToys_Service.Controllers.News.Business
                                 var _article = articleESService.GetDetailById((long)item2.articleid);
                                 var model = new ArticleFeModel
                                 {
-                                    id = _article.id,
+                                    id = _article.Id,
                                     category_name = "",
-                                    title = _article.title,
-                                    lead = _article.lead,
-                                    image_169 = _article.image169,
-                                    image_43 = _article.image43,
-                                    image_11 = _article.image11,
-                                    publish_date = (DateTime)_article.publishdate,
-                                    article_type = _article.articletype,
-                                    position = _article.position
+                                    title = _article.Title,
+                                    lead = _article.Lead,
+                                    image_169 = _article.Image169,
+                                    image_43 = _article.Image43,
+                                    image_11 = _article.Image11,
+                                    publish_date = (DateTime)_article.PublishDate,
+                                    article_type = _article.ArticleType,
+                                    position = _article.Position
                                 };
                                 list_article.Add(model);
                             }
