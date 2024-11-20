@@ -9,7 +9,7 @@ namespace HuloToys_Service.ElasticSearch
 {
     public class ArticleESService : ESRepository<ArticleViewModel>
     {
-        public string index = "article_hulotoys_store";
+        public string index = "hulotoys_sp_getarticle";
         private readonly IConfiguration configuration;
         private static string _ElasticHost;
 
