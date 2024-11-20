@@ -71,7 +71,7 @@ namespace Caching.Elasticsearch
                 {
                     Query = new TermsQuery
                     {
-                        Field = Infer.Field<OrderDetailESModel>(p => p.productid), // Field selector for ProductId
+                        Field = Infer.Field<OrderDetailESModel>(p => p.ProductId), // Field selector for ProductId
                         Terms = product_id // The list of product IDs
                     },
                     Size = 0, // No hits needed, just aggregations
@@ -82,7 +82,7 @@ namespace Caching.Elasticsearch
                                {
                                     Filters = new List<QueryContainer>()
                                     {
-                                       new ExistsQuery { Field = Infer.Field<OrderDetailESModel>(x => x.orderdetailid) },
+                                       new ExistsQuery { Field = Infer.Field<OrderDetailESModel>(x => x.OrderDetailId) },
 
                                     }
                                }

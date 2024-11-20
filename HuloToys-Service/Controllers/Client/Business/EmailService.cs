@@ -42,7 +42,7 @@ namespace HuloToys_Service.Controllers.Client.Business
                 InitilizationEmail(message, smtp);
                 message = new MailMessage();
                 message.From = new MailAddress(_configuration["Email:UserName"]);
-                message.To.Add(client.email);
+                message.To.Add(client.Email);
                 smtp = new SmtpClient(_configuration["Email:HOST"],
                     Convert.ToInt32(_configuration["Email:PORT"]));
                 smtp.EnableSsl = true;
@@ -65,8 +65,8 @@ namespace HuloToys_Service.Controllers.Client.Business
                 {
                     var body_fixed=body
                         .Replace("{domain}", _configuration["Email:Domain"])
-                        .Replace("{client_name}",client.clientname)
-                        .Replace("{username}", account.username)
+                        .Replace("{client_name}",client.ClientName)
+                        .Replace("{username}", account.UserName)
                         .Replace("{change_password_url}", forgot_password_token.Replace("+", "-").Replace("/", "_"))
                         ;
                     message.Body = body_fixed;

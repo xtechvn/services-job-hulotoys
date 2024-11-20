@@ -39,7 +39,7 @@ namespace Caching.Elasticsearch
                 var query = elasticClient.Search<AddressClientESModel>(sd => sd
                             .Index(index)
                             .Query(q => q
-                                .Match(m => m.Field(x=>x.clientid).Query(client_id.ToString())
+                                .Match(m => m.Field(x=>x.ClientId).Query(client_id.ToString())
                                 ))
                             .Size(100)
 
@@ -74,10 +74,10 @@ namespace Caching.Elasticsearch
                 var query = elasticClient.Search<AddressClientESModel>(sd => sd
                             .Index(index)
                             .Query(q => q
-                                .Match(m => m.Field(x => x.id).Query(id.ToString())
+                                .Match(m => m.Field(x => x.Id).Query(id.ToString())
                                 ) 
                                 && 
-                                q.Match(m => m.Field(x => x.clientid).Query(client_id.ToString()))
+                                q.Match(m => m.Field(x => x.ClientId).Query(client_id.ToString()))
                                 )
                             .Size(100)
 

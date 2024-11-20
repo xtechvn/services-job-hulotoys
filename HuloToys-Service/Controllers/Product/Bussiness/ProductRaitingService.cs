@@ -42,10 +42,10 @@ namespace HuloToys_Service.Controllers.Product.Bussiness
                     {
                         try
                         {
-                            var client = _clientESService.GetById((int)r.userid);
-                            var product = await _productDetailMongoAccess.GetByID(r.productdetailid);
-                            r.client_avatar = client.avartar;
-                            r.client_name = client.clientname;
+                            var client = _clientESService.GetById((int)r.UserId);
+                            var product = await _productDetailMongoAccess.GetByID(r.ProductDetailId);
+                            r.client_avatar = client.Avartar;
+                            r.client_name = client.ClientName;
                             r.variation_detail = "";
                             if (product.variation_detail != null && product.variation_detail.Count > 0)
                             {

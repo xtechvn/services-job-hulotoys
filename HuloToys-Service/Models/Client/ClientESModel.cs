@@ -10,31 +10,53 @@ namespace HuloToys_Service.Models.Client
     public partial class ClientESModel
     {
 
+        public long Id { get; set; }
 
-        public long id { get; set; }
-        public int? clientmapid { get; set; }
-        public int? salemapid { get; set; }
-        public int? clienttype { get; set; }
-        public string clientname { get; set; }
-        public string email { get; set; }
-        public int? gender { get; set; }
-        public int status { get; set; }
-        public string note { get; set; }
-        public string avartar { get; set; }
-        public DateTime joindate { get; set; }
-        public bool? isreceiverinfoemail { get; set; }
-        public string phone { get; set; }
-        public DateTime? birthday { get; set; }
-        public DateTime? upDateTime { get; set; }
-        public string taxno { get; set; }
-        public int? agencytype { get; set; }
-        public int? permisiontype { get; set; }
-        public string businessaddress { get; set; }
-        public string exportbilladdress { get; set; }
-        public string clientcode { get; set; }
-        public bool? isregisteraffiliate { get; set; }
-        public string referralid { get; set; }
-        public int? parentid { get; set; }
+        public int? ClientMapId { get; set; }
+
+        public int? SaleMapId { get; set; }
+
+        public int? ClientType { get; set; }
+
+        public string ClientName { get; set; }
+
+        public string Email { get; set; }
+
+        public int? Gender { get; set; }
+
+        public int Status { get; set; }
+
+        public string Note { get; set; }
+
+        public string Avartar { get; set; }
+
+        public DateTime JoinDate { get; set; }
+
+        public bool? IsReceiverInfoEmail { get; set; }
+
+        public string Phone { get; set; }
+
+        public DateTime? Birthday { get; set; }
+
+        public DateTime? UpdateTime { get; set; }
+
+        public string TaxNo { get; set; }
+
+        public int? AgencyType { get; set; }
+
+        public int? PermisionType { get; set; }
+
+        public string BusinessAddress { get; set; }
+
+        public string ExportBillAddress { get; set; }
+
+        public string ClientCode { get; set; }
+
+        public bool? IsRegisterAffiliate { get; set; }
+
+        public string ReferralId { get; set; }
+
+        public int? ParentId { get; set; }
 
     }
 }

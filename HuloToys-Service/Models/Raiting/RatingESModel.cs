@@ -5,26 +5,27 @@ namespace HuloToys_Service.Models;
 
 public partial class RatingESModel
 {
-    public int id { get; set; }
+    public int Id { get; set; }
 
-    public int? orderid { get; set; }
+    public int? OrderId { get; set; }
 
-    public string productid { get; set; }
-    public string productdetailid { get; set; }
+    public string ProductId { get; set; }
 
-    public decimal? star { get; set; }
+    public string ProductDetailId { get; set; }
 
-    public string comment { get; set; }
+    public decimal? Star { get; set; }
 
-    public string imglink { get; set; }
+    public string Comment { get; set; }
 
-    public string videolink { get; set; }
+    public string ImgLink { get; set; }
 
-    public int? userid { get; set; }
+    public string VideoLink { get; set; }
 
-    public DateTime? createddate { get; set; }
+    public int? UserId { get; set; }
 
-    public DateTime? updateddate { get; set; }
+    public DateTime? CreatedDate { get; set; }
 
-    public int? updatedby { get; set; }
+    public DateTime? UpdatedDate { get; set; }
+
+    public int? UpdatedBy { get; set; }
 }

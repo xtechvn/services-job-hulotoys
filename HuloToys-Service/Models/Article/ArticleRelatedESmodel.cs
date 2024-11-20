@@ -2,11 +2,11 @@
 {
     public class ArticleRelatedESmodel
     {
-        public long id { get; set; }
+        public long Id { get; set; }
 
-        public long? articleid { get; set; }
+        public long? ArticleId { get; set; }
 
-        public long? articleRelatedid { get; set; }
+        public long? ArticleRelatedId { get; set; }
 
     }
 }

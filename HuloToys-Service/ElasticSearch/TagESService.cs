@@ -3,6 +3,7 @@ using HuloToys_Service.Elasticsearch;
 using HuloToys_Service.Models.Article;
 using HuloToys_Service.Utilities.Lib;
 using Nest;
+using Newtonsoft.Json;
 using System.Reflection;
 
 namespace HuloToys_Service.ElasticSearch
@@ -37,12 +38,7 @@ namespace HuloToys_Service.ElasticSearch
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<TagESModel>;
-                    var result = data.Select(a => new TagViewModel
-                    {
-                        Id = a.id,
-                        CreatedOn = a.createdon,
-                        TagName = a.tagname,
-                    }).ToList();
+                    var result = JsonConvert.DeserializeObject<List<TagViewModel>>(JsonConvert.SerializeObject(data));
                     return result;
                 }
             }
@@ -72,12 +68,8 @@ namespace HuloToys_Service.ElasticSearch
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<TagESModel>;
-                    var result = data.Select(a => new TagViewModel
-                    {
-                        Id = a.id,
-                        CreatedOn = a.createdon,
-                        TagName = a.tagname,
-                    }).ToList();
+                    var result = JsonConvert.DeserializeObject<List<TagViewModel>>(JsonConvert.SerializeObject(data));
+
                     return result;
                 }
             }
@@ -106,12 +98,8 @@ namespace HuloToys_Service.ElasticSearch
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<TagESModel>;
-                    var result = data.Select(a => new TagViewModel
-                    {
-                        Id = a.id,
-                        CreatedOn = a.createdon,
-                        TagName = a.tagname,
-                    }).ToList();
+                    var result = JsonConvert.DeserializeObject<List<TagViewModel>>(JsonConvert.SerializeObject(data));
+
                     return result.FirstOrDefault();
                 }
             }

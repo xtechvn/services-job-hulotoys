@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace Caching.Elasticsearch
 {
-    public class LocationESService : ESRepository<ProvinceESModel>
+    public class LocationESService : ESRepository<Province>
     {
         public string index_province = "provinces_store";
         public string index_district = "districts_store";

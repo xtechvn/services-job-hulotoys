@@ -8,61 +8,73 @@ namespace HuloToys_Service.Models.Orders
 {
     public class OrderESModel
     {
-        public long orderid { get; set; }
+        public long OrderId { get; set; }
 
-        public long clientid { get; set; }
+        public long ClientId { get; set; }
 
-        public string orderno { get; set; }
+        public string OrderNo { get; set; }
 
-        public DateTime createddate { get; set; }
+        public DateTime CreatedDate { get; set; }
 
-        public int? createdby { get; set; }
+        public int? CreatedBy { get; set; }
 
-        public DateTime? updatelast { get; set; }
+        public DateTime? UpdateLast { get; set; }
 
-        public int? userupdateid { get; set; }
+        public int? UserUpdateId { get; set; }
 
-        public double? price { get; set; }
+        public double? Price { get; set; }
 
-        public double? profit { get; set; }
+        public double? Profit { get; set; }
 
-        public double? discount { get; set; }
+        public double? Discount { get; set; }
 
-        public double? amount { get; set; }
+        public double? Amount { get; set; }
 
-        public int orderstatus { get; set; }
+        public int OrderStatus { get; set; }
 
-        public short paymenttype { get; set; }
+        public short PaymentType { get; set; }
 
-        public int paymentstatus { get; set; }
+        public int PaymentStatus { get; set; }
 
-        public string utmsource { get; set; }
+        public string UtmSource { get; set; }
 
-        public string utmmedium { get; set; }
+        public string UtmMedium { get; set; }
 
         /// <summary>
-        /// chính là label so với wiframe
+        /// Chính là label so với wiframe
         /// </summary>
-        public string note { get; set; }
+        public string Note { get; set; }
 
-        public int? voucherid { get; set; }
+        public int? VoucherId { get; set; }
 
-        public int? isdelete { get; set; }
+        public int? IsDelete { get; set; }
 
-        public int? userid { get; set; }
+        public int? UserId { get; set; }
 
-        public string usergroupids { get; set; }
+        public string UserGroupIds { get; set; }
 
-        public string receivername { get; set; }
+        public string ReceiverName { get; set; }
 
-        public string phone { get; set; }
+        public string Phone { get; set; }
 
-        public int? provinceid { get; set; }
+        public int? ProvinceId { get; set; }
 
-        public int? districtid { get; set; }
+        public int? DistrictId { get; set; }
 
-        public int? wardid { get; set; }
+        public int? WardId { get; set; }
 
-        public string address { get; set; }
+        public string Address { get; set; }
+
+        public double? ShippingFee { get; set; }
+
+        public int? CarrierId { get; set; }
+
+        public int? ShippingType { get; set; }
+
+        public string ShippingCode { get; set; }
+
+        public int? ShippingStatus { get; set; }
+
+        public double? PackageWeight { get; set; }
     }
 }

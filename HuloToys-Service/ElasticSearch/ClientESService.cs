@@ -60,7 +60,7 @@ namespace Caching.Elasticsearch
                                .Index(index)
                                 .Query(q => q
                                 .MatchPhrase(m => m
-                                .Field(f => f.email)
+                                .Field(f => f.Email)
                                 .Query(email))));
                
                 if (query.IsValid)
@@ -144,7 +144,7 @@ namespace Caching.Elasticsearch
                 var query = elasticClient.Search<ClientESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field(x=>x.email).Query(email)
+                                   .Match(m => m.Field(x=>x.Email).Query(email)
                                )));
 
                 if (query.IsValid)

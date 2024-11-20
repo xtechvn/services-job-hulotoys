@@ -6,15 +6,25 @@ namespace HuloToys_Service.Models.Account
 {
     public partial class AccountESModel
     {
-        public int id { get; set; }
-        public long? clientid { get; set; }
-        public int? clienttype { get; set; }
-        public string username { get; set; }
-        public string password { get; set; }
-        public string passwordbackup { get; set; }
-        public string forgotpasswordtoken { get; set; }
-        public byte? status { get; set; }
-        public int? grouppermission { get; set; }
+
+        public int Id { get; set; }
+
+        public long? ClientId { get; set; }
+
+        public int? ClientType { get; set; }
+
+        public string UserName { get; set; }
+
+        public string Password { get; set; }
+
+        public string PasswordBackup { get; set; }
+
+        public string ForgotPasswordToken { get; set; }
+
+        public byte? Status { get; set; }
+
+        public int? GroupPermission { get; set; }
+
     }
     public partial class AccountApiESModel
     {

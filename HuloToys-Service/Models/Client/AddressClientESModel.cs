@@ -5,19 +5,29 @@ namespace Entities.Models
 {
     public partial class AddressClientESModel
     {
-        public long id { get; set; }
-        public long clientid { get; set; }
-        public string receivername { get; set; }
-        public string phone { get; set; }
-        public string provinceid { get; set; }
-        public string districtid { get; set; }
-        public string wardid { get; set; }
-        public string address { get; set; }
-        public int? status { get; set; }
-        public bool isactive { get; set; }
-        public DateTime? createdon { get; set; }
-        public DateTime? updatetime { get; set; }
+        public long Id { get; set; }
 
+        public long ClientId { get; set; }
+
+        public string ReceiverName { get; set; }
+
+        public string Phone { get; set; }
+
+        public string ProvinceId { get; set; }
+
+        public string DistrictId { get; set; }
+
+        public string WardId { get; set; }
+
+        public string Address { get; set; }
+
+        public int? Status { get; set; }
+
+        public bool IsActive { get; set; }
+
+        public DateTime? CreatedOn { get; set; }
+
+        public DateTime? UpdateTime { get; set; }
     }
 
 

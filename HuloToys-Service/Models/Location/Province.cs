@@ -19,19 +19,4 @@ public class Province
     public DateTime? CreatedDate { get; set; }
 
 }
-public class ProvinceESModel : Province
-{
-    public int _id { get; set; }
 
-    public string provinceid { get; set; }
-
-    public string name { get; set; }
-
-    public string namenonunicode { get; set; }
-
-    public string type { get; set; }
-
-    public short? status { get; set; }
-    public DateTime? createddate { get; set; }
-
-}

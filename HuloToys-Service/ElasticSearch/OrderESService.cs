@@ -74,7 +74,7 @@ namespace Caching.Elasticsearch
                 if (status == null || status.Trim() == "")
                 {
                     Func<QueryContainerDescriptor<OrderESModel>, QueryContainer> query_container = q => q
-                                  .Match(m => m.Field(x=>x.clientid).Query(client_id.ToString())
+                                  .Match(m => m.Field(x=>x.ClientId).Query(client_id.ToString())
                                   );
                     var query = elasticClient.Search<OrderESModel>(sd => sd
                               .Index(index)
@@ -104,9 +104,9 @@ namespace Caching.Elasticsearch
                 else
                 {
                     Func<QueryContainerDescriptor<OrderESModel>, QueryContainer> query_container = q =>
-                                q.Match(m => m.Field(x => x.clientid).Query(client_id.ToString()))
+                                q.Match(m => m.Field(x => x.ClientId).Query(client_id.ToString()))
                                  &&
-                                q.Terms(t => t.Field(x => x.orderstatus).Terms(status.Split(",")))
+                                q.Terms(t => t.Field(x => x.OrderStatus).Terms(status.Split(",")))
                                 ;
                     var query = elasticClient.Search<OrderESModel>(sd => sd
                              .Index(index)
@@ -155,7 +155,7 @@ namespace Caching.Elasticsearch
                                .Query(q => q
                                    .Match(m => m.Field("clientid").Query(client_id.ToString())
                                    ))
-                                .Sort(q => q.Descending(u => u.createddate))); ;
+                                .Sort(q => q.Descending(u => u.CreatedDate))); ;
 
                 if (!query.IsValid)
                 {
@@ -271,7 +271,7 @@ namespace Caching.Elasticsearch
                                .Index(index)
 
                                .Query(q => q
-                                   .Match(m => m.Field(x => x.orderid).Query(order_id.ToString())
+                                   .Match(m => m.Field(x => x.OrderId).Query(order_id.ToString())
                                    )));
 
                 if (!query.IsValid)

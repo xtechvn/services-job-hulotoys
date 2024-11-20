@@ -141,9 +141,9 @@ namespace HuloToys_Service.ElasticSearch
                          .Query(q =>
                           q.Bool(
                               qb => qb.Must(
-                                 q => q.Match(m => m.Field(x=>x.status).Query(ArticleStatus.PUBLISH.ToString())),
+                                 q => q.Match(m => m.Field(x=>x.Status).Query(ArticleStatus.PUBLISH.ToString())),
                                   sh => sh.Terms(t => t
-                                    .Field(f => f.id)
+                                    .Field(f => f.Id)
                                     .Terms(ids)  // List of IDs to match
                                    )
                                   

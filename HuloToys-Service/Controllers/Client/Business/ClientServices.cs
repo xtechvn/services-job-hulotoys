@@ -51,7 +51,7 @@ namespace HuloToys_Service.Controllers.Client.Business
                     if(model!=null && model.user_name!=null && model.user_name.Trim() != "")
                     {
                         var account = _accountClientESService.GetByUsername(model.user_name);
-                        account_client_id = account.id;
+                        account_client_id = account.Id;
                     }
 
                 }

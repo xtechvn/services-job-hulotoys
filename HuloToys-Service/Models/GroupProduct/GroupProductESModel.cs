@@ -2,31 +2,34 @@
 {
     public partial class GroupProductESModel
     {
-        public int id { get; set; }
+        public int Id { get; set; }
 
-        public int parentid { get; set; }
+        public int ParentId { get; set; }
 
-        public int? positionid { get; set; }
+        public int? PositionId { get; set; }
 
-        public string name { get; set; } = null!;
+        public string Name { get; set; }
 
-        public string? imagepath { get; set; }
+        public string ImagePath { get; set; }
 
-        public int? orderno { get; set; }
+        public int? OrderNo { get; set; }
 
-        public string? path { get; set; }
+        public string Path { get; set; }
 
-        public int? status { get; set; }
+        public int? Status { get; set; }
 
-        public DateTime? createdon { get; set; }
+        public DateTime? CreatedOn { get; set; }
 
-        public DateTime? modifiedon { get; set; }
+        public DateTime? ModifiedOn { get; set; }
 
+        public int? Priority { get; set; }
 
-        public string? description { get; set; }
+        public string Description { get; set; }
 
-        public bool isshowheader { get; set; }
+        public bool IsShowHeader { get; set; }
 
-        public bool isshowfooter { get; set; }
+        public bool IsShowFooter { get; set; }
+
+        public string Code { get; set; }
     }
 }
