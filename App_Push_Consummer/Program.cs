@@ -4,6 +4,7 @@ using App_Push_Consummer.Engines;
 using App_Push_Consummer.Engines.AccountClient;
 using App_Push_Consummer.Engines.Address;
 using App_Push_Consummer.Engines.Comments;
+using App_Push_Consummer.Engines.Order;
 using App_Push_Consummer.Engines.ProductRaiting;
 using App_Push_Consummer.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -75,6 +76,7 @@ namespace App_Push_Consummer
                                 serviceProvider.AddSingleton<IAccountClientBusiness, AccountClientBusiness>();
                                 serviceProvider.AddSingleton<ICommentsBusiness, CommentsBusiness>();
                                 serviceProvider.AddSingleton<IProductRaitingService, ProductRaitingService>();
+                                serviceProvider.AddSingleton<IOrderBusiness, OrderBusiness>();
                                 var Service_Provider = serviceProvider.BuildServiceProvider();
 
                                 var factory = Service_Provider.GetService<IFactory>();
