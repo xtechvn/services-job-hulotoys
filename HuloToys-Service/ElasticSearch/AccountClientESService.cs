@@ -34,7 +34,7 @@ namespace Caching.Elasticsearch
                 var query = elasticClient.Search<AccountESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field("username").Query(user_name)
+                                   .Match(m => m.Field("UserName").Query(user_name)
                                )));
 
                 if (query.IsValid)
@@ -63,7 +63,7 @@ namespace Caching.Elasticsearch
                 var query = elasticClient.Search<AccountESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field("id").Query(id.ToString())
+                                   .Match(m => m.Field("Id").Query(id.ToString())
                                )));
 
                 if (query.IsValid)
@@ -93,8 +93,8 @@ namespace Caching.Elasticsearch
                              .Query(q =>
                                q.Bool(
                                    qb => qb.Must(
-                                      qb => qb.Term("username", user_name),
-                                       qb => qb.Term("password", password)
+                                      qb => qb.Term("UserName", user_name),
+                                       qb => qb.Term("Password", password)
 
                                     )
                                )
@@ -128,8 +128,7 @@ namespace Caching.Elasticsearch
                              .Query(q =>
                                q.Bool(
                                    qb => qb.Must(
-                                      qb => qb.Term("username", user_name),
-                                       qb => qb.Term("googletoken", token)
+                                      qb => qb.Term("UserName", user_name)
 
                                     )
                                )
@@ -163,8 +162,8 @@ namespace Caching.Elasticsearch
                              .Query(q =>
                                q.Bool(
                                    qb => qb.Must(
-                                      qb => qb.Term("clientid", client_id),
-                                       qb => qb.Term("password", password)
+                                      qb => qb.Term("ClientId", client_id),
+                                       qb => qb.Term("Password", password)
 
                                     )
                                )
@@ -199,7 +198,7 @@ namespace Caching.Elasticsearch
                            .Query(q =>
                              q.Bool(
                                  qb => qb.Must(
-                                    qb => qb.Term("clientid", client_id)
+                                    qb => qb.Term("ClientId", client_id)
 
 
                                   )
