@@ -6,6 +6,7 @@ using System.Reflection;
 using HuloToys_Service.Models.Account;
 using HuloToys_Service.Models.Client;
 using HuloToys_Service.Utilities.Common;
+using Newtonsoft.Json;
 
 namespace Caching.Elasticsearch
 {
@@ -31,7 +32,7 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<AccountESModel>(sd => sd
+                var query = elasticClient.Search<dynamic>(sd => sd
                                .Index(index)
                                .Query(q => q
                                    .Match(m => m.Field("UserName").Query(user_name)
@@ -39,7 +40,8 @@ namespace Caching.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<AccountESModel>;
+                    var result = query.Documents as List<dynamic>;
+                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
                     return result.FirstOrDefault();
                 }
             }
@@ -60,7 +62,7 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<AccountESModel>(sd => sd
+                var query = elasticClient.Search<dynamic>(sd => sd
                                .Index(index)
                                .Query(q => q
                                    .Match(m => m.Field("Id").Query(id.ToString())
@@ -68,7 +70,8 @@ namespace Caching.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<AccountESModel>;
+                    var result = query.Documents as List<dynamic>;
+                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
                     return result.FirstOrDefault();
                 }
             }
@@ -88,7 +91,7 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<AccountESModel>(sd => sd
+                var query = elasticClient.Search<dynamic>(sd => sd
                                .Index(index)
                              .Query(q =>
                                q.Bool(
@@ -103,7 +106,9 @@ namespace Caching.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<AccountESModel>;
+                    var result = query.Documents as List<dynamic>;
+                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
+
                     return result.FirstOrDefault();
                 }
             }
@@ -123,7 +128,7 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<AccountESModel>(sd => sd
+                var query = elasticClient.Search<dynamic>(sd => sd
                                .Index(index)
                              .Query(q =>
                                q.Bool(
@@ -137,7 +142,8 @@ namespace Caching.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<AccountESModel>;
+                    var result = query.Documents as List<dynamic>;
+                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
                     return result.FirstOrDefault();
                 }
             }
@@ -157,7 +163,7 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<AccountESModel>(sd => sd
+                var query = elasticClient.Search<dynamic>(sd => sd
                                .Index(index)
                              .Query(q =>
                                q.Bool(
@@ -172,7 +178,8 @@ namespace Caching.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<AccountESModel>;
+                    var result = query.Documents as List<dynamic>;
+                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
                     return result.FirstOrDefault();
                 }
             }
@@ -193,7 +200,7 @@ namespace Caching.Elasticsearch
                 var elasticClient = new ElasticClient(connectionSettings);
 
 
-                var query = elasticClient.Search<AccountESModel>(sd => sd
+                var query = elasticClient.Search<dynamic>(sd => sd
                              .Index(index)
                            .Query(q =>
                              q.Bool(
@@ -207,7 +214,8 @@ namespace Caching.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<AccountESModel>;
+                    var result = query.Documents as List<dynamic>;
+                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
                     return result.FirstOrDefault();
                 }
             }
