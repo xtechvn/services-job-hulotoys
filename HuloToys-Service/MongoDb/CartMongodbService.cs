@@ -23,7 +23,7 @@ namespace HuloToys_Service.MongoDb
                 "/?authSource=" + configuration["DataBaseConfig:MongoServer:catalog_core"] + "";
 
             var client = new MongoClient(url);
-            IMongoDatabase db = client.GetDatabase(_configuration["DataBaseConfig:MongoServer:catalog_log"]);
+            IMongoDatabase db = client.GetDatabase(_configuration["DataBaseConfig:MongoServer:catalog_core"]);
             bookingCollection = db.GetCollection<CartItemMongoDbModel>("Cart");
         }
         public async Task<string> Insert(CartItemMongoDbModel item)
