@@ -77,6 +77,7 @@ namespace App_Push_Consummer
                                 serviceProvider.AddSingleton<ICommentsBusiness, CommentsBusiness>();
                                 serviceProvider.AddSingleton<IProductRaitingService, ProductRaitingService>();
                                 serviceProvider.AddSingleton<IOrderBusiness, OrderBusiness>();
+
                                 var Service_Provider = serviceProvider.BuildServiceProvider();
 
                                 var factory = Service_Provider.GetService<IFactory>();
