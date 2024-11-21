@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using APP.READ_MESSAGES.Libraries;
+using Microsoft.Extensions.Configuration;
+using Nest;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using System.Reflection;
@@ -12,8 +14,9 @@ namespace HuloToys_Service.RabitMQ
         private readonly IConfiguration configuration;
         private readonly QueueSettingViewModel queue_setting;
         private readonly ConnectionFactory factory;
-        
-        public WorkQueueClient(IConfiguration _configuration)
+        private readonly ILoggingService logging_service;
+
+        public WorkQueueClient(IConfiguration _configuration, ILoggingService _logging_service)
         {
             configuration = _configuration;
             queue_setting = new QueueSettingViewModel()
@@ -32,6 +35,7 @@ namespace HuloToys_Service.RabitMQ
                 VirtualHost = queue_setting.v_host,
                 Port = Protocols.DefaultProtocol.DefaultPort
             };
+            logging_service=_logging_service;
         }
         public bool SyncES(long id, string store_procedure, string index_es, short project_id)
         {
@@ -48,6 +52,8 @@ namespace HuloToys_Service.RabitMQ
                 var _data_push = JsonConvert.SerializeObject(j_param);
                 // Push message vào queue
                 var response_queue = InsertQueueSimple(_data_push, configuration["Queue:QueueNameSyncES"]);
+                logging_service.LoggingAppOutput("WorkQueueClient - SyncES["+ id + "]["+ store_procedure + "] ["+ index_es + "]["+ project_id + "]: " + response_queue.ToString(), true, true);
+
                 return true;
             }
             catch (Exception ex)
@@ -81,7 +87,8 @@ namespace HuloToys_Service.RabitMQ
                 }
                 catch (Exception ex)
                 {
-                 
+                    logging_service.LoggingAppOutput("WorkQueueClient - InsertQueueSimple[" + message + "][" + queueName + "]: " + ex.ToString(), true, true);
+
                     return false;
                 }
             }

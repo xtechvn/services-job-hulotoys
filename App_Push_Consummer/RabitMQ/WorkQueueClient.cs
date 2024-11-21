@@ -1,4 +1,5 @@
 ﻿
+using App_Push_Consummer.Common;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using System.Configuration;
@@ -14,7 +15,8 @@ namespace App_Push_Consummer.RabitMQ
     {
         private readonly QueueSettingViewModel queue_setting;
         private readonly ConnectionFactory factory;
-        
+        public static string tele_token = ConfigurationManager.AppSettings["tele_token"];
+        public static string tele_group_id = ConfigurationManager.AppSettings["tele_group_id"];
         public WorkQueueClient()
         {
             queue_setting = new QueueSettingViewModel()
@@ -50,6 +52,8 @@ namespace App_Push_Consummer.RabitMQ
                 var _data_push = JsonConvert.SerializeObject(j_param);
                 // Push message vào queue
                 var response_queue = InsertQueueSimple(_data_push, ConfigurationManager.AppSettings["QUEUE_SYNC_ES"]);
+                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "WorkQueueClient - SyncES[" + id + "][" + store_procedure + "] [" + index_es + "][" + project_id + "]: "+ response_queue.ToString());
+
                 return true;
             }
             catch(Exception ex)
@@ -82,6 +86,7 @@ namespace App_Push_Consummer.RabitMQ
                 }
                 catch (Exception ex)
                 {
+                    ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "WorkQueueClient - InsertQueueSimple[" + message + "][" + queueName + "]: " + ex.ToString());
                     return false;
                 }
             }
