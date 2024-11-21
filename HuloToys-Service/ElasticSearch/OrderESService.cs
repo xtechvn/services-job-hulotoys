@@ -39,7 +39,7 @@ namespace Caching.Elasticsearch
                 var query = elasticClient.Search<OrderESModel>(sd => sd
                             .Index(index)
                             .Query(q => q
-                                .Match(m => m.Field("clientid").Query(client_id.ToString())
+                                .Match(m => m.Field("ClientId").Query(client_id.ToString())
                                 ))
                             .Size(100)
 
@@ -153,7 +153,7 @@ namespace Caching.Elasticsearch
                                .Index(index)
 
                                .Query(q => q
-                                   .Match(m => m.Field("clientid").Query(client_id.ToString())
+                                   .Match(m => m.Field("ClientId").Query(client_id.ToString())
                                    ))
                                 .Sort(q => q.Descending(u => u.CreatedDate))); ;
 
@@ -190,7 +190,7 @@ namespace Caching.Elasticsearch
                         .Query(q =>
                          q.Bool(
                              qb => qb.Must(
-                                 q => q.Term("clientid", client_id.ToString()),
+                                 q => q.Term("ClientId", client_id.ToString()),
                                  q => q.QueryString(qs => qs
                                  .Fields(new[] { "orderno" })
                                  .Query("*" + text.ToUpper() + "*")
@@ -233,7 +233,7 @@ namespace Caching.Elasticsearch
                                    q.Bool(
                                        qb => qb.Must(
                                           q => q.DateRange(m => m
-                                          .Name("createddate")
+                                          .Name("CreatedDate")
                                           .GreaterThanOrEquals(new DateTime(DateTime.Now.Year, 01, 01, 0, 0, 0).ToString("dd/MM/yyyy"))
                                           .Format("dd/MM/yyyy")
                                           .TimeZone("+07:00")
@@ -267,7 +267,7 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<OrderESModel>(sd => sd
                                .Index(index)
 
                                .Query(q => q
@@ -280,9 +280,8 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    var data = query.Documents as List<object>;
-                    var rs = JsonConvert.DeserializeObject<List<OrderESModel>>(JsonConvert.SerializeObject(data));
-                    return rs.FirstOrDefault();
+                    var data = query.Documents as List<OrderESModel>;
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)

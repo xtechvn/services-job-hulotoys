@@ -32,7 +32,7 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<AccountESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
                                    .Match(m => m.Field("UserName").Query(user_name)
@@ -40,9 +40,9 @@ namespace Caching.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<object>;
-                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
-                    return data.FirstOrDefault();
+                    var result = query.Documents as List<AccountESModel>;
+                    //var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
+                    return result.FirstOrDefault();
                 }
             }
             catch (Exception ex)

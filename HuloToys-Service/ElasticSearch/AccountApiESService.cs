@@ -36,7 +36,7 @@ namespace HuloToys_Service.ElasticSearch
                 //               .Query(q => q
                 //                   .Match(m => m.Field("username").Query(user_name)
                 //               )));
-                var searchResponse = elasticClient.Search<object>(s => s
+                var searchResponse = elasticClient.Search<AccountApiESModel>(s => s
                     .Index(index) // Specify the index
                     .From(0) // Starting point for results
                     .Size(40) // Number of results to return
@@ -53,9 +53,8 @@ namespace HuloToys_Service.ElasticSearch
                 );
                 if (searchResponse.IsValid)
                 {
-                    var result = searchResponse.Documents as List<object>;
-                    var data=JsonConvert.DeserializeObject<List<AccountApiESModel>>(JsonConvert.SerializeObject(result));
-                    return data.FirstOrDefault();
+                    var result = searchResponse.Documents as List<AccountApiESModel>;
+                    return result.FirstOrDefault();
                 }
             }
             catch (Exception ex)

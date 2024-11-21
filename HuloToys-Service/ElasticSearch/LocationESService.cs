@@ -33,7 +33,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<Province>(sd => sd
                             .Index(index_province)
                             .Size(4000)
                             .Query(q => q
@@ -47,8 +47,7 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<Province>;
-                    result = JsonConvert.DeserializeObject<List<Province>>(JsonConvert.SerializeObject(query.Documents as List<object>));
+                    result = query.Documents as List<Province>;
                     return result;
                 }
             }
@@ -68,7 +67,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<Province>(sd => sd
                             .Index(index_province)
                             .Size(4000)
                            .Query(q => q.Bool(
@@ -85,8 +84,7 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<Province>;
-                    result = JsonConvert.DeserializeObject<List<Province>>(JsonConvert.SerializeObject(query.Documents as List<object>));
+                    result = query.Documents as List<Province>;
                     return result.FirstOrDefault();
                 }
             }
@@ -106,7 +104,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<District>(sd => sd
                             .Index(index_district)
                              .Size(4000)
                             .Query(q => q
@@ -120,9 +118,7 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<District>;
-                    result = JsonConvert.DeserializeObject<List<District>>(JsonConvert.SerializeObject(query.Documents as List<object>));
-
+                    result = query.Documents as List<District>;
                     return result;
                 }
             }
@@ -142,7 +138,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<District>(sd => sd
                             .Index(index_district)
                             .Size(4000)
                             .Query(q => q.Bool(
@@ -159,8 +155,7 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<District>;
-                    result = JsonConvert.DeserializeObject<List<District>>(JsonConvert.SerializeObject(query.Documents as List<object>));
+                    result = query.Documents as List<District>;
 
                     return result;
                 }
@@ -181,7 +176,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<District> (sd => sd
                             .Index(index_district)
                             .Size(4000)
                            .Query(q => q.Bool(
@@ -199,8 +194,7 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<District>;
-                    result = JsonConvert.DeserializeObject<List<District>>(JsonConvert.SerializeObject(query.Documents as List<object>));
+                    result = query.Documents as List<District>;
 
                     return result.FirstOrDefault();
                 }
@@ -221,7 +215,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<Ward>(sd => sd
                             .Index(index_wards)
                             .Size(4000)
                             .Query(q => q
@@ -235,8 +229,7 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<Ward>;
-                    result = JsonConvert.DeserializeObject<List<Ward>>(JsonConvert.SerializeObject(query.Documents as List<object>));
+                    result = query.Documents as List<Ward>;
 
                     return result;
                 }
@@ -257,7 +250,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<Ward>(sd => sd
                             .Index(index_wards)
                             .Size(4000)
                             .Query(q => q.Bool(
@@ -275,8 +268,7 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<Ward>;
-                    result = JsonConvert.DeserializeObject<List<Ward>>(JsonConvert.SerializeObject(query.Documents as List<object>));
+                    result = query.Documents as List<Ward>;
 
                     return result;
                 }
@@ -297,7 +289,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<Ward>(sd => sd
                             .Index(index_wards)
                             .Size(4000)
                             .Query(q => q.Bool(
@@ -315,8 +307,7 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<Ward>;
-                    result = JsonConvert.DeserializeObject<List<Ward>>(JsonConvert.SerializeObject(query.Documents as List<object>));
+                    result = query.Documents as List<Ward>;
 
                     return result.FirstOrDefault();
                 }
