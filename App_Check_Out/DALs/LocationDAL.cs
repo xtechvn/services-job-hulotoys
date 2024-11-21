@@ -1,7 +1,7 @@
 ﻿using APP_CHECKOUT.Common;
 using DAL.Generic;
 using DAL.StoreProcedure;
-using HuloToys_Service.Models.Location;
+using APP_CHECKOUT.Models.Location;
 using Microsoft.Data.SqlClient;
 using System.Data;
 namespace DAL

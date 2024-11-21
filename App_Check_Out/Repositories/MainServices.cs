@@ -9,16 +9,10 @@ using APP_CHECKOUT.Utilities.constants;
 using Microsoft.Extensions.Configuration;
 using APP_CHECKOUT.Elasticsearch;
 using Newtonsoft.Json;
-using HuloToys_Service.Models.Location;
-using Nest;
+using APP_CHECKOUT.Models.Location;
 using Caching.RedisWorker;
 using Utilities.Contants;
-using Caching.Elasticsearch;
 using DAL;
-using RestSharp;
-using APP_CHECKOUT.Models.Orders;
-using APP_CHECKOUT.Models.NhanhVN;
-using APP_CHECKOUT.Models.Client;
 
 namespace APP_CHECKOUT.Repositories
 {
@@ -141,7 +135,7 @@ namespace APP_CHECKOUT.Repositories
                 }
                 var account_client = accountClientESService.GetById(order.account_client_id);
                 var client = clientESService.GetById((long)account_client.clientid);
-                var address_client = addressClientESService.GetById(order.address_id);
+                var address_client = addressClientESService.GetById(order.address_id, client.Id);
 
                 order_summit = new Order()
                 {

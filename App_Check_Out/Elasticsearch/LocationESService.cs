@@ -1,12 +1,11 @@
 ﻿using Elasticsearch.Net;
 using Nest;
 using System.Reflection;
-using HuloToys_Service.Models.Location;
-using Newtonsoft.Json;
+using APP_CHECKOUT.Models.Location;
 using Microsoft.Extensions.Configuration;
-using APP_CHECKOUT.Elasticsearch;
+using APP_CHECKOUT.Utilities.Lib;
 
-namespace Caching.Elasticsearch
+namespace APP_CHECKOUT.Elasticsearch
 {
     public class LocationESService : ESRepository<Province>
     {
@@ -20,6 +19,9 @@ namespace Caching.Elasticsearch
         {
             _ElasticHost = Host;
             configuration = _configuration;
+            index_province = _configuration["Elastic:Index:Provinces"];
+            index_district = _configuration["Elastic:Index:Districts"];
+            index_wards = _configuration["Elastic:Index:Wards"];
 
         }
         public List<Province> GetAllProvinces()
@@ -31,7 +33,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<Province>(sd => sd
                             .Index(index_province)
                             .Size(4000)
                             .Query(q => q
@@ -45,13 +47,14 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<Province>;
-                    result = JsonConvert.DeserializeObject<List<Province>>(JsonConvert.SerializeObject(query.Documents));
+                    result = query.Documents as List<Province>;
                     return result;
                 }
             }
             catch (Exception ex)
             {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
         }
@@ -64,7 +67,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<Province>(sd => sd
                             .Index(index_province)
                             .Size(4000)
                            .Query(q => q.Bool(
@@ -81,13 +84,14 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<Province>;
-                    result = JsonConvert.DeserializeObject<List<Province>>(JsonConvert.SerializeObject(query.Documents));
+                    result = query.Documents as List<Province>;
                     return result.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
         }
@@ -100,7 +104,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<District>(sd => sd
                             .Index(index_district)
                              .Size(4000)
                             .Query(q => q
@@ -114,15 +118,14 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<District>;
-                    result = JsonConvert.DeserializeObject<List<District>>(JsonConvert.SerializeObject(query.Documents));
-
+                    result = query.Documents as List<District>;
                     return result;
                 }
             }
             catch (Exception ex)
             {
-              
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
         }
@@ -135,7 +138,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<District>(sd => sd
                             .Index(index_district)
                             .Size(4000)
                             .Query(q => q.Bool(
@@ -152,15 +155,15 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<District>;
-                    result = JsonConvert.DeserializeObject<List<District>>(JsonConvert.SerializeObject(query.Documents));
+                    result = query.Documents as List<District>;
 
                     return result;
                 }
             }
             catch (Exception ex)
             {
-                
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
         }
@@ -173,7 +176,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<District> (sd => sd
                             .Index(index_district)
                             .Size(4000)
                            .Query(q => q.Bool(
@@ -191,15 +194,15 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<District>;
-                    result = JsonConvert.DeserializeObject<List<District>>(JsonConvert.SerializeObject(query.Documents));
+                    result = query.Documents as List<District>;
 
                     return result.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
-              
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
         }
@@ -212,7 +215,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<Ward>(sd => sd
                             .Index(index_wards)
                             .Size(4000)
                             .Query(q => q
@@ -226,15 +229,15 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<Ward>;
-                    result = JsonConvert.DeserializeObject<List<Ward>>(JsonConvert.SerializeObject(query.Documents));
+                    result = query.Documents as List<Ward>;
 
                     return result;
                 }
             }
             catch (Exception ex)
             {
-                
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
         }
@@ -247,7 +250,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<Ward>(sd => sd
                             .Index(index_wards)
                             .Size(4000)
                             .Query(q => q.Bool(
@@ -265,15 +268,15 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<Ward>;
-                    result = JsonConvert.DeserializeObject<List<Ward>>(JsonConvert.SerializeObject(query.Documents));
+                    result = query.Documents as List<Ward>;
 
                     return result;
                 }
             }
             catch (Exception ex)
             {
-               
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
         }
@@ -286,7 +289,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<Ward>(sd => sd
                             .Index(index_wards)
                             .Size(4000)
                             .Query(q => q.Bool(
@@ -304,15 +307,15 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<Ward>;
-                    result = JsonConvert.DeserializeObject<List<Ward>>(JsonConvert.SerializeObject(query.Documents));
+                    result = query.Documents as List<Ward>;
 
                     return result.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
-               
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
         }

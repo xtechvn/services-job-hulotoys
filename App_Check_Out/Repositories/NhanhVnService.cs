@@ -1,9 +1,9 @@
 ﻿using APP.READ_MESSAGES.Libraries;
+using APP_CHECKOUT.Elasticsearch;
 using APP_CHECKOUT.Helpers;
 using APP_CHECKOUT.Models.Client;
 using APP_CHECKOUT.Models.NhanhVN;
 using APP_CHECKOUT.Models.Orders;
-using Caching.Elasticsearch;
 using Entities.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -74,7 +74,7 @@ namespace APP_CHECKOUT.Repositories
                     type = "Shipping",
                     customerName = address_client==null?order.receivername: address_client.receivername,
                     customerMobile = address_client == null ? order.phone : address_client.receivername,
-                    customerEmail = client.email,
+                    customerEmail = client.Email,
                     customerAddress = order_summit.Address,
                     customerCityName = city_name,
                     customerDistrictName= district_name,

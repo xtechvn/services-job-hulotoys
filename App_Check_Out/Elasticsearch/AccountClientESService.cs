@@ -1,9 +1,10 @@
-﻿using System.Reflection;
-using APP_CHECKOUT.Elasticsearch;
-using APP_CHECKOUT.Models.Account;
-using Elasticsearch.Net;
-using Microsoft.Extensions.Configuration;
+﻿using Elasticsearch.Net;
 using Nest;
+using System.Reflection;
+using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
+using APP_CHECKOUT.Models.Account;
+using APP_CHECKOUT.Utilities.Lib;
 
 namespace APP_CHECKOUT.Elasticsearch
 {
@@ -17,7 +18,7 @@ namespace APP_CHECKOUT.Elasticsearch
         {
             _ElasticHost = Host;
             configuration = _configuration;
-            index = _configuration["DataBaseConfig:Elastic:Index:AccountClient"];
+            index = _configuration["Elastic:Index:AccountClient"];
 
         }
         public AccountESModel GetByUsername(string user_name)
@@ -32,22 +33,24 @@ namespace APP_CHECKOUT.Elasticsearch
                 var query = elasticClient.Search<AccountESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field("username").Query(user_name)
+                                   .Match(m => m.Field("UserName").Query(user_name)
                                )));
 
                 if (query.IsValid)
                 {
                     var result = query.Documents as List<AccountESModel>;
+                    //var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
                     return result.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
                 string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                //LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
         }
+      
         public AccountESModel GetById(long id)
         {
             try
@@ -57,22 +60,23 @@ namespace APP_CHECKOUT.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<AccountESModel>(sd => sd
+                var query = elasticClient.Search<object>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field("id").Query(id.ToString())
+                                   .Match(m => m.Field("Id").Query(id.ToString())
                                )));
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<AccountESModel>;
-                    return result.FirstOrDefault();
+                    var result = query.Documents as List<object>;
+                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
                 string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                //LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
         }
@@ -85,13 +89,13 @@ namespace APP_CHECKOUT.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<AccountESModel>(sd => sd
+                var query = elasticClient.Search<object>(sd => sd
                                .Index(index)
                              .Query(q =>
                                q.Bool(
                                    qb => qb.Must(
-                                      qb => qb.Term("username", user_name),
-                                       qb => qb.Term("password", password)
+                                      qb => qb.Term("UserName", user_name),
+                                       qb => qb.Term("Password", password)
 
                                     )
                                )
@@ -100,14 +104,16 @@ namespace APP_CHECKOUT.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<AccountESModel>;
-                    return result.FirstOrDefault();
+                    var result = query.Documents as List<object>;
+                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
+
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
                 string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                //LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
         }
@@ -120,13 +126,12 @@ namespace APP_CHECKOUT.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<AccountESModel>(sd => sd
+                var query = elasticClient.Search<object>(sd => sd
                                .Index(index)
                              .Query(q =>
                                q.Bool(
                                    qb => qb.Must(
-                                      qb => qb.Term("username", user_name),
-                                       qb => qb.Term("googletoken", token)
+                                      qb => qb.Term("UserName", user_name)
 
                                     )
                                )
@@ -135,14 +140,15 @@ namespace APP_CHECKOUT.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<AccountESModel>;
-                    return result.FirstOrDefault();
+                    var result = query.Documents as List<object>;
+                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
                 string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                //LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
         }
@@ -155,13 +161,13 @@ namespace APP_CHECKOUT.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<AccountESModel>(sd => sd
+                var query = elasticClient.Search<object>(sd => sd
                                .Index(index)
                              .Query(q =>
                                q.Bool(
                                    qb => qb.Must(
-                                      qb => qb.Term("clientid", client_id),
-                                       qb => qb.Term("password", password)
+                                      qb => qb.Term("ClientId", client_id),
+                                       qb => qb.Term("Password", password)
 
                                     )
                                )
@@ -170,14 +176,51 @@ namespace APP_CHECKOUT.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<AccountESModel>;
-                    return result.FirstOrDefault();
+                    var result = query.Documents as List<object>;
+                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
                 string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                //LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+            }
+            return null;
+        }
+        public AccountESModel GetByClientID(long client_id)
+        {
+            try
+            {
+                var nodes = new Uri[] { new Uri(_ElasticHost) };
+                var connectionPool = new StaticConnectionPool(nodes);
+                var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
+                var elasticClient = new ElasticClient(connectionSettings);
+
+
+                var query = elasticClient.Search<object>(sd => sd
+                             .Index(index)
+                           .Query(q =>
+                             q.Bool(
+                                 qb => qb.Must(
+                                    qb => qb.Term("ClientId", client_id)
+
+
+                                  )
+                             )
+                          ));
+
+                if (query.IsValid)
+                {
+                    var result = query.Documents as List<object>;
+                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
+                    return data.FirstOrDefault();
+                }
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
         }

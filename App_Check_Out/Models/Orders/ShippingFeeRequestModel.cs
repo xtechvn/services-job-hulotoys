@@ -1,4 +1,4 @@
-﻿namespace HuloToys_Service.Models.NinjaVan
+﻿namespace APP_CHECKOUT.Models.NinjaVan
 {
     public class ShippingFeeRequestModel
     {
