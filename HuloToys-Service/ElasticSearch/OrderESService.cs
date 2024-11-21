@@ -267,11 +267,11 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<OrderESModel>(sd => sd
+                var query = elasticClient.Search<object>(sd => sd
                                .Index(index)
 
                                .Query(q => q
-                                   .Match(m => m.Field(x => x.OrderId).Query(order_id.ToString())
+                                   .Match(m => m.Field("OrderId").Query(order_id.ToString())
                                    )));
 
                 if (!query.IsValid)
@@ -280,7 +280,8 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    var rs = query.Documents as List<OrderESModel>;
+                    var data = query.Documents as List<object>;
+                    var rs = JsonConvert.DeserializeObject<List<OrderESModel>>(JsonConvert.SerializeObject(data));
                     return rs.FirstOrDefault();
                 }
             }

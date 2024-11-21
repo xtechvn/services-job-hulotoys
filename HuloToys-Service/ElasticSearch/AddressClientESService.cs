@@ -36,10 +36,10 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<AddressClientESModel>(sd => sd
+                var query = elasticClient.Search<object>(sd => sd
                             .Index(index)
                             .Query(q => q
-                                .Match(m => m.Field(x=>x.ClientId).Query(client_id.ToString())
+                                .Match(m => m.Field("ClientId").Query(client_id.ToString())
                                 ))
                             .Size(100)
 
@@ -72,13 +72,13 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<AddressClientESModel>(sd => sd
+                var query = elasticClient.Search<object>(sd => sd
                             .Index(index)
                             .Query(q => q
-                                .Match(m => m.Field(x => x.Id).Query(id.ToString())
+                                .Match(m => m.Field("Id").Query(id.ToString())
                                 ) 
                                 && 
-                                q.Match(m => m.Field(x => x.ClientId).Query(client_id.ToString()))
+                                q.Match(m => m.Field("ClientId").Query(client_id.ToString()))
                                 )
                             .Size(100)
 
@@ -90,8 +90,8 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-
-                    var list = query.Documents as List<AddressClientESModel>;
+                    var data = query.Documents as List<object>;
+                    var list = JsonConvert.DeserializeObject<List<AddressClientESModel>>(JsonConvert.SerializeObject(data));
                     return list.FirstOrDefault();
                 }
             }

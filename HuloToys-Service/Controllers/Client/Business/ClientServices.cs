@@ -53,7 +53,6 @@ namespace HuloToys_Service.Controllers.Client.Business
                     if (model!=null && model.user_name!=null && model.user_name.Trim() != "")
                     {
                         var account = _accountClientESService.GetByUsername(model.user_name);
-                        LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], "GetAccountClientIdFromToken account=" + JsonConvert.SerializeObject(account));
                         account_client_id = account.Id;
                     }
 
