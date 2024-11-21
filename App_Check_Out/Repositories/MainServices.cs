@@ -46,7 +46,7 @@ namespace APP_CHECKOUT.Repositories
             clientESService = new ClientESService(configuration["Elastic:Host"], configuration);
             addressClientESService = new AddressClientESService(configuration["Elastic:Host"], configuration);
             nhanhVnService = new NhanhVnService( configuration,logging_service);
-            workQueueClient = new WorkQueueClient( configuration);
+            workQueueClient = new WorkQueueClient( configuration, loggingService);
         }
         public async Task Excute(CheckoutQueueModel request)
         {
