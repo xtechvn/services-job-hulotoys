@@ -51,7 +51,8 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    result = query.Documents as List<AddressClientESModel>;
+                    var data  = query.Documents as List<object>;
+                     result = JsonConvert.DeserializeObject<List<AddressClientESModel>>(JsonConvert.SerializeObject(data));
                     return result;
                 }
             }
@@ -89,8 +90,10 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    var list = query.Documents as List<AddressClientESModel>;
-                    return list.FirstOrDefault();
+                    var data = query.Documents as List<object>;
+                    result = JsonConvert.DeserializeObject<List<AddressClientESModel>>(JsonConvert.SerializeObject(data));
+                    //var list = query.Documents as List<AddressClientESModel>;
+                    return result.FirstOrDefault();
                 }
             }
             catch (Exception ex)

@@ -32,7 +32,7 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<object>(sd => sd
                                .Index(index)
                                .Query(q => q
                                    .Match(m => m.Field("UserName").Query(user_name)
@@ -40,9 +40,9 @@ namespace Caching.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<dynamic>;
+                    var result = query.Documents as List<object>;
                     var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
-                    return result.FirstOrDefault();
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
@@ -62,7 +62,7 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<object>(sd => sd
                                .Index(index)
                                .Query(q => q
                                    .Match(m => m.Field("Id").Query(id.ToString())
@@ -70,9 +70,9 @@ namespace Caching.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<dynamic>;
+                    var result = query.Documents as List<object>;
                     var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
-                    return result.FirstOrDefault();
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
@@ -91,7 +91,7 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<object>(sd => sd
                                .Index(index)
                              .Query(q =>
                                q.Bool(
@@ -106,10 +106,10 @@ namespace Caching.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<dynamic>;
+                    var result = query.Documents as List<object>;
                     var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
 
-                    return result.FirstOrDefault();
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
@@ -128,7 +128,7 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<object>(sd => sd
                                .Index(index)
                              .Query(q =>
                                q.Bool(
@@ -142,9 +142,9 @@ namespace Caching.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<dynamic>;
+                    var result = query.Documents as List<object>;
                     var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
-                    return result.FirstOrDefault();
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
@@ -163,7 +163,7 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<object>(sd => sd
                                .Index(index)
                              .Query(q =>
                                q.Bool(
@@ -178,9 +178,9 @@ namespace Caching.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<dynamic>;
+                    var result = query.Documents as List<object>;
                     var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
-                    return result.FirstOrDefault();
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
@@ -200,7 +200,7 @@ namespace Caching.Elasticsearch
                 var elasticClient = new ElasticClient(connectionSettings);
 
 
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<object>(sd => sd
                              .Index(index)
                            .Query(q =>
                              q.Bool(
@@ -214,9 +214,9 @@ namespace Caching.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<dynamic>;
+                    var result = query.Documents as List<object>;
                     var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
-                    return result.FirstOrDefault();
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
