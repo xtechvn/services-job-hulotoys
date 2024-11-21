@@ -13,6 +13,7 @@ using APP_CHECKOUT.Models.Location;
 using Caching.RedisWorker;
 using Utilities.Contants;
 using DAL;
+using HuloToys_Service.RabitMQ;
 
 namespace APP_CHECKOUT.Repositories
 {
@@ -29,6 +30,8 @@ namespace APP_CHECKOUT.Repositories
         private readonly AddressClientESService addressClientESService;
         private readonly NhanhVnService nhanhVnService;
         private readonly RedisConn _redisService;
+        private readonly WorkQueueClient workQueueClient;
+
         public MainServices(IConfiguration configuration, ILoggingService loggingService) {
 
             _configuration=configuration;
@@ -43,6 +46,7 @@ namespace APP_CHECKOUT.Repositories
             clientESService = new ClientESService(configuration["Elastic:Host"], configuration);
             addressClientESService = new AddressClientESService(configuration["Elastic:Host"], configuration);
             nhanhVnService = new NhanhVnService( configuration,logging_service);
+            workQueueClient = new WorkQueueClient( configuration);
         }
         public async Task Excute(CheckoutQueueModel request)
         {
@@ -229,6 +233,8 @@ namespace APP_CHECKOUT.Repositories
                         await orderDetailMongoDbModel.Update(order);
                     }
                     await nhanhVnService.PostToNhanhVN(order_summit,order, client, address_client);
+                    workQueueClient.SyncES(order_id, "SP_GetOrder", "hulotoys_sp_getorder", Convert.ToInt16(ProjectType.HULOTOYS));
+
                 }
 
             }
