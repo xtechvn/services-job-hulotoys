@@ -90,10 +90,9 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    var data = query.Documents as List<object>;
-                    result = JsonConvert.DeserializeObject<List<AddressClientESModel>>(JsonConvert.SerializeObject(data));
-                    //var list = query.Documents as List<AddressClientESModel>;
-                    return result.FirstOrDefault();
+
+                    var list = query.Documents as List<AddressClientESModel>;
+                    return list.FirstOrDefault();
                 }
             }
             catch (Exception ex)
