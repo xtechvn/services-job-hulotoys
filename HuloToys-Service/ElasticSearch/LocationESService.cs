@@ -22,6 +22,9 @@ namespace Caching.Elasticsearch
         {
             _ElasticHost = Host;
             configuration = _configuration;
+            index_province = _configuration["DataBaseConfig:Elastic:Index:Provinces"];
+            index_district = _configuration["DataBaseConfig:Elastic:Index:Districts"];
+            index_wards = _configuration["DataBaseConfig:Elastic:Index:Wards"];
 
         }
         public List<Province> GetAllProvinces()
