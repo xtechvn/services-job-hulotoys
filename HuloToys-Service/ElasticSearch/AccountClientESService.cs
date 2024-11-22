@@ -35,13 +35,13 @@ namespace Caching.Elasticsearch
                 var query = elasticClient.Search<AccountESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field("UserName").Query(user_name)
+                                   .Match(m => m.Field(y=>y.UserName).Query(user_name)
                                )));
 
                 if (query.IsValid)
                 {
                     var result = query.Documents as List<AccountESModel>;
-                    //var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
+                    LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetByUsername - AccountClientESService ["+user_name+"]["+ JsonConvert.SerializeObject(result) + "]" );
                     return result.FirstOrDefault();
                 }
             }
