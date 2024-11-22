@@ -48,7 +48,7 @@ namespace APP_CHECKOUT.RabitMQ
                 var _data_push = JsonConvert.SerializeObject(j_param);
                 // Push message vào queue
                 var response_queue = InsertQueueSimple(_data_push, ConfigurationManager.AppSettings["QUEUE_SYNC_ES"]);
-                logging_service.LoggingAppOutput("WorkQueueClient - SyncES["+ id + "]["+ store_procedure + "] ["+ index_es + "]["+ project_id + "]: " + response_queue.ToString(), true, true);
+                logging_service.InsertLogTelegramDirect("WorkQueueClient - SyncES["+ id + "]["+ store_procedure + "] ["+ index_es + "]["+ project_id + "]: " + response_queue.ToString());
 
                 return true;
             }
@@ -83,7 +83,7 @@ namespace APP_CHECKOUT.RabitMQ
                 }
                 catch (Exception ex)
                 {
-                    logging_service.LoggingAppOutput("WorkQueueClient - InsertQueueSimple[" + message + "][" + queueName + "]: " + ex.ToString(), true, true);
+                    logging_service.InsertLogTelegramDirect("WorkQueueClient - InsertQueueSimple[" + message + "][" + queueName + "]: " + ex.ToString());
 
                     return false;
                 }

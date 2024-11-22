@@ -46,7 +46,7 @@ try
             try
             {
                 var body = ea.Body.ToArray();
-                log_service.LoggingAppOutput("Received: "+body, true, true);
+                log_service.InsertLogTelegramDirect("Received: "+body);
 
                 var message = Encoding.UTF8.GetString(body);
                 try
@@ -61,7 +61,7 @@ try
             {
                 string err = "Program: " + ex.ToString();
                 Console.WriteLine(err);
-                log_service.LoggingAppOutput(err, true,true);
+                log_service.InsertLogTelegramDirect(err);
 
             }
         };
@@ -76,5 +76,5 @@ catch (Exception ex)
 {
     string err = "Main: " + ex.ToString();
     Console.WriteLine(err);
-    log_service.LoggingAppOutput(err, true, true);
+    log_service.InsertLogTelegramDirect(err);
 }

@@ -54,7 +54,7 @@ namespace APP.READ_MESSAGES.Libraries
                 return false;
             }
         }
-        private int InsertLogTelegramDirect(string message)
+        public int InsertLogTelegramDirect(string message)
         {
             var rs = 1;
             try

@@ -137,14 +137,14 @@ namespace APP_CHECKOUT.Repositories
                 if (status == 1)
                 {
                     Console.WriteLine(response.Content);
-                    _logging_service.LoggingAppOutput("["+order.order_no+"] -> Nhanh VN OrderCreated: "+jsonData["data"]["orderId"].ToString(), true, true);
+                    _logging_service.InsertLogTelegramDirect("["+order.order_no+"] -> Nhanh VN OrderCreated: "+jsonData["data"]["orderId"].ToString());
 
                 }
                 else
                 {
                     string err = "PostToNhanhVN with [" + order._id + "] error: " + response.Content;
                     Console.WriteLine(err);
-                    _logging_service.LoggingAppOutput(err, true, true);
+                    _logging_service.InsertLogTelegramDirect(err);
                 }
 
 
@@ -208,7 +208,7 @@ namespace APP_CHECKOUT.Repositories
             {
                 string err = "PostToNhanhVN ->GetLocationByType with [" + type+"-"+parent_id + "] error: " + ex.ToString();
                 Console.WriteLine(err);
-                _logging_service.LoggingAppOutput(err, true, true);
+                _logging_service.InsertLogTelegramDirect(err);
             }
             return new List<NhanhVNLocationResponseLocation>();
 

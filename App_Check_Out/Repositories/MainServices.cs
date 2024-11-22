@@ -75,7 +75,7 @@ namespace APP_CHECKOUT.Repositories
             catch (Exception ex) {
                 string err = "MainServices: " + ex.ToString();
                 Console.WriteLine(err);
-                logging_service.LoggingAppOutput(err, true, true);
+                logging_service.InsertLogTelegramDirect(err);
             }
         }
         private async Task CreateOrder(string order_detail_id)
@@ -209,7 +209,7 @@ namespace APP_CHECKOUT.Repositories
 
                 var order_id = await orderDAL.CreateOrder(order_summit);
                 Console.WriteLine("Created Order - " + order.order_no+": "+ order_id);
-                logging_service.LoggingAppOutput("Order Created - " + order.order_no + " - " + total_amount, true, true);
+                logging_service.InsertLogTelegramDirect("Order Created - " + order.order_no + " - " + total_amount);
                 workQueueClient.SyncES(order_id, "SP_GetOrder", "hulotoys_sp_getorder", Convert.ToInt16(ProjectType.HULOTOYS));
 
                 if (order_id > 0)
@@ -219,7 +219,7 @@ namespace APP_CHECKOUT.Repositories
                         detail.OrderId = order_id;
                         await orderDetailDAL.CreateOrderDetail(detail);
                         Console.WriteLine("Created OrderDetail - " + detail.OrderId + ": " + detail.OrderDetailId);
-                        logging_service.LoggingAppOutput("OrderDetail Created - " + detail.OrderId + ": " + detail.OrderDetailId, true, false);
+                        logging_service.InsertLogTelegramDirect("OrderDetail Created - " + detail.OrderId + ": " + detail.OrderDetailId);
                         order.order_id=order_id;
                         order.total_price = total_price;
                         order.total_profit=total_profit;
@@ -236,7 +236,7 @@ namespace APP_CHECKOUT.Repositories
             {
                 string err = "CreateOrder with ["+ order_detail_id+"] error: " + ex.ToString();
                 Console.WriteLine(err);
-                logging_service.LoggingAppOutput(err, true, true);
+                logging_service.InsertLogTelegramDirect(err);
 
             }
         }
