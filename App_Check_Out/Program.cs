@@ -63,7 +63,7 @@ try
             }
         };
 
-        channel.BasicConsume(queue: ConfigurationManager.AppSettings[queue_name"], autoAck: false, consumer: consumer);
+        channel.BasicConsume(queue: ConfigurationManager.AppSettings["queue_name"], autoAck: false, consumer: consumer);
 
         Console.ReadLine();
 
