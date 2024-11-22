@@ -8,6 +8,7 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
 using System.Configuration;
+using MongoDB.Driver.Core.Events;
 
 
 
@@ -45,6 +46,8 @@ try
             try
             {
                 var body = ea.Body.ToArray();
+                log_service.LoggingAppOutput("Received: "+body, true, true);
+
                 var message = Encoding.UTF8.GetString(body);
                 try
                 {
