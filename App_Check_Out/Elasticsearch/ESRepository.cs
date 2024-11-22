@@ -9,13 +9,11 @@ namespace APP_CHECKOUT.Elasticsearch
     //https://www.steps2code.com/post/how-to-use-elasticsearch-in-csharp
     public class ESRepository<TEntity> : IESRepository<TEntity> where TEntity : class
     {
-        private readonly IConfiguration configuration;
         private static string _ElasticHost;
 
-        public ESRepository(string Host, IConfiguration _configuration)
+        public ESRepository(string Host)
         {
             _ElasticHost = Host;
-            this.configuration = _configuration;
         }
 
         /// </summary>

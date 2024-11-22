@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Configuration;
+using System.Data;
 using System.Net;
 using Telegram.Bot;
 
@@ -6,13 +7,15 @@ namespace APP_CHECKOUT.Utilities.Lib
 {
     public static class LogHelper
     {
-        public static int InsertLogTelegram(string bot_token, string id_group, string message)
+        public static string token = ConfigurationManager.AppSettings["tele_token"];
+        public static string group_id = ConfigurationManager.AppSettings["tele_group_id"];
+        public static int InsertLogTelegram( string message)
         {
             var rs = 1;
             try
             {
-                TelegramBotClient alertMsgBot = new TelegramBotClient(bot_token);
-                var rs_push = alertMsgBot.SendTextMessageAsync(id_group, message).Result;
+                TelegramBotClient alertMsgBot = new TelegramBotClient(token);
+                var rs_push = alertMsgBot.SendTextMessageAsync(group_id, message).Result;
             }
             catch (Exception ex)
             {
@@ -20,10 +23,10 @@ namespace APP_CHECKOUT.Utilities.Lib
             }
             return rs;
         }
-        public static void InsertLogTelegramByUrl(string bot_token, string id_group, string msg)
+        public static void InsertLogTelegramByUrl(string msg)
         {
             string JsonContent = string.Empty;
-            string url_api = "https://api.telegram.org/bot" + bot_token + "/sendMessage?chat_id=" + id_group + "&text=" + msg;
+            string url_api = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + group_id + "&text=" + msg;
             try
             {
                 using (var webclient = new WebClient())

@@ -5,25 +5,23 @@ using APP_CHECKOUT.Models.Client;
 using APP_CHECKOUT.Models.NhanhVN;
 using APP_CHECKOUT.Models.Orders;
 using Entities.Models;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
+using System.Configuration;
 
 namespace APP_CHECKOUT.Repositories
 {
     public class NhanhVnService
     {
-        private readonly IConfiguration _configuration;
         private readonly LocationESService locationESService;
         private readonly ILoggingService _logging_service;
 
-        public NhanhVnService(IConfiguration configuration, ILoggingService logging_service)
+        public NhanhVnService( ILoggingService logging_service)
         {
 
-            _configuration = configuration;
             _logging_service = logging_service;
-            locationESService = new LocationESService(configuration["Elastic:Host"], configuration);
+            locationESService = new LocationESService(ConfigurationManager.AppSettings["Elastic_Host"]);
 
         }
         public async Task PostToNhanhVN(Entities.Models.Order order_summit, OrderDetailMongoDbModel order, ClientESModel client, AddressClientESModel address_client)
@@ -31,14 +29,14 @@ namespace APP_CHECKOUT.Repositories
             try
             {
 
-                var options = new RestClientOptions(_configuration["NhanhVN:API:Domain"]);
+                var options = new RestClientOptions(ConfigurationManager.AppSettings["NhanhVN_API:Domain"]);
                 var http_client = new RestClient(options);
-                var request = new RestRequest(_configuration["NhanhVN:API:Domain"] + _configuration["NhanhVN:API:AddOrder"], Method.Post);
+                var request = new RestRequest(ConfigurationManager.AppSettings["NhanhVN_API:Domain"] + ConfigurationManager.AppSettings["NhanhVN_API:AddOrder"], Method.Post);
                 request.AlwaysMultipartFormData = true;
                 request.AddParameter("version", "2.0");
-                request.AddParameter("appId", _configuration["NhanhVN:AppId"]);
-                request.AddParameter("businessId", _configuration["NhanhVN:BussinessID"]);
-                request.AddParameter("accessToken", _configuration["NhanhVN:AccessToken"]);
+                request.AddParameter("appId", ConfigurationManager.AppSettings["NhanhVN_AppId"]);
+                request.AddParameter("businessId", ConfigurationManager.AppSettings["NhanhVN_BussinessID"]);
+                request.AddParameter("accessToken", ConfigurationManager.AppSettings["NhanhVN_AccessToken"]);
                 var city = await GetLocationByType(0);
                 string city_name = "";
                 string district_name = "";
@@ -185,14 +183,14 @@ namespace APP_CHECKOUT.Repositories
                         }
 
                 }
-                var options = new RestClientOptions(_configuration["NhanhVN:API:Domain"]);
+                var options = new RestClientOptions(ConfigurationManager.AppSettings["NhanhVN_API:Domain"]);
                 var http_client = new RestClient(options);
-                var request = new RestRequest(_configuration["NhanhVN:API:Domain"]+ _configuration["NhanhVN:API:Location"], Method.Post);
+                var request = new RestRequest(ConfigurationManager.AppSettings["NhanhVN_API:Domain"]+ ConfigurationManager.AppSettings["NhanhVN_API:Location"], Method.Post);
                 request.AlwaysMultipartFormData = true;
                 request.AddParameter("version", "2.0");
-                request.AddParameter("appId", _configuration["NhanhVN:AppId"]);
-                request.AddParameter("businessId", _configuration["NhanhVN:BussinessID"]);
-                request.AddParameter("accessToken", _configuration["NhanhVN:AccessToken"]);
+                request.AddParameter("appId", ConfigurationManager.AppSettings["NhanhVN_AppId"]);
+                request.AddParameter("businessId", ConfigurationManager.AppSettings["NhanhVN_BussinessID"]);
+                request.AddParameter("accessToken", ConfigurationManager.AppSettings["NhanhVN_AccessToken"]);
                 request.AddParameter("data", "{\"type\":\""+ type_string + "\",\"parentId\":"+ parent_id + "}");
               
                 RestResponse response = await http_client.ExecuteAsync(request);

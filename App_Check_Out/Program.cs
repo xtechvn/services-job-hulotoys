@@ -9,14 +9,9 @@ using RabbitMQ.Client.Events;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 
-//-- DI:
-IConfiguration configuration = new ConfigurationBuilder()
-       .SetBasePath(Directory.GetCurrentDirectory())
-       .AddJsonFile("appSettings.json", false)
-       .Build();
+
 
 ServiceCollection service_collection = new ServiceCollection();
-service_collection.AddSingleton<IConfiguration>(configuration);
 service_collection.AddSingleton<IMainServices, MainServices>();
 service_collection.AddSingleton<ILoggingService, LoggingService>();
 var service_provider = service_collection.BuildServiceProvider();

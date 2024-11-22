@@ -1,9 +1,7 @@
 ﻿using APP.READ_MESSAGES.Libraries;
-using Microsoft.Extensions.Configuration;
-using Nest;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
-using System.Reflection;
+using System.Configuration;
 using System.Text;
 using WEB.CMS.Models.Queue;
 
@@ -11,21 +9,19 @@ namespace HuloToys_Service.RabitMQ
 {
     public class WorkQueueClient
     {
-        private readonly IConfiguration configuration;
         private readonly QueueSettingViewModel queue_setting;
         private readonly ConnectionFactory factory;
         private readonly ILoggingService logging_service;
 
-        public WorkQueueClient(IConfiguration _configuration, ILoggingService _logging_service)
+        public WorkQueueClient( ILoggingService _logging_service)
         {
-            configuration = _configuration;
             queue_setting = new QueueSettingViewModel()
             {
-                host = _configuration["Queue:Host"],
-                port = Convert.ToInt32(_configuration["Queue:Port"]),
-                v_host = _configuration["Queue:V_Host"],
-                username = _configuration["Queue:Username"],
-                password = _configuration["Queue:Password"],
+                host = ConfigurationManager.AppSettings["QUEUE_HOST"],
+                port = Convert.ToInt32(ConfigurationManager.AppSettings["QUEUE_PORT"]),
+                v_host = ConfigurationManager.AppSettings["QUEUE_V_HOST"],
+                username = ConfigurationManager.AppSettings["QUEUE_USERNAME"],
+                password = ConfigurationManager.AppSettings["QUEUE_PASSWORD"],
             };
             factory = new ConnectionFactory()
             {
@@ -51,7 +47,7 @@ namespace HuloToys_Service.RabitMQ
                               };
                 var _data_push = JsonConvert.SerializeObject(j_param);
                 // Push message vào queue
-                var response_queue = InsertQueueSimple(_data_push, configuration["Queue:QueueNameSyncES"]);
+                var response_queue = InsertQueueSimple(_data_push, ConfigurationManager.AppSettings["QUEUE_SYNC_ES"]);
                 logging_service.LoggingAppOutput("WorkQueueClient - SyncES["+ id + "]["+ store_procedure + "] ["+ index_es + "]["+ project_id + "]: " + response_queue.ToString(), true, true);
 
                 return true;

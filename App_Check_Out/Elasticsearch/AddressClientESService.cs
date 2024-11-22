@@ -2,22 +2,20 @@
 using Nest;
 using System.Reflection;
 using Entities.Models;
-using Microsoft.Extensions.Configuration;
 using APP_CHECKOUT.Utilities.Lib;
+using System.Configuration;
 
 namespace APP_CHECKOUT.Elasticsearch
 {
     public class AddressClientESService : ESRepository<AddressClientESModel>
     {
         public string index = "address_client_hulotoys_store";
-        private readonly IConfiguration configuration;
         private static string _ElasticHost;
 
-        public AddressClientESService(string Host, IConfiguration _configuration) : base(Host, _configuration)
+        public AddressClientESService(string Host) : base(Host)
         {
             _ElasticHost = Host;
-            configuration = _configuration;
-            index = _configuration["Elastic:Index:AddressClient"];
+            index = ConfigurationManager.AppSettings["Elastic_Index_AddressClient"];
 
 
         }
@@ -52,7 +50,7 @@ namespace APP_CHECKOUT.Elasticsearch
             catch (Exception ex)
             {
                 string error_msg = "AddressClientESService ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                LogHelper.InsertLogTelegramByUrl(error_msg);
             }
             return null;
         }
@@ -91,7 +89,7 @@ namespace APP_CHECKOUT.Elasticsearch
             catch (Exception ex)
             {
                 string error_msg = "AddressClientESService ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                LogHelper.InsertLogTelegramByUrl(error_msg);
             }
             return null;
         }

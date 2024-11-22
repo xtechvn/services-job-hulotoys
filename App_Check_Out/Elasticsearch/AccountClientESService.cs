@@ -2,23 +2,21 @@
 using Nest;
 using System.Reflection;
 using Newtonsoft.Json;
-using Microsoft.Extensions.Configuration;
 using APP_CHECKOUT.Models.Account;
 using APP_CHECKOUT.Utilities.Lib;
+using System.Configuration;
 
 namespace APP_CHECKOUT.Elasticsearch
 {
     public class AccountClientESService : ESRepository<AccountESModel>
     {
         public string index = "account_client_hulotoys_store";
-        private readonly IConfiguration configuration;
         private static string _ElasticHost;
 
-        public AccountClientESService(string Host, IConfiguration _configuration) : base(Host, _configuration)
+        public AccountClientESService(string Host) : base(Host)
         {
             _ElasticHost = Host;
-            configuration = _configuration;
-            index = _configuration["Elastic:Index:AccountClient"];
+            index = ConfigurationManager.AppSettings["Elastic_Index_AccountClient"];
 
         }
         public AccountESModel GetByUsername(string user_name)
@@ -46,7 +44,7 @@ namespace APP_CHECKOUT.Elasticsearch
             catch (Exception ex)
             {
                 string error_msg = "AccountESModel ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                LogHelper.InsertLogTelegramByUrl(error_msg);
             }
             return null;
         }
@@ -76,7 +74,7 @@ namespace APP_CHECKOUT.Elasticsearch
             catch (Exception ex)
             {
                 string error_msg = "AccountESModel ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                LogHelper.InsertLogTelegramByUrl( error_msg);
             }
             return null;
         }
@@ -113,7 +111,7 @@ namespace APP_CHECKOUT.Elasticsearch
             catch (Exception ex)
             {
                 string error_msg = "AccountESModel ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                LogHelper.InsertLogTelegramByUrl(error_msg);
             }
             return null;
         }
@@ -148,7 +146,7 @@ namespace APP_CHECKOUT.Elasticsearch
             catch (Exception ex)
             {
                 string error_msg = "AccountESModel ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                LogHelper.InsertLogTelegramByUrl(error_msg);
             }
             return null;
         }
@@ -184,7 +182,7 @@ namespace APP_CHECKOUT.Elasticsearch
             catch (Exception ex)
             {
                 string error_msg = "AccountESModel ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                LogHelper.InsertLogTelegramByUrl(error_msg);
             }
             return null;
         }
@@ -220,7 +218,7 @@ namespace APP_CHECKOUT.Elasticsearch
             catch (Exception ex)
             {
                 string error_msg = "AccountESModel ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                LogHelper.InsertLogTelegramByUrl(error_msg);
             }
             return null;
         }

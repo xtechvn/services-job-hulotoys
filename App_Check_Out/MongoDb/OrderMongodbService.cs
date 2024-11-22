@@ -1,26 +1,23 @@
 ﻿using MongoDB.Driver;
-using System.Reflection;
-using Microsoft.Extensions.Configuration;
 using APP_CHECKOUT.Models.Orders;
+using System.Configuration;
 
 namespace APP_CHECKOUT.MongoDb
 {
     public class OrderMongodbService
     {
-        private readonly IConfiguration _configuration;
         private IMongoCollection<OrderDetailMongoDbModel> bookingCollection;
 
-        public OrderMongodbService(IConfiguration configuration) {
+        public OrderMongodbService() {
 
-            _configuration= configuration;
             //      "connection_string": "mongodb://adavigolog_writer:adavigolog_2022@103.163.216.42:27017/?authSource=Adavigo"
-            string _connection = "mongodb://" + _configuration["MongoServer:user"]
-                 + ":" + _configuration["MongoServer:pwd"]
-                 + "@" + _configuration["MongoServer:Host"]
-                 + ":" + _configuration["MongoServer:Port"]
-                 + "/?authSource=" + _configuration["MongoServer:catalog"];
+            string _connection = "mongodb://" + ConfigurationManager.AppSettings["Mongo_usr"]
+                 + ":" + ConfigurationManager.AppSettings["Mongo_pwd"]
+                 + "@" + ConfigurationManager.AppSettings["Mongo_Host"]
+                 + ":" + ConfigurationManager.AppSettings["Mongo_Port"]
+                 + "/?authSource=" + ConfigurationManager.AppSettings["Mongo_catalog"];
             var booking = new MongoClient(_connection);
-            IMongoDatabase db = booking.GetDatabase(_configuration["MongoServer:catalog"]);
+            IMongoDatabase db = booking.GetDatabase(ConfigurationManager.AppSettings["Mongo_catalog"]);
             bookingCollection = db.GetCollection<OrderDetailMongoDbModel>("Orders");
         }
         public async Task<string> Insert(OrderDetailMongoDbModel item)
