@@ -5,7 +5,7 @@ using System.Configuration;
 using System.Text;
 using WEB.CMS.Models.Queue;
 
-namespace HuloToys_Service.RabitMQ
+namespace APP_CHECKOUT.RabitMQ
 {
     public class WorkQueueClient
     {

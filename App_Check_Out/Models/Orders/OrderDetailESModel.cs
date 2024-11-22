@@ -1,6 +1,6 @@
 ﻿using Nest;
 
-namespace APP_CHECKOUT.Models.Orders;
+namespace entities.models;
 
 public partial class OrderDetailESModel
 {

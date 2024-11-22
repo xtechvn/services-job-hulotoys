@@ -28,11 +28,11 @@ namespace APP_CHECKOUT.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<AddressClientESModel>(sd => sd
                             .Index(index)
                             .Query(q => q
-                                .Match(m => m.Field("ClientId").Query(client_id.ToString())
-                                ))
+                                .Term(m => m.ClientId, client_id)
+                                )
                             .Size(100)
 
                             );

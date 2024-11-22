@@ -1,10 +1,10 @@
 ﻿using Elasticsearch.Net;
 using Nest;
 using System.Reflection;
-using APP_CHECKOUT.Models.Client;
 using Newtonsoft.Json;
 using APP_CHECKOUT.Utilities.Lib;
 using System.Configuration;
+using APP_CHECKOUT.Models.Client;
 
 namespace APP_CHECKOUT.Elasticsearch
 {

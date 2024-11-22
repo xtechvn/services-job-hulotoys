@@ -1,4 +1,5 @@
-﻿using APP_CHECKOUT.Models.Orders;
+﻿using APP_CHECKOUT.Model.Orders;
+using APP_CHECKOUT.Models.Orders;
 using MongoDB.Driver;
 using System.Configuration;
 using System.Reflection;

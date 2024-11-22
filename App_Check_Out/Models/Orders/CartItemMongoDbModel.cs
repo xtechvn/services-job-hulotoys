@@ -3,7 +3,7 @@ using Entities.ViewModels.Products;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace APP_CHECKOUT.Models.Orders
+namespace APP_CHECKOUT.Model.Orders
 {
     public class CartItemMongoDbModel
     {

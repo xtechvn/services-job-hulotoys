@@ -1,4 +1,5 @@
-﻿using APP_CHECKOUT.Models.NinjaVan;
+﻿using APP_CHECKOUT.Model.Orders;
+using APP_CHECKOUT.Models.NinjaVan;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 

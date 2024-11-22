@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 using APP_CHECKOUT.Models.Location;
 using Utilities.Contants;
 using DAL;
-using HuloToys_Service.RabitMQ;
+using APP_CHECKOUT.RabitMQ;
 using System.Configuration;
 
 namespace APP_CHECKOUT.Repositories
@@ -132,13 +132,13 @@ namespace APP_CHECKOUT.Repositories
 
                 }
                 var account_client = accountClientESService.GetById(order.account_client_id);
-                var client = clientESService.GetById((long)account_client.clientid);
+                var client = clientESService.GetById((long)account_client.ClientId);
                 var address_client = addressClientESService.GetById(order.address_id, client.Id);
 
                 order_summit = new Order()
                 {
                     Amount = total_amount + order.shipping_fee,
-                    ClientId = (long)account_client.clientid,
+                    ClientId = (long)account_client.ClientId,
                     CreatedDate = DateTime.Now,
                     Discount = total_discount,
                     IsDelete = 0,
@@ -172,26 +172,26 @@ namespace APP_CHECKOUT.Repositories
                 List<Province> provinces = GetProvince();
                 List<District> districts = GetDistrict();
                 List<Ward> wards = GetWards();
-                if (address_client != null && address_client.provinceid != null && address_client.districtid != null && address_client.wardid != null)
+                if (address_client != null && address_client.ProvinceId != null && address_client.DistrictId != null && address_client.WardId != null)
                 {
-                    if (address_client.provinceid.Trim() != "" && provinces != null && provinces.Count > 0)
+                    if (address_client.ProvinceId.Trim() != "" && provinces != null && provinces.Count > 0)
                     {
-                        var province = provinces.FirstOrDefault(x => x.ProvinceId == address_client.provinceid);
+                        var province = provinces.FirstOrDefault(x => x.ProvinceId == address_client.ProvinceId);
                         order_summit.ProvinceId = province != null ? province.Id : null;
                     }
-                    if (address_client.districtid.Trim() != "" && districts != null && districts.Count > 0)
+                    if (address_client.DistrictId.Trim() != "" && districts != null && districts.Count > 0)
                     {
-                        var district = districts.FirstOrDefault(x => x.DistrictId == address_client.districtid);
+                        var district = districts.FirstOrDefault(x => x.DistrictId == address_client.DistrictId);
                         order_summit.DistrictId = district != null ? district.Id : null;
                     }
-                    if (address_client.wardid.Trim() != "" && wards != null && wards.Count > 0)
+                    if (address_client.WardId.Trim() != "" && wards != null && wards.Count > 0)
                     {
-                        var ward = wards.FirstOrDefault(x => x.WardId == address_client.wardid);
+                        var ward = wards.FirstOrDefault(x => x.WardId == address_client.WardId);
                         order_summit.WardId = ward != null ? ward.Id : null;
                     }
-                    order_summit.ReceiverName = address_client.receivername;
-                    order_summit.Phone = address_client.phone;
-                    order_summit.Address = address_client.address;
+                    order_summit.ReceiverName = address_client.ReceiverName;
+                    order_summit.Phone = address_client.Phone;
+                    order_summit.Address = address_client.Address;
                 }
                 else
                 {

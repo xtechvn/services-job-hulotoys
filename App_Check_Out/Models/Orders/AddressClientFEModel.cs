@@ -1,6 +1,4 @@
 ﻿using APP_CHECKOUT.Models.Location;
-using System;
-using System.Collections.Generic;
 
 namespace Entities.Models
 {
