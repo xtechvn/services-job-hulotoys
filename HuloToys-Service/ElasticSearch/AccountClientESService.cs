@@ -72,7 +72,7 @@ namespace Caching.Elasticsearch
                 {
                     var result = query.Documents as List<object>;
                     var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
-                    LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetById - AccountClientESService [" + id + "][" + JsonConvert.SerializeObject(result) + "]");
+                    //LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetById - AccountClientESService [" + id + "][" + JsonConvert.SerializeObject(result) + "]");
                     return data.FirstOrDefault();
                 }
             }
