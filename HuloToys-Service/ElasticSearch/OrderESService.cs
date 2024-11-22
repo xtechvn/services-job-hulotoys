@@ -39,8 +39,9 @@ namespace Caching.Elasticsearch
                 var query = elasticClient.Search<OrderESModel>(sd => sd
                             .Index(index)
                             .Query(q => q
-                                .Match(m => m.Field("ClientId").Query(client_id.ToString())
-                                ))
+                                .Term(m => m.ClientId, client_id)
+                            )
+
                             .Size(100)
 
                             );
@@ -74,8 +75,7 @@ namespace Caching.Elasticsearch
                 if (status == null || status.Trim() == "")
                 {
                     Func<QueryContainerDescriptor<OrderESModel>, QueryContainer> query_container = q => q
-                                  .Match(m => m.Field(x=>x.ClientId).Query(client_id.ToString())
-                                  );
+                                  .Term(m => m.ClientId, client_id);
                     var query = elasticClient.Search<OrderESModel>(sd => sd
                               .Index(index)
                               .Query(query_container)
@@ -153,8 +153,8 @@ namespace Caching.Elasticsearch
                                .Index(index)
 
                                .Query(q => q
-                                   .Match(m => m.Field("ClientId").Query(client_id.ToString())
-                                   ))
+                                   .Term(m => m.ClientId, client_id)
+                                   )
                                 .Sort(q => q.Descending(u => u.CreatedDate))); ;
 
                 if (!query.IsValid)
@@ -271,8 +271,8 @@ namespace Caching.Elasticsearch
                                .Index(index)
 
                                .Query(q => q
-                                   .Match(m => m.Field("OrderId").Query(order_id.ToString())
-                                   )));
+                                    .Term(m => m.OrderId, order_id)
+                                   ));
 
                 if (!query.IsValid)
                 {
