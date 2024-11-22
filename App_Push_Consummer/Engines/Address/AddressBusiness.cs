@@ -2,6 +2,7 @@
 using App_Push_Consummer.Interfaces;
 using App_Push_Consummer.Model.Address;
 using App_Push_Consummer.Model.DB_Core;
+using App_Push_Consummer.RabitMQ;
 using System.Configuration;
 
 namespace App_Push_Consummer.Engines.Address
@@ -10,7 +11,7 @@ namespace App_Push_Consummer.Engines.Address
     {
         private static string tele_group_id = ConfigurationManager.AppSettings["tele_group_id"];
         private static string tele_token = ConfigurationManager.AppSettings["tele_token"];
-
+        
         public async Task<Int32> saveAddressClient(AddressModel data)
         {
 			try

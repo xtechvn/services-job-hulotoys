@@ -77,7 +77,6 @@ namespace App_Push_Consummer.Engines
                             {
                                 ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "Lưu thông tin đăng ký người dùng thất bại");
                             }
-                            workQueueClient.SyncES(address_id, "SP_GetAccountClient", "hulotoys_sp_getaccountclient", Convert.ToInt16(ProjectType.HULOTOYS));
 
                             break;
                         }
@@ -89,7 +88,6 @@ namespace App_Push_Consummer.Engines
                             {
                                 ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "Lưu thông tin xác nhận quên mật khẩu thất bại");
                             }
-                            workQueueClient.SyncES(address_id, "SP_GetAccountClient", "hulotoys_sp_getaccountclient", Convert.ToInt16(ProjectType.HULOTOYS));
                             break;
                         }
                     case QueueType.ADD_COMMENT:

@@ -216,6 +216,7 @@ namespace APP_CHECKOUT.Repositories
                 var order_id = await orderDAL.CreateOrder(order_summit);
                 Console.WriteLine("Created Order - " + order.order_no+": "+ order_id);
                 logging_service.LoggingAppOutput("Order Created - " + order.order_no + " - " + total_amount, true, true);
+                workQueueClient.SyncES(order_id, "SP_GetOrder", "hulotoys_sp_getorder", Convert.ToInt16(ProjectType.HULOTOYS));
 
                 if (order_id > 0)
                 {
@@ -233,7 +234,6 @@ namespace APP_CHECKOUT.Repositories
                         await orderDetailMongoDbModel.Update(order);
                     }
                     await nhanhVnService.PostToNhanhVN(order_summit,order, client, address_client);
-                    workQueueClient.SyncES(order_id, "SP_GetOrder", "hulotoys_sp_getorder", Convert.ToInt16(ProjectType.HULOTOYS));
 
                 }
 
