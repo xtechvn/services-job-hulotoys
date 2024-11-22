@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
-using Microsoft.Extensions.Configuration;
+using System.Configuration;
 
 
 
@@ -15,24 +15,23 @@ ServiceCollection service_collection = new ServiceCollection();
 service_collection.AddSingleton<IMainServices, MainServices>();
 service_collection.AddSingleton<ILoggingService, LoggingService>();
 var service_provider = service_collection.BuildServiceProvider();
-var _configuration = service_provider.GetService<IConfiguration>();
 var main_service = service_provider.GetService<IMainServices>();
 var log_service = service_provider.GetService<ILoggingService>();
 try
 {
-   
+
     var factory = new ConnectionFactory()
     {
-        HostName = _configuration["Queue:Host"],
-        Port = Convert.ToInt32(_configuration["Queue:Port"]),
-        VirtualHost = _configuration["Queue:V_Host"],
-        UserName = _configuration["Queue:Username"],
-        Password = _configuration["Queue:Password"],
+        HostName = ConfigurationManager.AppSettings["QUEUE_HOST"],
+        Port = Convert.ToInt32(ConfigurationManager.AppSettings["QUEUE_PORT"]),
+        VirtualHost = ConfigurationManager.AppSettings["QUEUE_V_HOST"],
+        UserName = ConfigurationManager.AppSettings["QUEUE_USERNAME"],
+        Password = ConfigurationManager.AppSettings["QUEUE_PASSWORD"],
     };
     using (var connection = factory.CreateConnection())
     using (var channel = connection.CreateModel())
     {
-        channel.QueueDeclare(queue: _configuration["Queue:QueueName"],
+        channel.QueueDeclare(queue: ConfigurationManager.AppSettings["queue_name"],
                                             durable: true,
                                             exclusive: false,
                                             autoDelete: false,
@@ -64,7 +63,7 @@ try
             }
         };
 
-        channel.BasicConsume(queue: _configuration["Queue:QueueName"], autoAck: false, consumer: consumer);
+        channel.BasicConsume(queue: ConfigurationManager.AppSettings[queue_name"], autoAck: false, consumer: consumer);
 
         Console.ReadLine();
 
