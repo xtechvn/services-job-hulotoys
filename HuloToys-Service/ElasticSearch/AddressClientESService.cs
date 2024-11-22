@@ -44,14 +44,11 @@ namespace Caching.Elasticsearch
                             .Size(100)
 
                             );
-
-                if (!query.IsValid)
-                {
-                    return result;
-                }
-                else
+                if (query.IsValid)
                 {
                     var data = query.Documents as List<AddressClientESModel>;
+                    LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetByClientID - AddressClientESService [" + client_id + "][" + JsonConvert.SerializeObject(result) + "]");
+
                     return data;
                 }
             }
