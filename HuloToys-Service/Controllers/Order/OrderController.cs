@@ -543,8 +543,13 @@ namespace HuloToys_Service.Controllers
                     var result = await orderMongodbService.Insert(model);
                     //-- Insert Queue:
                     var queue_model = new CheckoutQueueModel() { event_id = (int)CheckoutEventID.CREATE_ORDER, order_mongo_id = result };
-                    var pushed_queue=work_queue.InsertQueueSimpleDurable(JsonConvert.SerializeObject(queue_model) , QueueName.QUEUE_CHECKOUT);
                    
+
+                    var pushed_queue =work_queue.InsertQueueSimpleDurable(JsonConvert.SerializeObject(queue_model) , QueueName.QUEUE_CHECKOUT);
+                    LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "Push Queue: "
+                       + QueueName.QUEUE_CHECKOUT
+                       + "[" + JsonConvert.SerializeObject(queue_model) + "] ["+pushed_queue+"]");
+
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
