@@ -18,7 +18,7 @@ namespace APP_CHECKOUT.RabitMQ
             queue_setting = new QueueSettingViewModel()
             {
                 host = ConfigurationManager.AppSettings["QUEUE_HOST"],
-                port = Convert.ToInt32(ConfigurationManager.AppSettings["QUEUE_PORT"]),
+                port = Convert.ToInt32(ConfigurationManager.AppSettings["QUEUE_V_HOST_SYNC"]),
                 v_host = ConfigurationManager.AppSettings["QUEUE_V_HOST"],
                 username = ConfigurationManager.AppSettings["QUEUE_USERNAME"],
                 password = ConfigurationManager.AppSettings["QUEUE_PASSWORD"],
