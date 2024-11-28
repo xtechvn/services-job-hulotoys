@@ -113,8 +113,7 @@ namespace Caching.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<object>;
-                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
+                    var data = query.Documents as List<AccountESModel>;
 
                     return data.FirstOrDefault();
                 }
@@ -152,8 +151,8 @@ namespace Caching.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<object>;
-                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
+                    var data = query.Documents as List<AccountESModel>;
+
                     return data.FirstOrDefault();
                 }
             }
@@ -192,8 +191,8 @@ namespace Caching.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<object>;
-                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
+                    var data = query.Documents as List<AccountESModel>;
+
                     return data.FirstOrDefault();
                 }
             }
@@ -228,8 +227,8 @@ namespace Caching.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<object>;
-                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
+                    var data = query.Documents as List<AccountESModel>;
+
                     return data.FirstOrDefault();
                 }
             }

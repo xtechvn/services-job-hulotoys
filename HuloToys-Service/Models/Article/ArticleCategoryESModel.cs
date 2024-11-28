@@ -6,7 +6,7 @@ namespace HuloToys_Service.Models.Article
     {
         [PropertyName("Id")]
 
-        public long id { get; set; }
+        public long Id { get; set; }
         [PropertyName("CategoryId")]
 
         public int? categoryid { get; set; }
