@@ -90,10 +90,13 @@ namespace Caching.Elasticsearch
                         }
                 };
                 var response = elasticClient.Search<OrderDetailESModel>(searchRequest);
-
-                // Process the field data counts (description and information)
-                var total_product_count = response.Aggregations.Filters("total_product_count");
-                return total_product_count.Buckets.First().DocCount; // Products with 'description' field
+                if (response.IsValid)
+                {
+                    // Process the field data counts (description and information)
+                    var total_product_count = response.Aggregations.Filters("total_product_count");
+                    return total_product_count.Buckets.First().DocCount; // Products with 'description' field
+                }
+              
             }
             catch (Exception ex)
             {

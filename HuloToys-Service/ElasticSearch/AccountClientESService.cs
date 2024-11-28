@@ -62,10 +62,10 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<AccountESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field("Id").Query(id.ToString())
+                                   .Match(m => m.Field(y=>y.Id).Query(id.ToString())
                                )));
 
                 if (query.IsValid)
@@ -92,13 +92,19 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<AccountESModel>(sd => sd
                                .Index(index)
                              .Query(q =>
                                q.Bool(
-                                   qb => qb.Must(
-                                      qb => qb.Term("UserName", user_name),
-                                       qb => qb.Term("Password", password)
+                                   qb => qb.Must( q=>
+                                      q.Match(qs => qs
+                                        .Field(s => s.UserName)
+                                        .Query(user_name)
+                                       )
+                                     && q.Match(qs => qs
+                                        .Field(s => s.Password)
+                                        .Query(password)
+                                       )
 
                                     )
                                )
@@ -129,12 +135,15 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<AccountESModel>(sd => sd
                                .Index(index)
                              .Query(q =>
                                q.Bool(
                                    qb => qb.Must(
-                                      qb => qb.Term("UserName", user_name)
+                                      qb => qb.Match(qs => qs
+                                        .Field(s => s.UserName)
+                                        .Query(user_name)
+                                       )
 
                                     )
                                )
@@ -164,13 +173,17 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<AccountESModel>(sd => sd
                                .Index(index)
                              .Query(q =>
                                q.Bool(
                                    qb => qb.Must(
-                                      qb => qb.Term("ClientId", client_id),
-                                       qb => qb.Term("Password", password)
+                                      qb => qb.Term(x=>x.ClientId, client_id) 
+                                      &&
+                                       qb.Match(qs => qs
+                                        .Field(s => s.Password)
+                                        .Query(password)
+                                       )
 
                                     )
                                )
@@ -201,12 +214,12 @@ namespace Caching.Elasticsearch
                 var elasticClient = new ElasticClient(connectionSettings);
 
 
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<AccountESModel>(sd => sd
                              .Index(index)
                            .Query(q =>
                              q.Bool(
                                  qb => qb.Must(
-                                    qb => qb.Term("ClientId", client_id)
+                                    qb => qb.Term(x=>x.ClientId, client_id)
 
 
                                   )

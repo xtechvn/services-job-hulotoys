@@ -33,7 +33,7 @@ namespace HuloToys_Service.ElasticSearch
                                .Index(index)
                                .Size(4000)
                                .Query(q => q
-                                   .Match(m => m.Field("articleid").Query(id.ToString())
+                                   .Match(m => m.Field("ArticleId").Query(id.ToString())
                                )));
 
                 if (query.IsValid)
@@ -91,7 +91,7 @@ namespace HuloToys_Service.ElasticSearch
                 var query = elasticClient.Search<ArticleCategoryESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Term(m => m.Field("categoryid").Value(CategoryId)
+                                   .Term(m => m.Field("CategoryId").Value(CategoryId)
                                )));
 
                 if (query.IsValid)

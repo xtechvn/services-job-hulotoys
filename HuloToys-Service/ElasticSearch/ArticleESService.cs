@@ -31,7 +31,7 @@ namespace HuloToys_Service.ElasticSearch
                 var query = elasticClient.Search<ArticleESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Term(m => m.Field("id").Value(id)
+                                   .Term(m => m.Field("Id").Value(id)
                                )));
 
                 if (query.IsValid)
@@ -111,7 +111,7 @@ namespace HuloToys_Service.ElasticSearch
                 var query = elasticClient.Search<ArticleESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Range(m => m.Field("position").GreaterThanOrEquals(1).LessThanOrEquals(7)
+                                   .Range(m => m.Field("Position").GreaterThanOrEquals(1).LessThanOrEquals(7)
                                )));
                 if (query.IsValid)
                 {
@@ -164,7 +164,7 @@ namespace HuloToys_Service.ElasticSearch
                                qb => qb.Must(
                                   //q => q.Term("id", id),
                                    sh => sh.QueryString(qs => qs
-                                   .Fields(new[] { "title", "lead", "body" })
+                                   .Fields(new[] { "Title", "Lead", "Body" })
                                    .Query("*" + txt_search + "*")
                                    .Analyzer("standard")
 

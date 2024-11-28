@@ -34,7 +34,7 @@ namespace HuloToys_Service.ElasticSearch
                                .Index(index)
                                .Size(4000)
                                .Query(q => q
-                                   .Match(m => m.Field("articleid").Query(articleid.ToString())
+                                   .Match(m => m.Field("ArticleId").Query(articleid.ToString())
                                )));
 
                 if (query.IsValid)
