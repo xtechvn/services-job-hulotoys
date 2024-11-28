@@ -64,7 +64,7 @@ namespace API_CORE.Controllers.CACHE
             }
             catch (Exception ex)
             {
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "sync-article.json - clearCacheArticle " + ex.Message + " token=" + input.token.ToString());
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "sync-article.json - clearCacheArticle " + ex.ToString() + " token=" + input.token.ToString());
                 return Ok(new { status = (int)ResponseType.ERROR, _token = input.token, msg = "Sync error !!!" });
             }
         }

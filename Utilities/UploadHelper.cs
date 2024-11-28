@@ -41,7 +41,7 @@ namespace Utilities
             }
             catch (Exception ex)
             {
-                //LogHelper.InsertLogTelegram("UploadImageBase64 - " + ex.Message.ToString() + " Token:" + tokenData);
+                //LogHelper.InsertLogTelegram("UploadImageBase64 - " + ex.ToString().ToString() + " Token:" + tokenData);
             }
             return ImagePath;
         }
@@ -68,7 +68,7 @@ namespace Utilities
             }
             catch (Exception ex)
             {
-                //LogHelper.InsertLogTelegram("UploadImageBase64 - " + ex.Message.ToString());
+                //LogHelper.InsertLogTelegram("UploadImageBase64 - " + ex.ToString().ToString());
             }
             return string.Empty;
         }
