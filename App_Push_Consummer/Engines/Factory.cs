@@ -53,6 +53,8 @@ namespace App_Push_Consummer.Engines
                             {
                                 ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "Lưu thông tin địa chỉ thất bại");
                             }
+                            ErrorWriter.InsertLogTelegram(tele_token, tele_group_id, "App_Push_Consummer - ADD_ADDRESS with [" + data_queue + "] success. Id="+address_id);
+
                             workQueueClient.SyncES(address_id, "SP_GetAddressClient", "hulotoys_sp_getaddressclient", Convert.ToInt16(ProjectType.HULOTOYS));
 
                             break;
@@ -65,6 +67,8 @@ namespace App_Push_Consummer.Engines
                             {
                                 ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "Cập nhật thông tin địa chỉ thất bại");
                             }
+                            ErrorWriter.InsertLogTelegram(tele_token, tele_group_id, "App_Push_Consummer - UPDATE_ADDRESS with [" + data_queue + "] success. Id=" + address_id);
+
                             workQueueClient.SyncES(address_id, "SP_GetAddressClient", "hulotoys_sp_getaddressclient", Convert.ToInt16(ProjectType.HULOTOYS));
 
                             break;
