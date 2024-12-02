@@ -12,6 +12,7 @@ using DAL;
 using APP_CHECKOUT.RabitMQ;
 using System.Configuration;
 using Caching.Elasticsearch;
+using Newtonsoft.Json;
 
 namespace APP_CHECKOUT.Repositories
 {
@@ -131,8 +132,13 @@ namespace APP_CHECKOUT.Repositories
 
                 }
                 var account_client = accountClientESService.GetById(order.account_client_id);
+                logging_service.InsertLogTelegramDirect(" accountClientESService.GetById("+ order.account_client_id + ") : "+ (account_client == null ? "NULL" : JsonConvert.SerializeObject(account_client)));
+
                 var client = clientESService.GetById((long)account_client.ClientId);
-                var address_client = addressClientESService.GetById(order.address_id, client.Id);
+                logging_service.InsertLogTelegramDirect(" clientESService.GetById(" + (long)account_client.ClientId + ") : " + (client == null ? "NULL" : JsonConvert.SerializeObject(client)));
+
+                AddressClientESModel address_client = addressClientESService.GetById(order.address_id, client.Id);
+                logging_service.InsertLogTelegramDirect(" addressClientESService.GetById(" + order.address_id + "," + client.Id + ") : " + (address_client == null ? "NULL" : JsonConvert.SerializeObject(address_client)));
 
                 order_summit = new Order()
                 {
