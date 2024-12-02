@@ -9,7 +9,7 @@ namespace Caching.Elasticsearch
 {
     public class ClientESService : ESRepository<ClientESModel>
     {
-        public string index = "hulotoy_sp_getclient";
+        public string index = "hulotoys_sp_getclient";
         private static string _ElasticHost;
 
         public ClientESService(string Host) : base(Host) {
@@ -28,7 +28,7 @@ namespace Caching.Elasticsearch
                 var query = elasticClient.Search<ClientESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Term(m => m.Id, id)
+                                   .Term("Id", id)
                                ));
 
                 if (query.IsValid)
