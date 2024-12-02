@@ -69,8 +69,7 @@ namespace Caching.Elasticsearch
                 var elasticClient = new ElasticClient(connectionSettings);
                 var query = elasticClient.Search<AddressClientESModel>(sd => sd
                             .Index(index)
-                            .Query(q => q
-                                .Term(m => m.Id, id) 
+                            .Query(q => q.Term(m => m.Id, id) 
                                 &&
                                 q.Term(m => m.ClientId, client_id)
                                 )
@@ -91,7 +90,7 @@ namespace Caching.Elasticsearch
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
+                string error_msg = "AddressClientESService" + "->" + "InsertOrUpdateAddress" + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
