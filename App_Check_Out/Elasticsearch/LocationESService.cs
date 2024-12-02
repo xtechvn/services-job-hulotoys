@@ -1,25 +1,21 @@
 ﻿using Elasticsearch.Net;
 using Nest;
 using System.Reflection;
+using APP_CHECKOUT.Elasticsearch;
 using APP_CHECKOUT.Models.Location;
-using APP_CHECKOUT.Utilities.Lib;
-using System.Configuration;
 
-namespace APP_CHECKOUT.Elasticsearch
+namespace Caching.Elasticsearch
 {
     public class LocationESService : ESRepository<Province>
     {
-        public string index_province = "provinces_store";
-        public string index_district = "districts_store";
-        public string index_wards = "wards_store";
+        public string index_province = "hulotoys_sp_getprovince";
+        public string index_district = "hulotoys_sp_getdistrict";
+        public string index_wards = "hulotoys_sp_getward";
         private static string _ElasticHost;
 
         public LocationESService(string Host) : base(Host)
         {
             _ElasticHost = Host;
-            index_province = ConfigurationManager.AppSettings["Elastic_Index_Provinces"];
-            index_district = ConfigurationManager.AppSettings["Elastic_Index_Districts"];
-            index_wards = ConfigurationManager.AppSettings["Elastic_Index_Wards"];
 
         }
         public List<Province> GetAllProvinces()
@@ -51,8 +47,7 @@ namespace APP_CHECKOUT.Elasticsearch
             }
             catch (Exception ex)
             {
-                string error_msg = "LocationESService ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -88,8 +83,7 @@ namespace APP_CHECKOUT.Elasticsearch
             }
             catch (Exception ex)
             {
-                string error_msg = "LocationESService ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -122,8 +116,7 @@ namespace APP_CHECKOUT.Elasticsearch
             }
             catch (Exception ex)
             {
-                string error_msg = "LocationESService ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -160,8 +153,7 @@ namespace APP_CHECKOUT.Elasticsearch
             }
             catch (Exception ex)
             {
-                string error_msg = "LocationESService ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -199,8 +191,7 @@ namespace APP_CHECKOUT.Elasticsearch
             }
             catch (Exception ex)
             {
-                string error_msg = "LocationESService ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -234,8 +225,7 @@ namespace APP_CHECKOUT.Elasticsearch
             }
             catch (Exception ex)
             {
-                string error_msg = "LocationESService ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -273,8 +263,7 @@ namespace APP_CHECKOUT.Elasticsearch
             }
             catch (Exception ex)
             {
-                string error_msg = "LocationESService ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -312,8 +301,7 @@ namespace APP_CHECKOUT.Elasticsearch
             }
             catch (Exception ex)
             {
-                string error_msg = "LocationESService ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }

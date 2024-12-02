@@ -6,13 +6,12 @@ using APP_CHECKOUT.MongoDb;
 using Entities.Models;
 using APP_CHECKOUT.Models.Models.Queue;
 using APP_CHECKOUT.Utilities.constants;
-using APP_CHECKOUT.Elasticsearch;
-using Newtonsoft.Json;
 using APP_CHECKOUT.Models.Location;
 using Utilities.Contants;
 using DAL;
 using APP_CHECKOUT.RabitMQ;
 using System.Configuration;
+using Caching.Elasticsearch;
 
 namespace APP_CHECKOUT.Repositories
 {

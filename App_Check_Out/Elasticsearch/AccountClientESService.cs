@@ -1,22 +1,20 @@
 ﻿using Elasticsearch.Net;
 using Nest;
 using System.Reflection;
-using Newtonsoft.Json;
 using APP_CHECKOUT.Models.Account;
-using APP_CHECKOUT.Utilities.Lib;
-using System.Configuration;
+using APP_CHECKOUT.Elasticsearch;
+using Microsoft.Extensions.Configuration;
 
-namespace APP_CHECKOUT.Elasticsearch
+namespace Caching.Elasticsearch
 {
     public class AccountClientESService : ESRepository<AccountESModel>
     {
-        public string index = "account_client_hulotoys_store";
+        public string index = "hulotoys_sp_getaccountclient";
         private static string _ElasticHost;
 
         public AccountClientESService(string Host) : base(Host)
         {
             _ElasticHost = Host;
-            index = ConfigurationManager.AppSettings["Elastic_Index_AccountClient"];
 
         }
         public AccountESModel GetByUsername(string user_name)
@@ -31,20 +29,19 @@ namespace APP_CHECKOUT.Elasticsearch
                 var query = elasticClient.Search<AccountESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field("UserName").Query(user_name)
+                                   .Match(m => m.Field(y=>y.UserName).Query(user_name)
                                )));
 
                 if (query.IsValid)
                 {
                     var result = query.Documents as List<AccountESModel>;
-                    //var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
+                   // logging_service.InsertLogTelegramDirect( "GetByUsername - AccountClientESService ["+user_name+"]["+ JsonConvert.SerializeObject(result) + "]" );
                     return result.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
-                string error_msg = "AccountESModel ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -58,23 +55,22 @@ namespace APP_CHECKOUT.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<AccountESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field("Id").Query(id.ToString())
-                               )));
+                                   .Term(m => m.Id, id)
+                               ));
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<object>;
-                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
-                    return data.FirstOrDefault();
+                    var result = query.Documents as List<AccountESModel>;
+                    //logging_service.InsertLogTelegramDirect( "GetById - AccountClientESService [" + id + "][" + JsonConvert.SerializeObject(result) + "]");
+                    return result.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
-                string error_msg = "AccountESModel ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl( error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -87,13 +83,19 @@ namespace APP_CHECKOUT.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<AccountESModel>(sd => sd
                                .Index(index)
                              .Query(q =>
                                q.Bool(
-                                   qb => qb.Must(
-                                      qb => qb.Term("UserName", user_name),
-                                       qb => qb.Term("Password", password)
+                                   qb => qb.Must( q=>
+                                      q.Match(qs => qs
+                                        .Field(s => s.UserName)
+                                        .Query(user_name)
+                                       )
+                                     && q.Match(qs => qs
+                                        .Field(s => s.Password)
+                                        .Query(password)
+                                       )
 
                                     )
                                )
@@ -102,16 +104,14 @@ namespace APP_CHECKOUT.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<object>;
-                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
+                    var data = query.Documents as List<AccountESModel>;
 
                     return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
-                string error_msg = "AccountESModel ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -124,12 +124,15 @@ namespace APP_CHECKOUT.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<AccountESModel>(sd => sd
                                .Index(index)
                              .Query(q =>
                                q.Bool(
                                    qb => qb.Must(
-                                      qb => qb.Term("UserName", user_name)
+                                      qb => qb.Match(qs => qs
+                                        .Field(s => s.UserName)
+                                        .Query(user_name)
+                                       )
 
                                     )
                                )
@@ -138,15 +141,14 @@ namespace APP_CHECKOUT.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<object>;
-                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
+                    var data = query.Documents as List<AccountESModel>;
+
                     return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
-                string error_msg = "AccountESModel ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -159,13 +161,17 @@ namespace APP_CHECKOUT.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<AccountESModel>(sd => sd
                                .Index(index)
                              .Query(q =>
                                q.Bool(
                                    qb => qb.Must(
-                                      qb => qb.Term("ClientId", client_id),
-                                       qb => qb.Term("Password", password)
+                                      qb => qb.Term(x=>x.ClientId, client_id) 
+                                      &&
+                                       qb.Match(qs => qs
+                                        .Field(s => s.Password)
+                                        .Query(password)
+                                       )
 
                                     )
                                )
@@ -174,15 +180,14 @@ namespace APP_CHECKOUT.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<object>;
-                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
+                    var data = query.Documents as List<AccountESModel>;
+
                     return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
-                string error_msg = "AccountESModel ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -196,12 +201,12 @@ namespace APP_CHECKOUT.Elasticsearch
                 var elasticClient = new ElasticClient(connectionSettings);
 
 
-                var query = elasticClient.Search<object>(sd => sd
+                var query = elasticClient.Search<AccountESModel>(sd => sd
                              .Index(index)
                            .Query(q =>
                              q.Bool(
                                  qb => qb.Must(
-                                    qb => qb.Term("ClientId", client_id)
+                                    qb => qb.Term(x=>x.ClientId, client_id)
 
 
                                   )
@@ -210,15 +215,14 @@ namespace APP_CHECKOUT.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<object>;
-                    var data = JsonConvert.DeserializeObject<List<AccountESModel>>(JsonConvert.SerializeObject(result));
+                    var data = query.Documents as List<AccountESModel>;
+
                     return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
-                string error_msg = "AccountESModel ->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                LogHelper.InsertLogTelegramByUrl(error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
