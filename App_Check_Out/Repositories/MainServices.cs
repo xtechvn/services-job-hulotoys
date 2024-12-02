@@ -135,10 +135,10 @@ namespace APP_CHECKOUT.Repositories
                 //logging_service.InsertLogTelegramDirect(" accountClientESService.GetById("+ order.account_client_id + ") : "+ (account_client == null ? "NULL" : JsonConvert.SerializeObject(account_client)));
 
                 var client = clientESService.GetById((long)account_client.ClientId);
-                logging_service.InsertLogTelegramDirect(" clientESService.GetById(" + (long)account_client.ClientId + ") : " + (client == null ? "NULL" : JsonConvert.SerializeObject(client)));
+               // logging_service.InsertLogTelegramDirect(" clientESService.GetById(" + (long)account_client.ClientId + ") : " + (client == null ? "NULL" : JsonConvert.SerializeObject(client)));
 
                 AddressClientESModel address_client = addressClientESService.GetById(order.address_id, client.Id);
-                logging_service.InsertLogTelegramDirect(" addressClientESService.GetById(" + order.address_id + "," + client.Id + ") : " + (address_client == null ? "NULL" : JsonConvert.SerializeObject(address_client)));
+               // logging_service.InsertLogTelegramDirect(" addressClientESService.GetById(" + order.address_id + "," + client.Id + ") : " + (address_client == null ? "NULL" : JsonConvert.SerializeObject(address_client)));
 
                 order_summit = new Order()
                 {
@@ -213,7 +213,7 @@ namespace APP_CHECKOUT.Repositories
                
 
                 var order_id = await orderDAL.CreateOrder(order_summit);
-                Console.WriteLine("Created Order - " + order.order_no+": "+ order_id);
+               // Console.WriteLine("Created Order - " + order.order_no+": "+ order_id);
                 logging_service.InsertLogTelegramDirect("Order Created - " + order.order_no + " - " + total_amount);
                 workQueueClient.SyncES(order_id, "SP_GetOrder", "hulotoys_sp_getorder", Convert.ToInt16(ProjectType.HULOTOYS));
 
