@@ -132,7 +132,7 @@ namespace APP_CHECKOUT.Repositories
 
                 }
                 var account_client = accountClientESService.GetById(order.account_client_id);
-                logging_service.InsertLogTelegramDirect(" accountClientESService.GetById("+ order.account_client_id + ") : "+ (account_client == null ? "NULL" : JsonConvert.SerializeObject(account_client)));
+                //logging_service.InsertLogTelegramDirect(" accountClientESService.GetById("+ order.account_client_id + ") : "+ (account_client == null ? "NULL" : JsonConvert.SerializeObject(account_client)));
 
                 var client = clientESService.GetById((long)account_client.ClientId);
                 logging_service.InsertLogTelegramDirect(" clientESService.GetById(" + (long)account_client.ClientId + ") : " + (client == null ? "NULL" : JsonConvert.SerializeObject(client)));
