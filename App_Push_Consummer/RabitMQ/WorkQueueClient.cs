@@ -22,7 +22,7 @@ namespace App_Push_Consummer.RabitMQ
             queue_setting = new QueueSettingViewModel()
             {
                 host = ConfigurationManager.AppSettings["QUEUE_HOST"],
-                port = Convert.ToInt32(ConfigurationManager.AppSettings["QUEUE_V_HOST_SYNC"]),
+                port = Convert.ToInt32(ConfigurationManager.AppSettings["QUEUE_PORT"]),
                 v_host = ConfigurationManager.AppSettings["QUEUE_V_HOST_SYNC"],
                 username = ConfigurationManager.AppSettings["QUEUE_USERNAME"],
                 password = ConfigurationManager.AppSettings["QUEUE_PASSWORD"],
@@ -51,7 +51,7 @@ namespace App_Push_Consummer.RabitMQ
                               };
                 var _data_push = JsonConvert.SerializeObject(j_param);
                 // Push message vào queue
-                var response_queue = InsertQueueSimple(_data_push, ConfigurationManager.AppSettings["QUEUE_SYNC_ES"]);
+                var response_queue = InsertQueueSimpleDurable(_data_push, ConfigurationManager.AppSettings["QUEUE_SYNC_ES"]);
                 ErrorWriter.InsertLogTelegram(tele_token, tele_group_id, "WorkQueueClient - SyncES[" + id + "][" + store_procedure + "] [" + index_es + "][" + project_id + "]: "+ response_queue.ToString());
 
                 return true;
@@ -91,36 +91,36 @@ namespace App_Push_Consummer.RabitMQ
                 }
             }
         }
-        //public bool InsertQueueSimpleDurable( string message, string queueName)
-        //{
-            
-        //    using (var connection = factory.CreateConnection())
-        //    using (var channel = connection.CreateModel())
-        //    {
-        //        try
-        //        {
-        //            channel.QueueDeclare(queue: queueName,
-        //                             durable: true,
-        //                             exclusive: false,
-        //                             autoDelete: false,
-        //                             arguments: null);
+        public bool InsertQueueSimpleDurable(string message, string queueName)
+        {
 
-        //            var body = Encoding.UTF8.GetBytes(message);
+            using (var connection = factory.CreateConnection())
+            using (var channel = connection.CreateModel())
+            {
+                try
+                {
+                    channel.QueueDeclare(queue: queueName,
+                                     durable: true,
+                                     exclusive: false,
+                                     autoDelete: false,
+                                     arguments: null);
 
-        //            channel.BasicPublish(exchange: "",
-        //                                 routingKey: queueName,
-        //                                 basicProperties: null,
-        //                                 body: body);
-        //            return true;
+                    var body = Encoding.UTF8.GetBytes(message);
 
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-        //            LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
-        //            return false;
-        //        }
-        //    }
-        //}
+                    channel.BasicPublish(exchange: "",
+                                         routingKey: queueName,
+                                         basicProperties: null,
+                                         body: body);
+                    return true;
+
+                }
+                catch (Exception ex)
+                {
+                    string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
+                    ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "WorkQueueClient - InsertQueueSimpleDurable[" + message + "][" + queueName + "]: " + ex.ToString());
+                    return false;
+                }
+            }
+        }
     }
 }
