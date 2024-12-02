@@ -53,7 +53,17 @@ namespace HuloToys_Service.Controllers.Client.Business
                     if (model!=null && model.user_name!=null && model.user_name.Trim() != "")
                     {
                         var account = _accountClientESService.GetByUsername(model.user_name);
-                        account_client_id = account.Id;
+                        if (account == null)
+                        {
+                            LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], 
+                                "GetAccountClientIdFromToken with ["+model.user_name+"] ID=" + (account == null ? "[accountclient null]" : account.Id.ToString()));
+
+                        }
+                        else
+                        {
+                            account_client_id = account.Id;
+
+                        }
                     }
 
                 }
