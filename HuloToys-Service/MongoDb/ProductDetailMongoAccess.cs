@@ -178,22 +178,19 @@ namespace HuloToys_Service.MongoDb
             {
                 var filter = Builders<ProductMongoDbModel>.Filter;
                 var filterDefinition = filter.Empty;
-                if (keyword != null && keyword.Trim() != "")
-                {
-                    filterDefinition &= Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, new Regex(Regex.Escape(keyword), RegexOptions.IgnoreCase));
-                }
+                filterDefinition &= Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, new Regex(Regex.Escape(keyword), RegexOptions.IgnoreCase));
+                //filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.parent_product_id, "");
+                filterDefinition &= Builders<ProductMongoDbModel>.Filter.Or(
+                    Builders<ProductMongoDbModel>.Filter.Eq(p => p.parent_product_id, null),
+                    Builders<ProductMongoDbModel>.Filter.Eq(p => p.parent_product_id, "")
+                );
                 if (group_id > 0)
                 {
                     filterDefinition &= Builders<ProductMongoDbModel>.Filter.Regex(x => x.group_product_id, group_id.ToString());
                 }
-                filterDefinition &= Builders<ProductMongoDbModel>.Filter.Or(
-                                   Builders<ProductMongoDbModel>.Filter.Eq(p => p.parent_product_id, null),
-                                   Builders<ProductMongoDbModel>.Filter.Eq(p => p.parent_product_id, "")
-                               );
-                filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.status, (int)ProductStatus.ACTIVE);
                 var sort_filter = Builders<ProductMongoDbModel>.Sort;
-                var sort_filter_definition = sort_filter.Ascending(x => x.updated_last);
-                var model = _productDetailCollection.Find(filterDefinition);
+                var sort_filter_definition = sort_filter.Descending(x => x.updated_last);
+                var model = _productDetailCollection.Find(filterDefinition).Sort(sort_filter_definition);
                 model.Options.Skip = page_index < 1 ? 0 : (page_index - 1) * page_size;
                 model.Options.Limit = page_size;
                 long count = await model.CountDocumentsAsync();
