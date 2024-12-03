@@ -9,6 +9,9 @@ namespace HuloToys_Service.Models.Orders
 {
     public class OrderESModel
     {
+        [PropertyName("Id")]
+
+        public long Id { get; set; }
         [PropertyName("OrderId")]
 
         public long OrderId { get; set; }
