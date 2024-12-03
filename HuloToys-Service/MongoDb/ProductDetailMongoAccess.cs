@@ -192,7 +192,7 @@ namespace HuloToys_Service.MongoDb
                                );
                 filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.status, (int)ProductStatus.ACTIVE);
                 var sort_filter = Builders<ProductMongoDbModel>.Sort;
-                var sort_filter_definition = sort_filter.Descending(x => x.updated_last);
+                var sort_filter_definition = sort_filter.Descending(x => x.created_date);
                 var model = _productDetailCollection.Find(filterDefinition);
                 model.Options.Skip = page_index < 1 ? 0 : (page_index - 1) * page_size;
                 model.Options.Limit = page_size;
