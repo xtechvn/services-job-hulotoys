@@ -79,6 +79,50 @@ namespace HuloToys_Service.MongoDb
             return null;
 
         }
+        public async Task<List<OrderDetailMongoDbModel>> GetListByOrdersNo(List<string> orders_no)
+        {
+            try
+            {
+                var filter = Builders<OrderDetailMongoDbModel>.Filter;
+                var filterDefinition = filter.Empty;
+                filterDefinition &= Builders<OrderDetailMongoDbModel>.Filter.In(x => x.order_no, orders_no);
+
+                return await bookingCollection.Find(filterDefinition)
+                    .ToListAsync();
+
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
+                LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
+            }
+            return null;
+
+        }
+        public async Task<OrderDetailMongoDbModel> GetByOrderNo(string order_no)
+        {
+            try
+            {
+                order_no= order_no.Trim();
+                var filter = Builders<OrderDetailMongoDbModel>.Filter;
+                var filterDefinition = filter.Empty;
+                filterDefinition &= Builders<OrderDetailMongoDbModel>.Filter.Eq(x => x.order_no, order_no);
+
+                var list= await bookingCollection.Find(filterDefinition)
+                    .ToListAsync();
+                if(list!=null && list.Count > 0)
+                {
+                    return list.First();
+                }
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
+                LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
+            }
+            return null;
+
+        }
 
         public async Task<bool> Delete(string id)
         {

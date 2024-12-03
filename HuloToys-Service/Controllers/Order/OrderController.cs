@@ -175,7 +175,7 @@ namespace HuloToys_Service.Controllers
                     var result = orderESRepository.GetFEByClientID((long)account_client.ClientId, request.status, (request.page_index <= 0 ? 1 : request.page_index), (request.page_size <= 0 ? 10 : request.page_size));
                     if(result!=null && result.data!=null && result.data.Count > 0)
                     {
-                        result.data_order = await orderMongodbService.GetListByOrderId(result.data.Select(x => x.OrderId).ToList());
+                        result.data_order = await orderMongodbService.GetListByOrdersNo(result.data.Select(x => x.OrderNo).ToList());
                     }
                     return Ok(new
                     {
@@ -382,9 +382,10 @@ namespace HuloToys_Service.Controllers
                     }
                     OrderDetailResponseModel result = new OrderDetailResponseModel()
                     {
-                        data_order = (await orderMongodbService.GetListByOrderId(new List<long>() { request.id })).FirstOrDefault(),
                         data = orderESRepository.GetByOrderId(request.id)
                     };
+                    result.data_order = await orderMongodbService.GetByOrderNo(result.data.OrderNo);
+
                     var provinces = _redisService.Get(CacheType.PROVINCE, Convert.ToInt32(configuration["Redis:Database:db_common"]));
                     var district = _redisService.Get(CacheType.DISTRICT, Convert.ToInt32(configuration["Redis:Database:db_common"]));
                     var ward = _redisService.Get(CacheType.WARD, Convert.ToInt32(configuration["Redis:Database:db_common"]));
@@ -468,6 +469,7 @@ namespace HuloToys_Service.Controllers
                     long account_client_id = await clientServices.GetAccountClientIdFromToken(request.token);
                     if (account_client_id <= 0)
                     {
+
                         return Ok(new
                         {
                             status = (int)ResponseType.FAILED,
