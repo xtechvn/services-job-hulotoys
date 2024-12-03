@@ -192,7 +192,7 @@ namespace Caching.Elasticsearch
                              qb => qb.Must(
                                  q => q.Term("ClientId", client_id.ToString()),
                                  q => q.QueryString(qs => qs
-                                 .Fields(new[] { "orderno" })
+                                 .Fields(new[] { "OrderNo" })
                                  .Query("*" + text.ToUpper() + "*")
                                  .Analyzer("standard")
 
@@ -271,7 +271,7 @@ namespace Caching.Elasticsearch
                                .Index(index)
 
                                .Query(q => q
-                                    .Term(m => m.OrderId, order_id)
+                                    .Term(m => m.Id, order_id)
                                    ));
 
                 if (!query.IsValid)
