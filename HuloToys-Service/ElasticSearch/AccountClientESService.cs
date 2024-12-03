@@ -113,8 +113,11 @@ namespace Caching.Elasticsearch
                 if (query.IsValid)
                 {
                     var data = query.Documents as List<AccountESModel>;
-
-                    return data.FirstOrDefault();
+                    if (data != null && data.Count>0) { data = data.Where(x => x.UserName.Trim().ToLower()== user_name.ToLower() && x.Password == password).ToList(); }
+                    if(data!=null && data.Count > 0)
+                    {
+                        return data.FirstOrDefault();
+                    }
                 }
             }
             catch (Exception ex)
