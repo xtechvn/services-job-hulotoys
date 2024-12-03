@@ -384,7 +384,23 @@ namespace HuloToys_Service.Controllers
                     {
                         data = orderESRepository.GetByOrderId(request.id)
                     };
-                    result.data_order = await orderMongodbService.GetByOrderNo(result.data.OrderNo);
+                    if (result.data == null)
+                    {
+                        LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"],
+                            "HistoryDetail - OrderController orderESRepository.GetByOrderId("+request.id+") : NULL");
+
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    else
+                    {
+                        LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"],
+                           "HistoryDetail - OrderController orderESRepository.GetByOrderId(" + request.id + ") : "+JsonConvert.SerializeObject(result.data));
+                        result.data_order = await orderMongodbService.GetByOrderNo(result.data.OrderNo);
+                    }
 
                     var provinces = _redisService.Get(CacheType.PROVINCE, Convert.ToInt32(configuration["Redis:Database:db_common"]));
                     var district = _redisService.Get(CacheType.DISTRICT, Convert.ToInt32(configuration["Redis:Database:db_common"]));
