@@ -158,7 +158,7 @@ namespace HuloToys_Service.MongoDb
                 filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.status, (int)ProductStatus.ACTIVE);
                 var sort_filter = Builders<ProductMongoDbModel>.Sort;
                 var sort_filter_definition = sort_filter.Descending(x => x.updated_last);
-                var model = _productDetailCollection.Find(filterDefinition);
+                var model = _productDetailCollection.Find(filterDefinition).Sort(sort_filter_definition);
                 long count = await model.CountDocumentsAsync();
                 var items = await model.ToListAsync();
                 return new ProductListResponseModel()
@@ -247,8 +247,9 @@ namespace HuloToys_Service.MongoDb
                                    Builders<ProductMongoDbModel>.Filter.Eq(p => p.parent_product_id, null),
                                    Builders<ProductMongoDbModel>.Filter.Eq(p => p.parent_product_id, "")
                                );
-                var model = _productDetailCollection.Find(filter);
-                var items = await model.ToListAsync();
+                var sort_filter = Builders<ProductMongoDbModel>.Sort;
+                var sort_filter_definition = sort_filter.Descending(x => x.updated_last);
+                var model = _productDetailCollection.Find(filter).Sort(sort_filter_definition); var items = await model.ToListAsync();
                 long count = await model.CountDocumentsAsync();
                 return new ProductListResponseModel()
                 {
@@ -270,8 +271,9 @@ namespace HuloToys_Service.MongoDb
                 filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.parent_product_id, parent_id);
                 filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.status, (int)ProductStatus.ACTIVE); ;
 
-                var model = _productDetailCollection.Find(filterDefinition);
-                var result = await model.ToListAsync();
+                var sort_filter = Builders<ProductMongoDbModel>.Sort;
+                var sort_filter_definition = sort_filter.Descending(x => x.updated_last);
+                var model = _productDetailCollection.Find(filterDefinition).Sort(sort_filter_definition); var items = await model.ToListAsync(); var result = await model.ToListAsync();
                 return result;
             }
             catch (Exception ex)
@@ -307,33 +309,38 @@ namespace HuloToys_Service.MongoDb
             try
             {
 
-                string regex_keyword_pattern = keyword;
-                var keyword_split = keyword.Split(" ");
-                if (keyword_split.Length > 0)
-                {
-                    regex_keyword_pattern = "";
+                // string regex_keyword_pattern = keyword;
+                // var keyword_split = keyword.Split(" ");
+                // if (keyword_split.Length > 0)
+                // {
+                //     regex_keyword_pattern = "";
 
-                    foreach (var word in keyword_split)
-                    {
-                        string w = word.Trim();
-                        if (StringHelper.HasSpecialCharacterExceptVietnameseCharacter(word))
-                        {
-                            w = StringHelper.RemoveSpecialCharacterExceptVietnameseCharacter(word);
-                        }
-                        regex_keyword_pattern += "(?=.*" + w + ".*)";
+                //     foreach (var word in keyword_split)
+                //     {
+                //         string w = word.Trim();
+                //         if (StringHelper.HasSpecialCharacterExceptVietnameseCharacter(word))
+                //         {
+                //             w = StringHelper.RemoveSpecialCharacterExceptVietnameseCharacter(word);
+                //         }
+                //         regex_keyword_pattern += "(?=.*" + w + ".*)";
 
-                    }
-                }
-                regex_keyword_pattern = "^" + regex_keyword_pattern + ".*$";
-                var regex = new BsonRegularExpression(regex_keyword_pattern.Trim().ToLower(), "i");
+                //     }
+                // }
+                // regex_keyword_pattern = "^" + regex_keyword_pattern + ".*$";
+                // var regex = new BsonRegularExpression(regex_keyword_pattern.Trim().ToLower(), "i");
 
+                // var filter = Builders<ProductMongoDbModel>.Filter.Or(
+                //    Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, regex), // Case-insensitive regex
+                //    Builders<ProductMongoDbModel>.Filter.Regex(x => x.sku, regex), // Case-insensitive regex
+                //    Builders<ProductMongoDbModel>.Filter.Regex(x => x.code, regex)  // Case-insensitive regex
+                //)
                 var filter = Builders<ProductMongoDbModel>.Filter.Or(
-                   Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, regex), // Case-insensitive regex
-                   Builders<ProductMongoDbModel>.Filter.Regex(x => x.sku, regex), // Case-insensitive regex
-                   Builders<ProductMongoDbModel>.Filter.Regex(x => x.code, regex)  // Case-insensitive regex
-               )
-              
-               & Builders<ProductMongoDbModel>.Filter.Eq(x => x.status, (int)ProductStatus.ACTIVE);
+                     Builders<ProductMongoDbModel>.Filter.Regex(p => p.name, new MongoDB.Bson.BsonRegularExpression(keyword.Trim().ToLower(), "i")),
+                     Builders<ProductMongoDbModel>.Filter.Regex(p => p.sku, new MongoDB.Bson.BsonRegularExpression(keyword.Trim().ToLower(), "i")),
+                     Builders<ProductMongoDbModel>.Filter.Regex(p => p.code, new MongoDB.Bson.BsonRegularExpression(keyword.Trim().ToLower(), "i"))
+
+                     )
+                & Builders<ProductMongoDbModel>.Filter.Eq(x => x.status, (int)ProductStatus.ACTIVE);
                 filter &= Builders<ProductMongoDbModel>.Filter.Or(
                                   Builders<ProductMongoDbModel>.Filter.Eq(p => p.parent_product_id, null),
                                   Builders<ProductMongoDbModel>.Filter.Eq(p => p.parent_product_id, "")
@@ -355,7 +362,10 @@ namespace HuloToys_Service.MongoDb
                                         attr => brands.Contains(attr.value)
                                     );
                 }
-                var model = _productDetailCollection.Find(filter);
+                var sort_filter = Builders<ProductMongoDbModel>.Sort;
+                var sort_filter_definition = sort_filter.Descending(x => x.updated_last);
+                var model = _productDetailCollection.Find(filter).Sort(sort_filter_definition); 
+
                 long count = await model.CountDocumentsAsync();
                 model.Options.Skip = page_index < 1 ? 0 : (page_index - 1) * page_size;
                 model.Options.Limit = page_size;

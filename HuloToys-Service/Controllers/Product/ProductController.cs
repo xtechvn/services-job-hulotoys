@@ -372,7 +372,7 @@ namespace WEB.CMS.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var data = await _productDetailMongoAccess.GlobalSearch("", 0, "", "", 1, 500);
+                    var data = await _productDetailMongoAccess.GlobalSearch(request.keyword, 0, "", "", 1, 500);
                     List<ProductSpecificationDetailMongoDbModel> brands = new List<ProductSpecificationDetailMongoDbModel>();
                     List<GroupProductESModel> groups = new List<GroupProductESModel>();
                     ProductListResponseModel items = new ProductListResponseModel();
