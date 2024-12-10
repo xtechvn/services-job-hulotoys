@@ -31,6 +31,55 @@ namespace HuloToys_Service.Controllers.News.Business
             articleRelatedESService = new ArticleRelatedESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
             groupProductESService = new GroupProductESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
         }
+
+        public async Task<List<CategoryArticleModel>> getListNews(int category_id, int take)
+        {
+            var list_article = new List<CategoryArticleModel>();
+            try
+            {
+                // Lấy ra danh sách id các bài viết mới nhất
+                var obj_top_story = articleESService.getListNews(category_id, take);
+
+                return obj_top_story;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "getArticleListByCategoryId - ArticleDAL: " + ex);
+                return list_article;
+            }
+        }
+        public async Task<ArticleModel2> getArticleDetail(long article_id)
+        {
+            try
+            {
+                var article_list = articleESService.GetArticleDetailById(article_id);
+                return article_list;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetArticleCategoryByParentID -GroupProductRepository : " + ex);
+            }
+            return null;
+        }
+        public async Task<int> getTotalItemNewsByCategoryId(int cate_id)
+        {
+            var list_article = new List<CategoryArticleModel>();
+            try
+            {
+                // Lấy ra danh sách id các bài viết theo chuyên mục
+                var total = articleESService.getTotalItemNewsByCategoryId(cate_id);
+
+                return total;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "getArticleListByCategoryId - ArticleDAL: " + ex);
+                return 0;
+            }
+        }
+
+
+
         public async Task<ArticleModel> GetArticleDetail(long Id)
         {
             try
@@ -188,6 +237,7 @@ namespace HuloToys_Service.Controllers.News.Business
                 if (article == null) return null;
                 model = new ArticleFeDetailModel
                 {
+<<<<<<< Updated upstream
                     id = article.Id,
                     title = article.Title,
                     lead = article.Lead,
@@ -199,6 +249,19 @@ namespace HuloToys_Service.Controllers.News.Business
                     image_169 = article.Image169,
                     publish_date = article.PublishDate ?? DateTime.Now,
                     author_id = (int)article.AuthorId
+=======
+                    id = article.id,
+                    title = article.title,
+                    lead = article.lead,
+                    body = article.body,
+                    status = article.status,
+                    article_type = article.articletype,
+                    image_11 = article.image11 ?? string.Empty,
+                    image_43 = article.image43 ?? string.Empty,
+                    image_169 = article.image169 ?? string.Empty,
+                    publish_date = article.publishdate ?? DateTime.Now,
+                    author_id = article.authorid ?? -1,
+>>>>>>> Stashed changes
                 };
 
                 var data_ArticleTag_By_ArticleId = articleTagESService.GetListArticleTagByArticleId(article.Id);
