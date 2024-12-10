@@ -77,7 +77,7 @@ namespace HuloToys_Service.Controllers
                             {
                                 //-- By Username 
                                 var account_client = accountClientESService.GetByUsernameAndPassword(request.user_name, request.password);
-                                if (account_client != null && account_client.Id > 0 && account_client.ClientId > 0)
+                                if (account_client != null && account_client.ClientId > 0)
                                 {
                                     var client = clientESService.GetById((long)account_client.ClientId);
                                     if (client != null && client.Id > 0)
