@@ -15,6 +15,16 @@ namespace HuloToys_Service.Utilities.lib
             var pattern = new Regex("[^a-zA-Z0-9àáãảạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệđùúủũụưừứửữựòóỏõọôồốổỗộơờớởỡợìíỉĩịäëïîöüûñçýỳỹỵỷÀÁÃẢẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆĐÙÚỦŨỤƯỪỨỬỮỰÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÌÍỈĨỊÄËÏÎÖÜÛÑÇÝỲỸỴỶ ]");
             return pattern.Replace(text, "");
         }
+        public static string RemoveSpecialCharacter(string text)
+        {
+            var pattern = new Regex("[^a-zA-Z0-9]");
+            return pattern.Replace(text, "");
+        }
+        public static string RemoveSpecialCharacterUsername(string text)
+        {
+            var pattern = new Regex("[^a-zA-Z0-9@_.]");
+            return pattern.Replace(text, "");
+        }
         public static string NormalizeTextForSearch(string input)
         {
             return input

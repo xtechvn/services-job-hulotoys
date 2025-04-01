@@ -1,11 +1,33 @@
-﻿using System.Data;
+﻿using Newtonsoft.Json;
+using System.Data;
 using System.Net;
 using Telegram.Bot;
+using WEB.CMS.Models;
 
 namespace HuloToys_Service.Utilities.Lib
 {
     public static class LogHelper
     {
+        public static string botToken = "5321912147:AAFhcJ9DolwPWL74WbMjOOyP6-0G7w88PWY";
+        public static string group_Id = "-739120187";
+        public static string enviromment = "DEV";
+        public static string CompanyType = " ";
+        public static int CompanyTypeInt = 0;
+        public static int InsertLogTelegram(string message)
+        {
+            var rs = 1;
+            try
+            {
+                LoadConfig();
+                TelegramBotClient alertMsgBot = new TelegramBotClient(botToken);
+                var rs_push = alertMsgBot.SendTextMessageAsync(group_Id, "[" + enviromment + "-" + CompanyType + "] - " + message).Result;
+            }
+            catch (Exception ex)
+            {
+                rs = -1;
+            }
+            return rs;
+        }
         public static int InsertLogTelegram(string bot_token, string id_group, string message)
         {
             var rs = 1;
@@ -81,7 +103,21 @@ namespace HuloToys_Service.Utilities.Lib
                 }
             }
         }
+        private static void LoadConfig()
+        {
 
+            using (StreamReader r = new StreamReader("appsettings.json"))
+            {
+                AppSettings _appconfig = new AppSettings();
+                string json = r.ReadToEnd();
+                _appconfig = JsonConvert.DeserializeObject<AppSettings>(json);
+                enviromment = _appconfig.BotSetting.environment;
+                botToken = _appconfig.BotSetting.bot_token;
+                group_Id = _appconfig.BotSetting.bot_group_id;
+                CompanyType = "Hulotoys ";
 
+            }
+        }
+        
     }
 }

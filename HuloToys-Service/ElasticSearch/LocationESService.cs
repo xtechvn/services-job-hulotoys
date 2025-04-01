@@ -3,10 +3,7 @@ using HuloToys_Service.Elasticsearch;
 using HuloToys_Service.Utilities.Lib;
 using Nest;
 using System.Reflection;
-using HuloToys_Service.Models.Orders;
-using HuloToys_Service.Models.Location;
-using Utilities.Contants;
-using Newtonsoft.Json;
+using Entities.Models;
 
 namespace Caching.Elasticsearch
 {

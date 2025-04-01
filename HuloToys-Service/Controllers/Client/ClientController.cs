@@ -21,6 +21,8 @@ using Entities.Models;
 using HuloToys_Service.Utilities.lib;
 using HuloToys_Service.Controllers.Client.Business;
 using Nest;
+using HuloToys_Service.IRepositories;
+using Repositories.IRepositories;
 
 namespace HuloToys_Service.Controllers
 {
@@ -37,8 +39,10 @@ namespace HuloToys_Service.Controllers
         private readonly ClientServices clientServices;
         private readonly RedisConn _redisService;
         private readonly EmailService _emailService;
+        private readonly IClientRepository _clientRepository;
+        private readonly IAccountClientRepository _accountClientRepository;
 
-        public ClientController(IConfiguration _configuration, RedisConn redisService) {
+        public ClientController(IConfiguration _configuration, RedisConn redisService, IClientRepository clientRepository, IAccountClientRepository accountClientRepository) {
             configuration= _configuration;
             workQueueClient=new WorkQueueClient(configuration);
             accountClientESService = new AccountClientESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
@@ -48,6 +52,8 @@ namespace HuloToys_Service.Controllers
             _redisService.Connect();
             clientServices = new ClientServices(configuration);
             _emailService = new EmailService(configuration);
+            _clientRepository = clientRepository;
+            _accountClientRepository = accountClientRepository;
         }
         [HttpPost("login")]
         public async Task<ActionResult> ClientLogin([FromBody] APIRequestGenericModel input)
@@ -75,43 +81,19 @@ namespace HuloToys_Service.Controllers
                     {
                         case (int)AccountLoginType.Password:
                             {
+                                string user_name = StringHelper.RemoveSpecialCharacterUsername(request.user_name.Trim());
+                                string password = StringHelper.RemoveSpecialCharacter(request.password.Trim());
                                 //-- By Username 
-                                var account_client = accountClientESService.GetByUsernameAndPassword(request.user_name, request.password);
-                                if (account_client != null && account_client.ClientId > 0)
+                                var account_client = await _accountClientRepository.GetByCondition(x=>x.UserName== user_name && x.Password== password);
+                                if (account_client != null && account_client.Count > 0)
                                 {
-                                    var client = clientESService.GetById((long)account_client.ClientId);
-                                    if (client != null && client.Id > 0)
+                                    foreach (var account in account_client)
                                     {
-                                        var token = await clientServices.GenerateToken(account_client.UserName, ipAddress);
-                                        return Ok(new
+                                        if (account == null || account.ClientId==null|| account.ClientId <= 0) continue;
+                                        var client = await _clientRepository.GetClientDetailByClientId((long)account.ClientId);
+                                        if (client != null && client.Id > 0)
                                         {
-                                            status = (int)ResponseType.SUCCESS,
-                                            msg = "Success",
-                                            data = new ClientLoginResponseModel()
-                                            {   
-                                                //account_client_id = account_client_exists.id,
-                                                user_name = account_client.UserName,
-                                                name = client.ClientName,
-                                                token= token,
-                                                ip=ipAddress,
-                                                time_expire= clientServices.GetExpiredTimeFromToken(token)
-                                            }
-                                        });
-
-                                    }
-
-                                }
-                                //-- By Email 
-                                var client_exitst = clientESService.GetByEmail(request.user_name.Split("@")[0]);
-                                if(client_exitst!=null && client_exitst.Count > 0)
-                                {
-                                    client_exitst = client_exitst.Where(x => x.Email.ToLower().Trim() == request.user_name.ToLower().Trim()).ToList();
-                                    foreach(var client in client_exitst)
-                                    {
-                                        var account_client_exists = accountClientESService.GetByClientIdAndPassword(client.Id, request.password);
-                                        if (account_client_exists != null && account_client_exists.Id > 0)
-                                        {
-                                            var token = await clientServices.GenerateToken(account_client_exists.UserName, ipAddress);
+                                            var token = await clientServices.GenerateToken(account.UserName, ipAddress);
                                             return Ok(new
                                             {
                                                 status = (int)ResponseType.SUCCESS,
@@ -119,7 +101,7 @@ namespace HuloToys_Service.Controllers
                                                 data = new ClientLoginResponseModel()
                                                 {
                                                     //account_client_id = account_client_exists.id,
-                                                    user_name = account_client_exists.UserName,
+                                                    user_name = account.UserName,
                                                     name = client.ClientName,
                                                     token = token,
                                                     ip = ipAddress,
@@ -129,15 +111,17 @@ namespace HuloToys_Service.Controllers
                                         }
                                     }
                                 }
-                                //-- By Phone 
-                                client_exitst = clientESService.GetByPhone(request.user_name);
-                                if (client_exitst != null && client_exitst.Count > 0)
+                                //-- By Email  || Phone:
+                                var email_part = user_name.Split("@")[0].Trim();
+                                var clients = await _clientRepository.GetByCondition(x => x.Email.Contains(email_part) || x.Phone.Trim()== user_name);
+                                if(clients != null && clients.Count > 0)
                                 {
-                                    foreach (var client in client_exitst)
+                                    foreach(var client in clients)
                                     {
-                                        var account_client_exists = accountClientESService.GetByClientIdAndPassword(client.Id, request.password);
-                                        if (account_client_exists != null && account_client_exists.Id > 0)
+                                        var account_clients = await _accountClientRepository.GetByCondition(x=>x.ClientId==client.Id&&x.Password== password);
+                                        if (account_clients != null && account_clients.Count > 0)
                                         {
+                                            var account_client_exists = account_clients.First();
                                             var token = await clientServices.GenerateToken(account_client_exists.UserName, ipAddress);
                                             return Ok(new
                                             {

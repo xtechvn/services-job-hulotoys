@@ -17,11 +17,11 @@ using HuloToys_Service.Controllers.Order.Business;
 using HuloToys_Service.RedisWorker;
 using HuloToys_Service.Models.Orders;
 using HuloToys_Service.Models.APIRequest;
-using HuloToys_Service.Models.Location;
 using HuloToys_Service.Controllers.Client.Business;
 using App_Push_Consummer.Model.Comments;
 using HuloToys_Service.ElasticSearch;
 using HuloToys_Service.Controllers.Shipping.Business;
+using Entities.Models;
 
 namespace HuloToys_Service.Controllers
 {
@@ -552,11 +552,12 @@ namespace HuloToys_Service.Controllers
 
                     }
                     //-- Shipping fee
-                    var shipping_fee = await shippingBussinessSerice.GetShippingFeeResponse(request.delivery_detail);
-                    shipping_fee ??= new Models.NinjaVan.ShippingFeeResponseModel();
-                    if (shipping_fee.total_shipping_fee <= 0) shipping_fee.total_shipping_fee = 0;
-                    model.shipping_fee = shipping_fee.total_shipping_fee;
-                    model.total_amount += shipping_fee.total_shipping_fee;
+                    //var shipping_fee = await shippingBussinessSerice.GetShippingFeeResponse(request.delivery_detail);
+                    //shipping_fee ??= new Models.NinjaVan.ShippingFeeResponseModel();
+                    //if (shipping_fee.total_shipping_fee <= 0) shipping_fee.total_shipping_fee = 0;
+                    //model.shipping_fee = shipping_fee.total_shipping_fee;
+                    //model.total_amount += shipping_fee.total_shipping_fee;
+                    model.shipping_fee = 0;
                     //-- Mongodb:
                     var result = await orderMongodbService.Insert(model);
                     //-- Insert Queue:

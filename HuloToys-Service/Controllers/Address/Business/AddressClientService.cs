@@ -2,11 +2,7 @@
 using Entities.Models;
 using HuloToys_Service.Controllers.Client.Business;
 using HuloToys_Service.Models.Client;
-using HuloToys_Service.Models.Location;
-using HuloToys_Service.RabitMQ;
 using HuloToys_Service.RedisWorker;
-using Microsoft.Extensions.Configuration;
-using Nest;
 using Newtonsoft.Json;
 using Utilities.Contants;
 

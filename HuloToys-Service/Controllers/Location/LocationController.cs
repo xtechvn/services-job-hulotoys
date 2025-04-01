@@ -50,7 +50,7 @@ namespace HuloToys_Service.Controllers
                     {
                         status = (int)ResponseType.SUCCESS,
                         msg = "Success",
-                        data = province_es !=null? JsonConvert.DeserializeObject<List<Province>>(JsonConvert.SerializeObject(province_es)) : new List<Province>()
+                        data = province_es !=null? JsonConvert.DeserializeObject<List<Entities.Models.Province>>(JsonConvert.SerializeObject(province_es)) : new List<Entities.Models.Province>()
                     });
                 }
 
@@ -97,7 +97,7 @@ namespace HuloToys_Service.Controllers
                     {
                         status = (int)ResponseType.SUCCESS,
                         msg = "Success",
-                        data = district_es != null ? district_es : new List<District>()
+                        data = district_es != null ? district_es : new List<Entities.Models.District>()
                     });
 
                 }
@@ -145,7 +145,7 @@ namespace HuloToys_Service.Controllers
                     {
                         status = (int)ResponseType.SUCCESS,
                         msg = "Success",
-                        data = ward_es != null ? ward_es : new List<Ward>()
+                        data = ward_es != null ? ward_es : new List<Entities.Models.Ward>()
                     });
 
                 }
