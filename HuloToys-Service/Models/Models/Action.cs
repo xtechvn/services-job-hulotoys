@@ -7,9 +7,9 @@ public partial class Action
 {
     public int Id { get; set; }
 
-    public string ControllerName { get; set; }
+    public string ControllerName { get; set; } = null!;
 
-    public string ActionName { get; set; }
+    public string ActionName { get; set; } = null!;
 
     public int? PermissionId { get; set; }
 
@@ -19,7 +19,7 @@ public partial class Action
 
     public DateTime? ModifiedOn { get; set; }
 
-    public virtual Menu Menu { get; set; }
+    public virtual Menu? Menu { get; set; }
 
-    public virtual Permission Permission { get; set; }
+    public virtual Permission? Permission { get; set; }
 }

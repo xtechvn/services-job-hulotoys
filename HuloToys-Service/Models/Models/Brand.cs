@@ -7,9 +7,9 @@ public partial class Brand
 {
     public int BrandId { get; set; }
 
-    public string BrandName { get; set; }
+    public string? BrandName { get; set; }
 
-    public string BrandCode { get; set; }
+    public string? BrandCode { get; set; }
 
     public int? CreatedBy { get; set; }
 

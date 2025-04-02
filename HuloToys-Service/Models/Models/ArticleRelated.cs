@@ -13,5 +13,5 @@ public partial class ArticleRelated
 
     public DateTime? UpdateLast { get; set; }
 
-    public virtual Article Article { get; set; }
+    public virtual Article? Article { get; set; }
 }

@@ -13,7 +13,7 @@ public partial class ArticleTag
 
     public DateTime? UpdateLast { get; set; }
 
-    public virtual Article Article { get; set; }
+    public virtual Article? Article { get; set; }
 
-    public virtual Tag Tag { get; set; }
+    public virtual Tag? Tag { get; set; }
 }

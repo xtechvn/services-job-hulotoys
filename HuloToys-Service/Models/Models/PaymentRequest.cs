@@ -7,7 +7,7 @@ public partial class PaymentRequest
 {
     public long Id { get; set; }
 
-    public string PaymentCode { get; set; }
+    public string PaymentCode { get; set; } = null!;
 
     /// <summary>
     /// 1: Thanh toán dịch vụ , 2: Thanh toán khác
@@ -22,9 +22,9 @@ public partial class PaymentRequest
 
     public long? BankingAccountId { get; set; }
 
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
-    public string Note { get; set; }
+    public string? Note { get; set; }
 
     public bool? IsServiceIncluded { get; set; }
 
@@ -38,7 +38,7 @@ public partial class PaymentRequest
 
     public int? ClientId { get; set; }
 
-    public string DeclineReason { get; set; }
+    public string? DeclineReason { get; set; }
 
     public int? CreatedBy { get; set; }
 
@@ -52,11 +52,11 @@ public partial class PaymentRequest
 
     public bool? IsSupplierDebt { get; set; }
 
-    public string BankAccount { get; set; }
+    public string? BankAccount { get; set; }
 
-    public string BankName { get; set; }
+    public string? BankName { get; set; }
 
-    public string AbandonmentReason { get; set; }
+    public string? AbandonmentReason { get; set; }
 
     public bool? IsPaymentBefore { get; set; }
 }

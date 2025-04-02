@@ -9,17 +9,17 @@ public partial class Mfauser
 
     public int UserId { get; set; }
 
-    public string Username { get; set; }
+    public string Username { get; set; } = null!;
 
-    public string Email { get; set; }
+    public string Email { get; set; } = null!;
 
     public short Status { get; set; }
 
-    public string SecretKey { get; set; }
+    public string SecretKey { get; set; } = null!;
 
-    public string BackupCode { get; set; }
+    public string BackupCode { get; set; } = null!;
 
-    public string UserCreatedYear { get; set; }
+    public string? UserCreatedYear { get; set; }
 
     public DateTime? UpdateTime { get; set; }
 }

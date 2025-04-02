@@ -9,9 +9,9 @@ public partial class InvoiceRequestDetail
 
     public long? InvoiceRequestId { get; set; }
 
-    public string ProductName { get; set; }
+    public string? ProductName { get; set; }
 
-    public string Unit { get; set; }
+    public string? Unit { get; set; }
 
     public int? Quantity { get; set; }
 

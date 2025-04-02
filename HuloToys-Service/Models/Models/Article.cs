@@ -7,11 +7,11 @@ public partial class Article
 {
     public long Id { get; set; }
 
-    public string Title { get; set; }
+    public string Title { get; set; } = null!;
 
-    public string Lead { get; set; }
+    public string Lead { get; set; } = null!;
 
-    public string Body { get; set; }
+    public string Body { get; set; } = null!;
 
     public int Status { get; set; }
 
@@ -23,11 +23,11 @@ public partial class Article
 
     public int? AuthorId { get; set; }
 
-    public string Image169 { get; set; }
+    public string Image169 { get; set; } = null!;
 
-    public string Image43 { get; set; }
+    public string? Image43 { get; set; }
 
-    public string Image11 { get; set; }
+    public string? Image11 { get; set; }
 
     public DateTime? CreatedOn { get; set; }
 

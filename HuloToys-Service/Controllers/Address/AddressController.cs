@@ -26,7 +26,7 @@ namespace HuloToys_Service.Controllers.Address
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    
     public class AddressController : ControllerBase
     {
         private readonly IConfiguration configuration;
@@ -93,7 +93,7 @@ namespace HuloToys_Service.Controllers.Address
                         if (request.Id > 0 )
                         {
                             var address_update = addressClientESService.GetById(request.Id, (long)account_client.ClientId);
-                            if (address_update == null || address_update.Id <= 0)
+                            if (address_update == null || address_update.id <= 0)
                             {
                                 return Ok(new
                                 {
@@ -386,7 +386,7 @@ namespace HuloToys_Service.Controllers.Address
                     if (j_data != null && j_data.Trim() != "")
                     {
                         AddressClientESModel result = JsonConvert.DeserializeObject<AddressClientESModel>(j_data);
-                        if (result != null && result.Id > 0)
+                        if (result != null && result.id > 0)
                         {
                             return Ok(new
                             {
@@ -398,7 +398,7 @@ namespace HuloToys_Service.Controllers.Address
                     }
                     var account_client = accountClientESService.GetById(account_client_id);
                     var detail = addressClientESService.GetById(request.id, (long)account_client.ClientId);
-                    if (detail != null && detail.Id > 0)
+                    if (detail != null && detail.id > 0)
                     {
                         redisService.Set(cache_name, JsonConvert.SerializeObject(detail), Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
                     }

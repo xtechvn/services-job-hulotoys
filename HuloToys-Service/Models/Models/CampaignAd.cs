@@ -7,7 +7,7 @@ public partial class CampaignAd
 {
     public int Id { get; set; }
 
-    public string CampaignName { get; set; }
+    public string? CampaignName { get; set; }
 
     public DateTime? StartDate { get; set; }
 
@@ -15,7 +15,7 @@ public partial class CampaignAd
 
     public int? Type { get; set; }
 
-    public string Note { get; set; }
+    public string? Note { get; set; }
 
-    public string ScriptSocial { get; set; }
+    public string? ScriptSocial { get; set; }
 }

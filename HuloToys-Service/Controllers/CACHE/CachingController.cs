@@ -11,7 +11,7 @@ namespace API_CORE.Controllers.CACHE
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    
     public class CachingController : Controller
     {
         private IConfiguration configuration;

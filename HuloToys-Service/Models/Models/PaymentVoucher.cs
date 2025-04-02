@@ -7,7 +7,7 @@ public partial class PaymentVoucher
 {
     public long Id { get; set; }
 
-    public string PaymentCode { get; set; }
+    public string PaymentCode { get; set; } = null!;
 
     /// <summary>
     /// 1: Thanh toán dịch vụ , 2: Thanh toán khác
@@ -19,7 +19,7 @@ public partial class PaymentVoucher
     /// <summary>
     /// Id Phiếu yêu cầu chi
     /// </summary>
-    public string RequestId { get; set; }
+    public string RequestId { get; set; } = null!;
 
     public long SupplierId { get; set; }
 
@@ -27,17 +27,17 @@ public partial class PaymentVoucher
 
     public long BankingAccountId { get; set; }
 
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
-    public string Note { get; set; }
+    public string? Note { get; set; }
 
     public int? ClientId { get; set; }
 
-    public string AttachFiles { get; set; }
+    public string? AttachFiles { get; set; }
 
-    public string BankAccount { get; set; }
+    public string? BankAccount { get; set; }
 
-    public string BankName { get; set; }
+    public string? BankName { get; set; }
 
     public int? SourceAccount { get; set; }
 

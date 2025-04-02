@@ -7,11 +7,11 @@ public partial class AllCode
 {
     public int Id { get; set; }
 
-    public string Type { get; set; }
+    public string Type { get; set; } = null!;
 
     public short CodeValue { get; set; }
 
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     public short? OrderNo { get; set; }
 

@@ -10,20 +10,27 @@ using Caching.Elasticsearch;
 using HuloToys_Service.Models.APIRequest;
 using HuloToys_Service.RedisWorker;
 using HuloToys_Service.Models.Location;
+using Repositories.IRepositories;
 
 namespace HuloToys_Service.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class LocationController : ControllerBase
     {
         private readonly IConfiguration configuration;
+        private readonly IProvinceRepository _provinceRepository;
+        private readonly IDistrictRepository _districtRepository;
+        private readonly IWardRepository _wardRepository;
         private readonly LocationESService locationESService;
 
-        public LocationController(IConfiguration _configuration, RedisConn redisService) {
+        public LocationController(IConfiguration _configuration, RedisConn redisService, IProvinceRepository provinceRepository
+            , IDistrictRepository districtRepository, IWardRepository wardRepository) {
             configuration= _configuration;
             locationESService = new LocationESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
+            _provinceRepository= provinceRepository;
+            _districtRepository = districtRepository;
+            _wardRepository = wardRepository;
         }
         [HttpPost("province")]
         public async Task<ActionResult> Province([FromBody] APIRequestGenericModel input)
@@ -45,12 +52,12 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var province_es = locationESService.GetAllProvinces();
+                    var province_es = await _provinceRepository.GetProvincesList();
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
                         msg = "Success",
-                        data = province_es !=null? JsonConvert.DeserializeObject<List<Entities.Models.Province>>(JsonConvert.SerializeObject(province_es)) : new List<Entities.Models.Province>()
+                        data = province_es !=null? province_es: new List<Entities.Models.Province>()
                     });
                 }
 
@@ -92,7 +99,7 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var district_es =  locationESService.GetAllDistrictByProvinces(request.id);
+                    var district_es =  await _districtRepository.GetDistrictsListByProvinceID(request.id);
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
@@ -140,7 +147,7 @@ namespace HuloToys_Service.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var ward_es = locationESService.GetAllWardsByDistrictId(request.id);
+                    var ward_es = await _wardRepository.GetWardListByDistrictID(request.id);
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,

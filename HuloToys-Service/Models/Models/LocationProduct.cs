@@ -7,7 +7,7 @@ public partial class LocationProduct
 {
     public long LocationProductId { get; set; }
 
-    public string ProductCode { get; set; }
+    public string ProductCode { get; set; } = null!;
 
     public int GroupProductId { get; set; }
 

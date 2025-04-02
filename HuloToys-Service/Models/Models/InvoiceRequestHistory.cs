@@ -9,7 +9,7 @@ public partial class InvoiceRequestHistory
 
     public int? InvoiceRequestId { get; set; }
 
-    public string Actioin { get; set; }
+    public string? Actioin { get; set; }
 
     public int? CreatedBy { get; set; }
 

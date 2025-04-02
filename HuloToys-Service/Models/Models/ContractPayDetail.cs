@@ -17,7 +17,7 @@ public partial class ContractPayDetail
 
     public int? ServiceType { get; set; }
 
-    public string ServiceCode { get; set; }
+    public string? ServiceCode { get; set; }
 
     public int? CreatedBy { get; set; }
 

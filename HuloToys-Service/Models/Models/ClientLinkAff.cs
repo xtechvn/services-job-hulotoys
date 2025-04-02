@@ -9,7 +9,7 @@ public partial class ClientLinkAff
 
     public DateTime CreateDate { get; set; }
 
-    public string LinkAff { get; set; }
+    public string LinkAff { get; set; } = null!;
 
     public long ClientId { get; set; }
 }

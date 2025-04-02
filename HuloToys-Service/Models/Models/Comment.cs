@@ -9,7 +9,7 @@ public partial class Comment
 
     public int ClientId { get; set; }
 
-    public string Content { get; set; }
+    public string Content { get; set; } = null!;
 
     public DateTime? CreatedDate { get; set; }
 

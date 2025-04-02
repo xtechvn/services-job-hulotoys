@@ -11,13 +11,13 @@ public partial class AccountClient
 
     public int? ClientType { get; set; }
 
-    public string UserName { get; set; }
+    public string? UserName { get; set; }
 
-    public string Password { get; set; }
+    public string? Password { get; set; }
 
-    public string PasswordBackup { get; set; }
+    public string? PasswordBackup { get; set; }
 
-    public string ForgotPasswordToken { get; set; }
+    public string? ForgotPasswordToken { get; set; }
 
     public byte? Status { get; set; }
 
@@ -27,5 +27,5 @@ public partial class AccountClient
 
     public DateTime? UpdateLast { get; set; }
 
-    public string GoogleToken { get; set; }
+    public string? GoogleToken { get; set; }
 }

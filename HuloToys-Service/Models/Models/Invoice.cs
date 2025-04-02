@@ -13,13 +13,13 @@ public partial class Invoice
 
     public int? BankingAccountId { get; set; }
 
-    public string InvoiceCode { get; set; }
+    public string? InvoiceCode { get; set; }
 
-    public string InvoiceFromId { get; set; }
+    public string? InvoiceFromId { get; set; }
 
-    public string InvoiceSignId { get; set; }
+    public string? InvoiceSignId { get; set; }
 
-    public string InvoiceNo { get; set; }
+    public string? InvoiceNo { get; set; }
 
     public DateTime? ExportDate { get; set; }
 
@@ -39,7 +39,7 @@ public partial class Invoice
 
     public DateTime? UpdatedDate { get; set; }
 
-    public string Note { get; set; }
+    public string? Note { get; set; }
 
-    public string AttactFile { get; set; }
+    public string? AttactFile { get; set; }
 }

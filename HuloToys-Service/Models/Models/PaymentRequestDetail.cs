@@ -25,5 +25,5 @@ public partial class PaymentRequestDetail
 
     public DateTime? UpdatedDate { get; set; }
 
-    public string ServiceCode { get; set; }
+    public string? ServiceCode { get; set; }
 }

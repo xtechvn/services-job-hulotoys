@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System.Data;
 using System.Net;
 using Telegram.Bot;
-using WEB.CMS.Models;
 
 namespace HuloToys_Service.Utilities.Lib
 {
@@ -118,6 +116,29 @@ namespace HuloToys_Service.Utilities.Lib
 
             }
         }
-        
+        public class AppSettings
+        {
+            public BotSetting BotSetting { get; set; }
+            public string CompanyType { get; set; }
+
+        }
+
+        public class BotSetting
+        {
+            public string bot_token { get; set; }
+            public string bot_group_id { get; set; }
+            public string environment { get; set; }
+        }
+        public class SystemLog
+        {
+
+            public int SourceID { get; set; } // log từ nguồn nào, quy định trong SystemLogSourceID
+            public string Type { get; set; } // nội dung: booking, order,....
+            public string KeyID { get; set; } // Key: mã đơn, mã khách hàng, mã booking,....
+            public string ObjectType { get; set; } // ObjectType: Dùng để phân biệt các đối tượng cần log với nhau. Ví dụ: log cho đơn hàng, khách hàng, hợp đồng, Phiếu thu...
+            public int CompanyType { get; set; }//dùng để phân biệt company nào
+            public string Log { get; set; } // nội dung log
+            public DateTime CreatedTime { get; set; } // thời gian tạo
+        }
     }
 }

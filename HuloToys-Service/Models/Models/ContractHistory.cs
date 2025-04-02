@@ -9,7 +9,7 @@ public partial class ContractHistory
 
     public long ContractId { get; set; }
 
-    public string Action { get; set; }
+    public string Action { get; set; } = null!;
 
     public int? ActionBy { get; set; }
 

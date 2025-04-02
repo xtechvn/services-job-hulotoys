@@ -28,7 +28,7 @@ namespace HuloToys_Service.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    
     public class ClientController : ControllerBase
     {
         private readonly IConfiguration configuration;
@@ -84,45 +84,41 @@ namespace HuloToys_Service.Controllers
                                 string user_name = StringHelper.RemoveSpecialCharacterUsername(request.user_name.Trim());
                                 string password = StringHelper.RemoveSpecialCharacter(request.password.Trim());
                                 //-- By Username 
-                                var account_client = await _accountClientRepository.GetByCondition(x=>x.UserName== user_name && x.Password== password);
-                                if (account_client != null && account_client.Count > 0)
+                                var account = accountClientESService.GetByUsernameAndPassword(user_name, password);
+                                if (account != null && account.Id > 0)
                                 {
-                                    foreach (var account in account_client)
+                                    var client = clientESService.GetById((long)account.ClientId);
+                                    if (client != null && client.Id > 0)
                                     {
-                                        if (account == null || account.ClientId==null|| account.ClientId <= 0) continue;
-                                        var client = await _clientRepository.GetClientDetailByClientId((long)account.ClientId);
-                                        if (client != null && client.Id > 0)
+                                        var token = await clientServices.GenerateToken(account.UserName, ipAddress);
+                                        return Ok(new
                                         {
-                                            var token = await clientServices.GenerateToken(account.UserName, ipAddress);
-                                            return Ok(new
+                                            status = (int)ResponseType.SUCCESS,
+                                            msg = "Success",
+                                            data = new ClientLoginResponseModel()
                                             {
-                                                status = (int)ResponseType.SUCCESS,
-                                                msg = "Success",
-                                                data = new ClientLoginResponseModel()
-                                                {
-                                                    //account_client_id = account_client_exists.id,
-                                                    user_name = account.UserName,
-                                                    name = client.ClientName,
-                                                    token = token,
-                                                    ip = ipAddress,
-                                                    time_expire = clientServices.GetExpiredTimeFromToken(token)
-                                                }
-                                            });
-                                        }
+                                                //account_client_id = account_client_exists.id,
+                                                user_name = account.UserName,
+                                                name = client.ClientName,
+                                                token = token,
+                                                ip = ipAddress,
+                                                time_expire = clientServices.GetExpiredTimeFromToken(token)
+                                            }
+                                        });
                                     }
                                 }
                                 //-- By Email  || Phone:
                                 var email_part = user_name.Split("@")[0].Trim();
-                                var clients = await _clientRepository.GetByCondition(x => x.Email.Contains(email_part) || x.Phone.Trim()== user_name);
-                                if(clients != null && clients.Count > 0)
+                                var clients = clientESService.GetByEmail(email_part);
+                                clients.AddRange(clientESService.GetByPhone(user_name));
+                                if (clients != null && clients.Count > 0)
                                 {
                                     foreach(var client in clients)
                                     {
-                                        var account_clients = await _accountClientRepository.GetByCondition(x=>x.ClientId==client.Id&&x.Password== password);
-                                        if (account_clients != null && account_clients.Count > 0)
+                                        var account_client = accountClientESService.GetByClientIdAndPassword(client.Id, password);
+                                        if (account_client != null && account_client.Id > 0)
                                         {
-                                            var account_client_exists = account_clients.First();
-                                            var token = await clientServices.GenerateToken(account_client_exists.UserName, ipAddress);
+                                            var token = await clientServices.GenerateToken(account_client.UserName, ipAddress);
                                             return Ok(new
                                             {
                                                 status = (int)ResponseType.SUCCESS,
@@ -130,7 +126,7 @@ namespace HuloToys_Service.Controllers
                                                 data = new ClientLoginResponseModel()
                                                 {
                                                     //account_client_id = account_client_exists.id,
-                                                    user_name = account_client_exists.UserName,
+                                                    user_name = account_client.UserName,
                                                     name = client.ClientName,
                                                     token = token,
                                                     ip = ipAddress,

@@ -7,7 +7,7 @@ public partial class Tag
 {
     public long Id { get; set; }
 
-    public string TagName { get; set; }
+    public string? TagName { get; set; }
 
     public DateTime? CreatedOn { get; set; }
 

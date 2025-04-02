@@ -7,9 +7,9 @@ public partial class ContractPay
 {
     public int PayId { get; set; }
 
-    public string BillNo { get; set; }
+    public string BillNo { get; set; } = null!;
 
-    public string Note { get; set; }
+    public string? Note { get; set; }
 
     public double Amount { get; set; }
 
@@ -34,9 +34,9 @@ public partial class ContractPay
 
     public int? BankingAccountId { get; set; }
 
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
-    public string AttatchmentFile { get; set; }
+    public string? AttatchmentFile { get; set; }
 
     public int? ClientId { get; set; }
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Entities.Models;
+namespace Entities.Models;  
 
 public partial class AddressClient
 {
@@ -9,20 +9,20 @@ public partial class AddressClient
 
     public long ClientId { get; set; }
 
-    public string ReceiverName { get; set; }
+    public string? ReceiverName { get; set; }
 
     /// <summary>
     /// Đây là số điện thoại nhận hàng
     /// </summary>
-    public string Phone { get; set; }
+    public string Phone { get; set; } = null!;
 
-    public string ProvinceId { get; set; }
+    public string? ProvinceId { get; set; }
 
-    public string DistrictId { get; set; }
+    public string? DistrictId { get; set; }
 
-    public string WardId { get; set; }
+    public string? WardId { get; set; }
 
-    public string Address { get; set; }
+    public string? Address { get; set; }
 
     public int? Status { get; set; }
 

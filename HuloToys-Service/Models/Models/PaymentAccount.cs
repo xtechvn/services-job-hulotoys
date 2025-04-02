@@ -10,22 +10,22 @@ public partial class PaymentAccount
     /// <summary>
     /// Số tài khoản
     /// </summary>
-    public string AccountNumb { get; set; }
+    public string? AccountNumb { get; set; }
 
     /// <summary>
     /// Tên chủ tài khoản
     /// </summary>
-    public string AccountName { get; set; }
+    public string? AccountName { get; set; }
 
     /// <summary>
     /// Tên ngân hàng
     /// </summary>
-    public string BankName { get; set; }
+    public string? BankName { get; set; }
 
     /// <summary>
     /// Chi nhánh
     /// </summary>
-    public string Branch { get; set; }
+    public string? Branch { get; set; }
 
     public long ClientId { get; set; }
 

@@ -13,9 +13,9 @@ public partial class AttachFile
 
     public int? Type { get; set; }
 
-    public string Path { get; set; }
+    public string? Path { get; set; }
 
-    public string Ext { get; set; }
+    public string? Ext { get; set; }
 
     public double? Capacity { get; set; }
 

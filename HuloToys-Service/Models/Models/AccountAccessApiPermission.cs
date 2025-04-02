@@ -11,7 +11,7 @@ public partial class AccountAccessApiPermission
 
     public int? ProjectType { get; set; }
 
-    public virtual AccountAccessApi AccountAccessApi { get; set; }
+    public virtual AccountAccessApi? AccountAccessApi { get; set; }
 
-    public virtual AllCode ProjectTypeNavigation { get; set; }
+    public virtual AllCode? ProjectTypeNavigation { get; set; }
 }

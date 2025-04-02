@@ -23,7 +23,7 @@ namespace WEB.CMS.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    
     public class ProductController : ControllerBase
     {
         private readonly ProductDetailMongoAccess _productDetailMongoAccess;

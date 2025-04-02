@@ -18,7 +18,7 @@ namespace HuloToys_Service.Controllers.Comments
 {
     [Route("api")]
     [ApiController]
-    [Authorize]
+    
     public class CommentsController : ControllerBase
     {
         private readonly IConfiguration configuration;

@@ -15,7 +15,7 @@ public partial class Transaction
 
     public double Amount { get; set; }
 
-    public string ContractNo { get; set; }
+    public string ContractNo { get; set; } = null!;
 
     public int Status { get; set; }
 
@@ -23,11 +23,11 @@ public partial class Transaction
 
     public DateTime VerifyDate { get; set; }
 
-    public string BankReference { get; set; }
+    public string BankReference { get; set; } = null!;
 
     public int PaymentType { get; set; }
 
-    public string Description { get; set; }
+    public string Description { get; set; } = null!;
 
-    public string TransactionNo { get; set; }
+    public string? TransactionNo { get; set; }
 }

@@ -32,7 +32,7 @@ namespace HuloToys_Service.Controllers.Test
         /// </summary>
         /// <returns></returns>
         [HttpGet("verify-authent.json")]
-        [Authorize] // Bật login lấy token      
+         // Bật login lấy token      
         public async Task<IActionResult> verifyAuthent()
         {
             try
@@ -52,7 +52,7 @@ namespace HuloToys_Service.Controllers.Test
         /// </summary>
         /// <returns></returns>
         [HttpGet("test-elastic.json")]
-        [Authorize] // Bật login lấy token      
+         // Bật login lấy token      
         public async Task<IActionResult> testElastic()
         {
             try
@@ -77,7 +77,7 @@ namespace HuloToys_Service.Controllers.Test
         /// </summary>
         /// <returns></returns>
         [HttpPost("test-push-queue.json")]
-        [Authorize] // Bật login lấy token      
+         // Bật login lấy token      
         public async Task<IActionResult> testRabbitMQ()
         {
             try

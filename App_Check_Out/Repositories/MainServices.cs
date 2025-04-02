@@ -232,7 +232,7 @@ namespace APP_CHECKOUT.Repositories
                         order.total_discount= total_discount;
                         await orderDetailMongoDbModel.Update(order);
                     }
-                    await nhanhVnService.PostToNhanhVN(order_summit,order, client, address_client);
+                    //await nhanhVnService.PostToNhanhVN(order_summit,order, client, address_client);
 
                 }
 

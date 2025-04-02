@@ -28,7 +28,7 @@ public partial class UserAgent
 
     public int? UpdatedBy { get; set; }
 
-    public virtual Client Client { get; set; }
+    public virtual Client Client { get; set; } = null!;
 
-    public virtual User User { get; set; }
+    public virtual User User { get; set; } = null!;
 }

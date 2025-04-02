@@ -13,7 +13,7 @@ public partial class Note
 
     public int? Type { get; set; }
 
-    public string Comment { get; set; }
+    public string? Comment { get; set; }
 
     public DateTime? CreateDate { get; set; }
 

@@ -6,9 +6,9 @@ namespace Entities.Models
 {
     public partial class AddressClientESModel
     {
-        [PropertyName("Id")]
+        [PropertyName("id")]
 
-        public long Id { get; set; }
+        public long id { get; set; }
         [PropertyName("ClientId")]
 
         public long ClientId { get; set; }

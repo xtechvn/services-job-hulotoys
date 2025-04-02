@@ -7,13 +7,13 @@ public partial class Department
 {
     public int Id { get; set; }
 
-    public string DepartmentName { get; set; }
+    public string? DepartmentName { get; set; }
 
-    public string DepartmentCode { get; set; }
+    public string? DepartmentCode { get; set; }
 
     public int? ParentId { get; set; }
 
-    public string FullParent { get; set; }
+    public string? FullParent { get; set; }
 
     public bool? IsDelete { get; set; }
 
@@ -21,7 +21,7 @@ public partial class Department
 
     public int? Sort { get; set; }
 
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     public int? Branch { get; set; }
 

@@ -22,12 +22,12 @@ public partial class DepositHistory
     /// <summary>
     /// Mã giao dịch
     /// </summary>
-    public string TransNo { get; set; }
+    public string? TransNo { get; set; }
 
     /// <summary>
     /// Tiêu đề nạp
     /// </summary>
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     /// <summary>
     /// Số tiền nạp
@@ -52,21 +52,21 @@ public partial class DepositHistory
     /// <summary>
     /// Ảnh ủy nhiệm chi
     /// </summary>
-    public string ImageScreen { get; set; }
+    public string? ImageScreen { get; set; }
 
     public short? ServiceType { get; set; }
 
-    public string BankName { get; set; }
+    public string? BankName { get; set; }
 
     public long? UserVerifyId { get; set; }
 
     public DateTime? VerifyDate { get; set; }
 
-    public string NoteReject { get; set; }
+    public string? NoteReject { get; set; }
 
     public long? ClientId { get; set; }
 
-    public string BankAccount { get; set; }
+    public string? BankAccount { get; set; }
 
     public bool? IsFinishPayment { get; set; }
 }

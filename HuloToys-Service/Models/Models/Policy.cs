@@ -7,9 +7,9 @@ public partial class Policy
 {
     public int PolicyId { get; set; }
 
-    public string PolicyCode { get; set; }
+    public string? PolicyCode { get; set; }
 
-    public string PolicyName { get; set; }
+    public string? PolicyName { get; set; }
 
     public DateTime? EffectiveDate { get; set; }
 

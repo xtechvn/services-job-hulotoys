@@ -7,11 +7,11 @@ public partial class TelegramDetail
 {
     public int Id { get; set; }
 
-    public string GroupLog { get; set; }
+    public string GroupLog { get; set; } = null!;
 
-    public string Token { get; set; }
+    public string Token { get; set; } = null!;
 
-    public string GroupChatId { get; set; }
+    public string GroupChatId { get; set; } = null!;
 
     public DateTime CreateDate { get; set; }
 

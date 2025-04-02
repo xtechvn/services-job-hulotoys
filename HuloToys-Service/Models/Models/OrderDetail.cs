@@ -9,9 +9,9 @@ public partial class OrderDetail
 
     public long OrderId { get; set; }
 
-    public string ProductId { get; set; }
+    public string ProductId { get; set; } = null!;
 
-    public string ProductCode { get; set; }
+    public string? ProductCode { get; set; }
 
     public double? Amount { get; set; }
 
@@ -31,7 +31,7 @@ public partial class OrderDetail
 
     public double? TotalAmount { get; set; }
 
-    public string ProductLink { get; set; }
+    public string? ProductLink { get; set; }
 
     public int? UserCreate { get; set; }
 

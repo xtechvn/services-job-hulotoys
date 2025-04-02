@@ -47,6 +47,9 @@ internal class Program
         builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         builder.Services.AddSingleton<IClientRepository, ClientRepository>();
         builder.Services.AddSingleton<IAccountClientRepository, AccountClientRepository>();
+        builder.Services.AddSingleton<IProvinceRepository, ProvinceRepository>();
+        builder.Services.AddSingleton<IDistrictRepository, DistrictRepository>();
+        builder.Services.AddSingleton<IWardRepository, WardRepository>();
 
         builder.Services.AddSingleton<RedisConn>();
 

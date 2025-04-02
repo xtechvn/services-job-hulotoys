@@ -28,5 +28,5 @@ public partial class VoucherLogActivity
 
     public int? CartId { get; set; }
 
-    public virtual Voucher Voucher { get; set; }
+    public virtual Voucher? Voucher { get; set; }
 }
