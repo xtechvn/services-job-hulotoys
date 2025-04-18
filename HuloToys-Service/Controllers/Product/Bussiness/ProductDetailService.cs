@@ -41,7 +41,7 @@ namespace HuloToys_Service.Controllers.Product.Bussiness
             try
             {
                 // Chuẩn hóa từ khóa tìm kiếm
-                request.keyword = StringHelper.NormalizeTextForSearch(request.keyword);
+                request.keyword = StringHelper.ValidateTextForSearch(request.keyword);
 
                 var data = await _productDetailMongoAccess.ResponseListing(request.keyword, request.group_id,request.page_index,request.page_size);
                 result = JsonConvert.DeserializeObject<ProductListFEResponseModel>(JsonConvert.SerializeObject(data));

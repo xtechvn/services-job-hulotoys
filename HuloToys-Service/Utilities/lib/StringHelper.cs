@@ -1,19 +1,20 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace HuloToys_Service.Utilities.lib
 {
     public static class StringHelper
     {
+        public static Regex regex_vietnamese_unicode = new Regex("[^a-zA-Z0-9àáãảạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệđùúủũụưừứửữựòóỏõọôồốổỗộơờớởỡợìíỉĩịäëïîöüûñçýỳỹỵỷÀÁÃẢẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆĐÙÚỦŨỤƯỪỨỬỮỰÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÌÍỈĨỊÄËÏÎÖÜÛÑÇÝỲỸỴỶ ]");
+        public static Regex regex_email = new Regex("[^a-zA-Z0-9@_.]");
         public static bool HasSpecialCharacterExceptVietnameseCharacter(string text)
         {
-            var pattern = new Regex("[^a-zA-Z0-9àáãảạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệđùúủũụưừứửữựòóỏõọôồốổỗộơờớởỡợìíỉĩịäëïîöüûñçýỳỹỵỷÀÁÃẢẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆĐÙÚỦŨỤƯỪỨỬỮỰÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÌÍỈĨỊÄËÏÎÖÜÛÑÇÝỲỸỴỶ ]");
-            return pattern.IsMatch(text);
+            return regex_vietnamese_unicode.IsMatch(text);
         }
         public static string RemoveSpecialCharacterExceptVietnameseCharacter(string text)
         {
-            var pattern = new Regex("[^a-zA-Z0-9àáãảạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệđùúủũụưừứửữựòóỏõọôồốổỗộơờớởỡợìíỉĩịäëïîöüûñçýỳỹỵỷÀÁÃẢẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆĐÙÚỦŨỤƯỪỨỬỮỰÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÌÍỈĨỊÄËÏÎÖÜÛÑÇÝỲỸỴỶ ]");
-            return pattern.Replace(text, "");
+            return regex_vietnamese_unicode.Replace(text, "");
         }
         public static string RemoveSpecialCharacter(string text)
         {
@@ -22,16 +23,37 @@ namespace HuloToys_Service.Utilities.lib
         }
         public static string RemoveSpecialCharacterUsername(string text)
         {
-            var pattern = new Regex("[^a-zA-Z0-9@_.]");
-            return pattern.Replace(text, "");
+            return regex_email.Replace(text, "");
         }
-        public static string NormalizeTextForSearch(string input)
+        public static string ValidateTextForSearch(string input)
         {
-            return input
-                .Normalize(NormalizationForm.FormC)
-                .ToLower()
-                .Trim();
-        }
+            var validate= input.Normalize(NormalizationForm.FormC).ToLower().Trim();
+            validate= regex_vietnamese_unicode.Replace(validate, "");
 
+            return validate;
+        }
+        public static string RemoveUnicode(string text)
+        {
+            string[] arr1 = new string[] { "á", "à", "ả", "ã", "ạ", "â", "ấ", "ầ", "ẩ", "ẫ", "ậ", "ă", "ắ", "ằ", "ẳ", "ẵ", "ặ",
+    "đ",
+    "é","è","ẻ","ẽ","ẹ","ê","ế","ề","ể","ễ","ệ",
+    "í","ì","ỉ","ĩ","ị",
+    "ó","ò","ỏ","õ","ọ","ô","ố","ồ","ổ","ỗ","ộ","ơ","ớ","ờ","ở","ỡ","ợ",
+    "ú","ù","ủ","ũ","ụ","ư","ứ","ừ","ử","ữ","ự",
+    "ý","ỳ","ỷ","ỹ","ỵ",};
+            string[] arr2 = new string[] { "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a",
+    "d",
+    "e","e","e","e","e","e","e","e","e","e","e",
+    "i","i","i","i","i",
+    "o","o","o","o","o","o","o","o","o","o","o","o","o","o","o","o","o",
+    "u","u","u","u","u","u","u","u","u","u","u",
+    "y","y","y","y","y",};
+            for (int i = 0; i < arr1.Length; i++)
+            {
+                text = text.Replace(arr1[i], arr2[i]);
+                text = text.Replace(arr1[i].ToUpper(), arr2[i].ToUpper());
+            }
+            return text;
+        }
     }
 }
