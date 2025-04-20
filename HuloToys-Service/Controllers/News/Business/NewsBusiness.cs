@@ -237,31 +237,17 @@ namespace HuloToys_Service.Controllers.News.Business
                 if (article == null) return null;
                 model = new ArticleFeDetailModel
                 {
-<<<<<<< Updated upstream
                     id = article.Id,
                     title = article.Title,
                     lead = article.Lead,
                     body = article.Body,
                     status = article.Status,
                     article_type = article.ArticleType,
-                    image_11 = article.Image11,
-                    image_43 = article.Image43,
-                    image_169 = article.Image169,
+                    image_11 = article.Image11 ?? string.Empty,
+                    image_43 = article.Image43 ?? string.Empty,
+                    image_169 = article.Image169 ?? string.Empty,
                     publish_date = article.PublishDate ?? DateTime.Now,
-                    author_id = (int)article.AuthorId
-=======
-                    id = article.id,
-                    title = article.title,
-                    lead = article.lead,
-                    body = article.body,
-                    status = article.status,
-                    article_type = article.articletype,
-                    image_11 = article.image11 ?? string.Empty,
-                    image_43 = article.image43 ?? string.Empty,
-                    image_169 = article.image169 ?? string.Empty,
-                    publish_date = article.publishdate ?? DateTime.Now,
-                    author_id = article.authorid ?? -1,
->>>>>>> Stashed changes
+                    author_id = article.AuthorId ?? -1,
                 };
 
                 var data_ArticleTag_By_ArticleId = articleTagESService.GetListArticleTagByArticleId(article.Id);
