@@ -42,6 +42,7 @@ namespace HuloToys_Service.Models.ElasticSearch
         public string Description { get; set; }
         [PropertyName("IsShowHeader")]
 
+
         public bool IsShowHeader { get; set; }
         [PropertyName("IsShowFooter")]
 
@@ -49,5 +50,8 @@ namespace HuloToys_Service.Models.ElasticSearch
         [PropertyName("Code")]
 
         public string Code { get; set; }
+
+        public List<GroupProductESModel> group_product_child { get; set; }
+
     }
 }

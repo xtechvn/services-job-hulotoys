@@ -31,7 +31,7 @@ namespace HuloToys_Service.Models.Account
     }
     public partial class AccountApiESModel
     {
-        [PropertyName("Id")]
+        [PropertyName("id")]
 
         public int Id { get; set; }
         [PropertyName("UserName")]
