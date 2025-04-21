@@ -5,8 +5,6 @@ namespace HuloToys_Service.Models.Article
     public class ArticleESModel
     {
         [PropertyName("Id")]
-
-
         public long Id { get; set; }
         [PropertyName("Title")]
 

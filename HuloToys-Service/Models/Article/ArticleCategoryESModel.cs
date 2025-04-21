@@ -4,13 +4,13 @@ namespace HuloToys_Service.Models.Article
 {
     public class ArticleCategoryESModel
     {
-        [PropertyName("Id")]
+        [PropertyName("id")]
 
         public long Id { get; set; }
-        [PropertyName("CategoryId")]
+        [PropertyName("categoryid")]
 
         public int? categoryid { get; set; }
-        [PropertyName("ArticleId")]
+        [PropertyName("articleid")]
 
         public long? articleid { get; set; }
     }
