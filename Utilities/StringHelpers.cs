@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Utilities.ModelHelpers;
 
+
 namespace Utilities
 {
     public class StringHelpers
@@ -250,7 +251,7 @@ namespace Utilities
             return null;
         }
 
-        public static async Task<string> ReplaceEditorImage(string html_string, string img_domain, string url_upload, string key_encrypt)
+        public static async Task<string> ReplaceEditorImage(string html_string, string img_domain)
         {
             try
             {
@@ -264,14 +265,14 @@ namespace Utilities
                         string srcImage = m.Groups[1].Value;
                         if (srcImage.StartsWith("data:image"))
                         {
-                            ImageApiLink = await UpLoadHelper.UploadBase64Src(srcImage, img_domain, url_upload, key_encrypt);
+                            ImageApiLink = await UpLoadHelper.UploadBase64Src(srcImage, img_domain);
                         }
                         else if (!srcImage.StartsWith(img_domain))
                         {
                             var base64img = ConvertImageURLToBase64(WebUtility.HtmlDecode(srcImage));
                             if (!string.IsNullOrEmpty(base64img))
                             {
-                                ImageApiLink = await UpLoadHelper.UploadBase64Src(base64img, img_domain, url_upload, key_encrypt);
+                                ImageApiLink = await UpLoadHelper.UploadBase64Src(base64img, img_domain);
                             }
                         }
 
@@ -336,6 +337,7 @@ namespace Utilities
             }
             return (buf);
         }
+<<<<<<< HEAD
         public static string NormalizeString(string text)
         {
             var normalizedString = text.Normalize(NormalizationForm.FormD);
@@ -352,5 +354,13 @@ namespace Utilities
 
             return stringBuilder.ToString().Normalize(NormalizationForm.FormC).ToLower();
         }
+=======
+
+        public static string GenFileName(string base_name, int user_id, string extension)
+        {
+            return base_name + "_" + user_id + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + "." + extension;
+        }
+
+>>>>>>> 594100a (update)
     }
 }

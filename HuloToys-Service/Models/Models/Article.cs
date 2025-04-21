@@ -15,7 +15,7 @@ public partial class Article
 
     public int Status { get; set; }
 
-    public int ArticleType { get; set; }
+    public int? ArticleType { get; set; }
 
     public int? PageView { get; set; }
 

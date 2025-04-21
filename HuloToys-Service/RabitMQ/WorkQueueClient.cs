@@ -34,15 +34,15 @@ namespace HuloToys_Service.RabitMQ
             };
         }
         public bool InsertQueueSimple(string message, string queueName)
-        {            
-            
+        {
+
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
                 try
                 {
                     channel.QueueDeclare(queue: queueName,
-                                     durable: false,
+                                     durable: true,
                                      exclusive: false,
                                      autoDelete: false,
                                      arguments: null);
@@ -58,8 +58,8 @@ namespace HuloToys_Service.RabitMQ
                 }
                 catch (Exception ex)
                 {
-                    string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
-                    LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                    string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                    LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
                     return false;
                 }
             }
