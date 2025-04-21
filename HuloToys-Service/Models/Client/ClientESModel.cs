@@ -7,7 +7,7 @@ namespace HuloToys_Service.Models.Client
 {
     public  class ClientESModel
     {
-        [PropertyName("id")]
+        [PropertyName("Id")]
 
         public long Id { get; set; }
         [PropertyName("ClientMapId")]

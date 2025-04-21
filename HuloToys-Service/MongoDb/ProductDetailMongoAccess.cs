@@ -183,25 +183,28 @@ namespace HuloToys_Service.MongoDb
                 var filterDefinition = filter.Empty;
                 // filterDefinition &= Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, new Regex(Regex.Escape(keyword), RegexOptions.IgnoreCase));
                 filterDefinition &= Builders<ProductMongoDbModel>.Filter.Or(
-                    //Unicode
-                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, new BsonRegularExpression($"^{Regex.Escape(keyword)}[., ]?", "i")),
-                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.description, new BsonRegularExpression($"^{Regex.Escape(keyword)}[., ]?", "i")),
-                  Builders<ProductMongoDbModel>.Filter.ElemMatch(
-                        x => x.specification, Builders<ProductSpecificationDetailMongoDbModel>.Filter.Regex(x => x.value, new BsonRegularExpression($"^{Regex.Escape(keyword)}[., ]?", "i"))
-                  ),
-                  Builders<ProductMongoDbModel>.Filter.ElemMatch(
-                        x => x.attributes_detail, Builders<ProductAttributeMongoDbModelItem>.Filter.Regex(x => x.name, new BsonRegularExpression($"^{Regex.Escape(keyword)}[., ]?", "i"))
-                 ),
+                  //Unicode
+                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, new BsonRegularExpression($"{keyword}", "i")),
+                  // Builders<ProductMongoDbModel>.Filter.Regex(x => x.description, new BsonRegularExpression($"{keyword}", "i")),
+                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.sku, new BsonRegularExpression($"{keyword}", "i")),
+                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.code, new BsonRegularExpression($"{keyword}", "i")),
+                  // Builders<ProductMongoDbModel>.Filter.ElemMatch(
+                  //       x => x.specification, Builders<ProductSpecificationDetailMongoDbModel>.Filter.Regex(x => x.value, new BsonRegularExpression($"{keyword}", "i"))
+                  // ),
+                  // Builders<ProductMongoDbModel>.Filter.ElemMatch(
+                  //       x => x.attributes_detail, Builders<ProductAttributeMongoDbModelItem>.Filter.Regex(x => x.name, new BsonRegularExpression($"{keyword}", "i"))
+                  //),
                   //Non-unicode
-                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, new BsonRegularExpression($"^{Regex.Escape(keyword_nonunicode)}[., ]?", "i")),
-                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.description, new BsonRegularExpression($"^{Regex.Escape(keyword_nonunicode)}[., ]?", "i")),
-                  Builders<ProductMongoDbModel>.Filter.ElemMatch(
-                        x => x.specification, Builders<ProductSpecificationDetailMongoDbModel>.Filter.Regex(x => x.value, new BsonRegularExpression($"^{Regex.Escape(keyword_nonunicode)}[., ]?", "i"))
-                  ),
-                  Builders<ProductMongoDbModel>.Filter.ElemMatch(
-                        x => x.attributes_detail, Builders<ProductAttributeMongoDbModelItem>.Filter.Regex(x => x.name, new BsonRegularExpression($"^{Regex.Escape(keyword_nonunicode)}[., ]?", "i"))
-                 )
-                
+                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, new BsonRegularExpression($"{keyword_nonunicode}", "i")),
+                   //Builders<ProductMongoDbModel>.Filter.Regex(x => x.description, new BsonRegularExpression($"{keyword_nonunicode}", "i")),
+                   Builders<ProductMongoDbModel>.Filter.Regex(x => x.sku, new BsonRegularExpression($"{keyword_nonunicode}", "i")),
+                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.code, new BsonRegularExpression($"{keyword_nonunicode}", "i"))
+                // Builders<ProductMongoDbModel>.Filter.ElemMatch(
+                //       x => x.specification, Builders<ProductSpecificationDetailMongoDbModel>.Filter.Regex(x => x.value, new BsonRegularExpression($"{keyword_nonunicode}", "i"))
+                // ),
+                // Builders<ProductMongoDbModel>.Filter.ElemMatch(
+                //       x => x.attributes_detail, Builders<ProductAttributeMongoDbModelItem>.Filter.Regex(x => x.name, new BsonRegularExpression($"{keyword_nonunicode}", "i"))
+                //)
 
                 );
                 filterDefinition &= Builders<ProductMongoDbModel>.Filter.Or(
@@ -264,27 +267,27 @@ namespace HuloToys_Service.MongoDb
 
                 var filter = Builders<ProductMongoDbModel>.Filter.Or(
                   //Unicode
-                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, new BsonRegularExpression($"^{Regex.Escape(keyword)}[., ]?", "i")),
-                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.description, new BsonRegularExpression($"^{Regex.Escape(keyword)}[., ]?", "i")),
-                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.sku, new BsonRegularExpression($"^{Regex.Escape(keyword)}[., ]?", "i")),
-                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.code, new BsonRegularExpression($"^{Regex.Escape(keyword)}[., ]?", "i")),
-                  Builders<ProductMongoDbModel>.Filter.ElemMatch(
-                        x => x.specification, Builders<ProductSpecificationDetailMongoDbModel>.Filter.Regex(x => x.value, new BsonRegularExpression($"^{Regex.Escape(keyword)}[., ]?", "i"))
-                  ),
-                  Builders<ProductMongoDbModel>.Filter.ElemMatch(
-                        x => x.attributes_detail, Builders<ProductAttributeMongoDbModelItem>.Filter.Regex(x => x.name, new BsonRegularExpression($"^{Regex.Escape(keyword)}[., ]?", "i"))
-                 ),
+                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, new BsonRegularExpression($"{keyword}", "i")),
+                 // Builders<ProductMongoDbModel>.Filter.Regex(x => x.description, new BsonRegularExpression($"{keyword}", "i")),
+                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.sku, new BsonRegularExpression($"{keyword}", "i")),
+                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.code, new BsonRegularExpression($"{keyword}", "i")),
+                 // Builders<ProductMongoDbModel>.Filter.ElemMatch(
+                 //       x => x.specification, Builders<ProductSpecificationDetailMongoDbModel>.Filter.Regex(x => x.value, new BsonRegularExpression($"{keyword}", "i"))
+                 // ),
+                 // Builders<ProductMongoDbModel>.Filter.ElemMatch(
+                 //       x => x.attributes_detail, Builders<ProductAttributeMongoDbModelItem>.Filter.Regex(x => x.name, new BsonRegularExpression($"{keyword}", "i"))
+                 //),
                   //Non-unicode
-                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, new BsonRegularExpression($"^{Regex.Escape(keyword_nonunicode)}[., ]?", "i")),
-                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.description, new BsonRegularExpression($"^{Regex.Escape(keyword_nonunicode)}[., ]?", "i")),
-                   Builders<ProductMongoDbModel>.Filter.Regex(x => x.sku, new BsonRegularExpression($"^{Regex.Escape(keyword_nonunicode)}[., ]?", "i")),
-                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.code, new BsonRegularExpression($"^{Regex.Escape(keyword_nonunicode)}[., ]?", "i")),
-                  Builders<ProductMongoDbModel>.Filter.ElemMatch(
-                        x => x.specification, Builders<ProductSpecificationDetailMongoDbModel>.Filter.Regex(x => x.value, new BsonRegularExpression($"^{Regex.Escape(keyword_nonunicode)}[., ]?", "i"))
-                  ),
-                  Builders<ProductMongoDbModel>.Filter.ElemMatch(
-                        x => x.attributes_detail, Builders<ProductAttributeMongoDbModelItem>.Filter.Regex(x => x.name, new BsonRegularExpression($"^{Regex.Escape(keyword_nonunicode)}[., ]?", "i"))
-                 )
+                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.name, new BsonRegularExpression($"{keyword_nonunicode}", "i")),
+                  //Builders<ProductMongoDbModel>.Filter.Regex(x => x.description, new BsonRegularExpression($"{keyword_nonunicode}", "i")),
+                   Builders<ProductMongoDbModel>.Filter.Regex(x => x.sku, new BsonRegularExpression($"{keyword_nonunicode}", "i")),
+                  Builders<ProductMongoDbModel>.Filter.Regex(x => x.code, new BsonRegularExpression($"{keyword_nonunicode}", "i"))
+                 // Builders<ProductMongoDbModel>.Filter.ElemMatch(
+                 //       x => x.specification, Builders<ProductSpecificationDetailMongoDbModel>.Filter.Regex(x => x.value, new BsonRegularExpression($"{keyword_nonunicode}", "i"))
+                 // ),
+                 // Builders<ProductMongoDbModel>.Filter.ElemMatch(
+                 //       x => x.attributes_detail, Builders<ProductAttributeMongoDbModelItem>.Filter.Regex(x => x.name, new BsonRegularExpression($"{keyword_nonunicode}", "i"))
+                 //)
                     )
                 & Builders<ProductMongoDbModel>.Filter.Eq(x => x.status, (int)ProductStatus.ACTIVE);
                 filter &= Builders<ProductMongoDbModel>.Filter.Or(

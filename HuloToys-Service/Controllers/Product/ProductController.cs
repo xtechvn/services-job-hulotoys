@@ -9,13 +9,10 @@ using HuloToys_Service.Models.Raiting;
 using HuloToys_Service.MongoDb;
 using HuloToys_Service.RedisWorker;
 using HuloToys_Service.Utilities.Lib;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Nest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Reflection;
-using Telegram.Bot.Types;
 using Utilities;
 using Utilities.Contants;
 
@@ -36,6 +33,7 @@ namespace WEB.CMS.Controllers
         private readonly GroupProductESService groupProductESService;
         private readonly ProductRaitingService productRaitingService;
         private readonly ProductDetailService productDetailService;
+        private readonly ProductESRepository _productESRepository;
 
         public ProductController(IConfiguration configuration, RedisConn redisService)
         {
@@ -47,6 +45,7 @@ namespace WEB.CMS.Controllers
             orderDetailESService = new OrderDetailESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
             groupProductESService = new GroupProductESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
             _raitingESService = new RaitingESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
+            _productESRepository = new ProductESRepository(configuration["DataBaseConfig:Elastic:Host"], configuration);
 
             _configuration = configuration;
             _redisService = new RedisConn(configuration);
@@ -91,6 +90,7 @@ namespace WEB.CMS.Controllers
                     //    }
                     //}
 
+                    //request.keyword = StringHelpers.NormalizeString(request.keyword);
                     var data = await productDetailService.ProductListing(request);
 
                     //if (data != null  && data.items.Count > 0)
@@ -245,13 +245,27 @@ namespace WEB.CMS.Controllers
                     //        });
                     //    }
                     //}
-
-                    var data = await _productDetailMongoAccess.Search(request.keyword);
+                    //request.keyword = StringHelpers.NormalizeString(request.keyword);
+                    //var data = await _productDetailMongoAccess.Search(request.keyword);
 
                     //if (data != null && data.items.Count > 0)
                     //{
                     //    _redisService.Set(cache_name, JsonConvert.SerializeObject(data), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
                     //}
+                    ProductListResponseModel data = new ProductListResponseModel();
+                    var list = await _productESRepository.SearchByKeywordAsync(request.keyword);
+                    if(list!=null && list.Count > 0)
+                    {
+                        data.count=list.Count;
+                        data.items = list.Select(x => new ProductMongoDbModel()
+                        {
+                            amount = x.amount,
+                            _id = x.product_id,
+                            code = x.product_code,
+                            description = x.description,
+                            name = x.name
+                        }).ToList();
+                    }
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
