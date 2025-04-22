@@ -1,8 +1,11 @@
 using Entities.ConfigModels;
+using Entities.Models;
 using HuloToys_Service.IRepositories;
 using HuloToys_Service.RedisWorker;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver.Core.Configuration;
 using Repositories.IRepositories;
 using Repositories.Repositories;
 using System.Text;
@@ -41,6 +44,10 @@ internal class Program
         builder.Services.Configure<DataBaseConfig>(Configuration.GetSection("DataBaseConfig"));
         builder.Services.Configure<MailConfig>(Configuration.GetSection("MailConfig"));
         builder.Services.Configure<DomainConfig>(Configuration.GetSection("DomainConfig"));
+        // ??ng ký ApplicationDbContext
+        var connectionString = builder.Configuration.GetSection("DataBaseConfig:SqlServer:ConnectionString").Value;
+        builder.Services.AddDbContext<DataMSContext>(options =>
+                options.UseSqlServer(connectionString));
 
 
         // Register services
@@ -50,6 +57,7 @@ internal class Program
         builder.Services.AddSingleton<IProvinceRepository, ProvinceRepository>();
         builder.Services.AddSingleton<IDistrictRepository, DistrictRepository>();
         builder.Services.AddSingleton<IWardRepository, WardRepository>();
+
 
         builder.Services.AddSingleton<RedisConn>();
 

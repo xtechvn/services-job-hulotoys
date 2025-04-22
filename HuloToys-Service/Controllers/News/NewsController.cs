@@ -1,8 +1,10 @@
-﻿using ENTITIES.ViewModels.ArticleViewModels;
+﻿using Entities.Models;
+using ENTITIES.ViewModels.ArticleViewModels;
 using HuloToys_Service.Controllers.News.Business;
 using HuloToys_Service.Models.APIRequest;
 using HuloToys_Service.Models.Article;
 using HuloToys_Service.Models.ElasticSearch;
+using HuloToys_Service.RabitMQ;
 using HuloToys_Service.RedisWorker;
 using HuloToys_Service.Utilities.Lib;
 using Microsoft.AspNetCore.Authorization;
@@ -24,16 +26,60 @@ namespace HuloToys_Service.Controllers
         public IConfiguration configuration;
         private readonly RedisConn _redisService;
         private readonly NewsBusiness _newsBusiness;
+        private readonly WorkQueueClient work_queue;
+        private readonly DataMSContext _dbContext;
 
-        public NewsController(IConfiguration config, RedisConn redisService)
+        public NewsController(IConfiguration config, RedisConn redisService , DataMSContext dbContext)
         {
             configuration = config;
 
             _redisService = redisService;
             _redisService = new RedisConn(config);
             _redisService.Connect();
-            _newsBusiness = new NewsBusiness(configuration);
+            work_queue = new WorkQueueClient(configuration);
+            _newsBusiness = new NewsBusiness(configuration, dbContext);
+            _dbContext = dbContext;
+        }
+        [HttpPost("remote-upsert.json")]
+        public async Task<IActionResult> RemoteUpsert([FromBody] ArticleModel model)
+        {
+            try
+            {
+                int node_redis = Convert.ToInt32(configuration["Redis:Database:db_common"]);
+                if (string.IsNullOrWhiteSpace(model.Title) || string.IsNullOrWhiteSpace(model.Body))
+                    return BadRequest("Tiêu đề hoặc nội dung bài viết không được để trống");
 
+                // Lưu DB
+                var articleId = await _newsBusiness.SaveArticle(model);
+
+                string cache_name = CacheType.ARTICLE_CATEGORY_ID + 22;
+                var j_data = await _redisService.GetAsync(cache_name, node_redis);
+
+                // Push queue cập nhật ES
+                var j_param = new Dictionary<string, object>
+                {
+                    { "store_name", "SP_GetAllArticle" },
+                    { "index_es", "hulotoys_sp_getarticle" },
+                    { "project_type", 1 },
+                    { "id", -1 }
+                };
+                var dataPush = JsonConvert.SerializeObject(j_param);
+                var queueResult = work_queue.InsertQueueSimple(dataPush, QueueName.queue_app_push);
+                if (!articleId.IsSuccess)
+                    return StatusCode(500, articleId.Message);
+
+                return Ok(new
+                {
+                    isSuccess = true,
+                    message = "Lưu bài viết thành công",
+                    dataId = articleId
+                });
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("RemoteUpsert Exception: " + ex);
+                return StatusCode(500, $"Lỗi xử lý: {ex.Message}");
+            }
         }
 
         [HttpPost("get-list-news.json")]

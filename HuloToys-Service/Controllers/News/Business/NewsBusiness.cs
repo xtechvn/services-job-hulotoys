@@ -1,8 +1,12 @@
-﻿using HuloToys_Service.ElasticSearch;
+﻿using Entities.ConfigModels;
+using Entities.Models;
+using HuloToys_Service.ElasticSearch;
+using HuloToys_Service.Models;
 using HuloToys_Service.Models.Article;
 using HuloToys_Service.Models.ElasticSearch;
 using HuloToys_Service.Models.Products;
 using HuloToys_Service.Utilities.Lib;
+using Microsoft.EntityFrameworkCore;
 using Nest;
 using Newtonsoft.Json;
 using System.Reflection;
@@ -20,7 +24,9 @@ namespace HuloToys_Service.Controllers.News.Business
         public ArticleCategoryESService articleCategoryESService;
         public ArticleRelatedESService articleRelatedESService;
         public GroupProductESService groupProductESService;
-        public NewsBusiness( IConfiguration _configuration)
+        private readonly DataMSContext _dbContext;
+        private readonly string _UrlStaticImage = "https://static-image.adavigo.com";
+        public NewsBusiness( IConfiguration _configuration, DataMSContext dbContext)
         {
 
             configuration = _configuration;
@@ -30,7 +36,199 @@ namespace HuloToys_Service.Controllers.News.Business
             articleCategoryESService = new ArticleCategoryESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
             articleRelatedESService = new ArticleRelatedESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
             groupProductESService = new GroupProductESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
+            _dbContext = dbContext;
+            
         }
+
+        public async Task<ResultModel<long>> SaveArticle(ArticleModel model)
+        {
+            var result = new ResultModel<long>();
+
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // Xử lý ảnh
+                    Task<string> TBody = Task.FromResult(model.Body);
+                    if (model.ArticleType == 0)
+                    {
+                        TBody = StringHelpers.ReplaceEditorImage(model.Body, _UrlStaticImage);
+                        var t11 = UpLoadHelper.UploadBase64Src(model.Image11, _UrlStaticImage);
+                        var t43 = UpLoadHelper.UploadBase64Src(model.Image43, _UrlStaticImage);
+                        var t169 = UpLoadHelper.UploadBase64Src(model.Image169, _UrlStaticImage);
+                        await Task.WhenAll(TBody, t11, t43, t169);
+
+                        model.Body = TBody.Result;
+                        model.Image11 = t11.Result;
+                        model.Image43 = t43.Result;
+                        model.Image169 = t169.Result;
+                    }
+
+                    if (!string.IsNullOrEmpty(model.Image11) && !model.Image11.Contains(_UrlStaticImage))
+                        model.Image11 = _UrlStaticImage + model.Image11;
+                    if (!string.IsNullOrEmpty(model.Image43) && !model.Image43.Contains(_UrlStaticImage))
+                        model.Image43 = _UrlStaticImage + model.Image43;
+                    if (!string.IsNullOrEmpty(model.Image169) && !model.Image169.Contains(_UrlStaticImage))
+                        model.Image169 = _UrlStaticImage + model.Image169;
+
+                    if (model.PublishDate == DateTime.MinValue)
+                        model.PublishDate = DateTime.Now;
+                    if (model.DownTime == DateTime.MinValue)
+                        model.DownTime = model.PublishDate.AddHours(1);
+
+                    long articleId;
+
+                    // Create hoặc Update Article
+                    if (model.Id > 0)
+                    {
+                        var entity = await _dbContext.Articles.FindAsync(model.Id);
+                        if (entity == null)
+                        {
+                            result.IsSuccess = false;
+                            result.Message = "Không tìm thấy bài viết để cập nhật.";
+                            return result;
+                        }
+
+                        entity.Title = model.Title;
+                        entity.Lead = model.Lead;
+                        entity.Body = model.Body;
+                        entity.Image11 = model.Image11 ?? string.Empty;
+                        entity.Image43 = model.Image43 ?? string.Empty;
+                        entity.Image169 = model.Image169 ?? string.Empty;
+                        entity.Status = model.Status;
+                        entity.ArticleType = model.ArticleType;
+                        entity.ModifiedOn = DateTime.Now;
+                        entity.PublishDate = model.PublishDate;
+                        entity.UpTime = model.PublishDate;
+                        entity.DownTime = model.DownTime;
+                        entity.Position = (short?)model.Position;
+
+                        _dbContext.Articles.Update(entity);
+                        await _dbContext.SaveChangesAsync();
+
+                        articleId = entity.Id;
+                    }
+                    else
+                    {
+                        var entity = new Article
+                        {
+                            Title = model.Title,
+                            Lead = model.Lead,
+                            Body = model.Body,
+                            Status = model.Status,
+                            Image11 = model.Image11 ?? string.Empty,
+                            Image43 = model.Image43 ?? string.Empty,
+                            Image169 = model.Image169 ?? string.Empty,
+                            ArticleType = model.ArticleType,
+                            AuthorId = model.AuthorId,
+                            CreatedOn = DateTime.Now,
+                            ModifiedOn = DateTime.Now,
+                            PublishDate = model.PublishDate,
+                            UpTime = model.PublishDate,
+                            DownTime = model.DownTime,
+                            Position = (short?)model.Position
+                        };
+
+                        await _dbContext.Articles.AddAsync(entity);
+                        await _dbContext.SaveChangesAsync();
+
+                        articleId = entity.Id;
+                    }
+
+                    // ⬇ Lưu Tags
+                    var tagIds = new List<long>();
+                    if (model.Tags != null)
+                    {
+                        foreach (var tagName in model.Tags)
+                        {
+                            var tag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.TagName == tagName.Trim());
+                            if (tag == null)
+                            {
+                                tag = new Tag
+                                {
+                                    TagName = tagName.Trim(),
+                                    CreatedOn = DateTime.Now
+                                };
+                                await _dbContext.Tags.AddAsync(tag);
+                                await _dbContext.SaveChangesAsync();
+                            }
+                            tagIds.Add(tag.Id);
+                        }
+                    }
+
+                    // ⬇ Xóa & Thêm ArticleTag
+                    var oldTags = _dbContext.ArticleTags.Where(x => x.ArticleId == articleId);
+                    _dbContext.ArticleTags.RemoveRange(oldTags);
+                    await _dbContext.SaveChangesAsync();
+
+                    foreach (var tagId in tagIds)
+                    {
+                        var newTag = new ArticleTag
+                        {
+                            ArticleId = articleId,
+                            TagId = tagId,
+                            UpdateLast = DateTime.Now
+                        };
+                        await _dbContext.ArticleTags.AddAsync(newTag);
+                    }
+                    await _dbContext.SaveChangesAsync();
+
+                    // ⬇ Xóa & Thêm ArticleCategory
+                    var oldCategories = _dbContext.ArticleCategories.Where(x => x.ArticleId == articleId);
+                    _dbContext.ArticleCategories.RemoveRange(oldCategories);
+                    await _dbContext.SaveChangesAsync();
+
+                    foreach (var cateId in model.Categories ?? new List<int>())
+                    {
+                        var cate = new ArticleCategory
+                        {
+                            ArticleId = articleId,
+                            CategoryId = cateId,
+                            UpdateLast = DateTime.Now
+                        };
+                        await _dbContext.ArticleCategories.AddAsync(cate);
+                    }
+                    await _dbContext.SaveChangesAsync();
+
+                    // ⬇ Xóa & Thêm ArticleRelated
+                    var oldRelations = _dbContext.ArticleRelateds.Where(x => x.ArticleId == articleId);
+                    _dbContext.ArticleRelateds.RemoveRange(oldRelations);
+                    await _dbContext.SaveChangesAsync();
+
+                    foreach (var relatedId in model.RelatedArticleIds ?? new List<long>())
+                    {
+                        var relation = new ArticleRelated
+                        {
+                            ArticleId = articleId,
+                            ArticleRelatedId = relatedId,
+                            UpdateLast = DateTime.Now
+                        };
+                        await _dbContext.ArticleRelateds.AddAsync(relation);
+                    }
+                    await _dbContext.SaveChangesAsync();
+
+                    // Commit all
+                    await transaction.CommitAsync();
+
+                    result.IsSuccess = true;
+                    result.Data = articleId;
+                    result.Message = "Lưu bài viết thành công";
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    LogHelper.InsertLogTelegram("SaveArticle - Transaction Rollback: " + ex);
+                    result.IsSuccess = false;
+                    result.Message = "Lỗi khi lưu bài viết: " + ex.Message;
+                }
+            }
+
+            return result;
+        }
+
+
+
+
 
         public async Task<List<CategoryArticleModel>> getListNews(int category_id, int take)
         {
