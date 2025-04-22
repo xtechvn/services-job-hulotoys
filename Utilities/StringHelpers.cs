@@ -337,7 +337,7 @@ namespace Utilities
             }
             return (buf);
         }
-<<<<<<< HEAD
+
         public static string NormalizeString(string text)
         {
             var normalizedString = text.Normalize(NormalizationForm.FormD);
@@ -354,13 +354,5 @@ namespace Utilities
 
             return stringBuilder.ToString().Normalize(NormalizationForm.FormC).ToLower();
         }
-=======
-
-        public static string GenFileName(string base_name, int user_id, string extension)
-        {
-            return base_name + "_" + user_id + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + "." + extension;
-        }
-
->>>>>>> 594100a (update)
     }
 }
