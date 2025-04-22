@@ -216,7 +216,7 @@ namespace WEB.CMS.Controllers
         }
         [HttpPost("search")]
         public async Task<IActionResult> ProductSearch([FromBody] APIRequestGenericModel input)
-        {
+       {
             try
             {
                 JArray objParr = null;
@@ -231,31 +231,12 @@ namespace WEB.CMS.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    //var cache_name = CacheType.PRODUCT_SEARCH + (request.keyword ?? "");
-                    //var j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
-                    //if (j_data != null && j_data.Trim() != "")
-                    //{
-                    //    ProductListResponseModel result = JsonConvert.DeserializeObject<ProductListResponseModel>(j_data);
-                    //    if (result != null && result.items != null && result.items.Count > 0)
-                    //    {
-                    //        return Ok(new
-                    //        {
-                    //            status = (int)ResponseType.SUCCESS,
-                    //            msg = ResponseMessages.Success,
-                    //            data = result
-                    //        });
-                    //    }
-                    //}
-                    //request.keyword = StringHelpers.NormalizeString(request.keyword);
-                    //var data = await _productDetailMongoAccess.Search(request.keyword);
 
-                    //if (data != null && data.items.Count > 0)
-                    //{
-                    //    _redisService.Set(cache_name, JsonConvert.SerializeObject(data), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
-                    //}
-                    request.keyword = StringHelper.RemoveSpecialCharacterExceptVietnameseCharacter(request.keyword);
+                    // ✅ Chuẩn hóa keyword: bỏ ký tự đặc biệt + giữ dấu + normalize cho search
+                    string rawKeyword = StringHelper.RemoveSpecialCharacterExceptVietnameseCharacter(request.keyword);
+                    string normalizedKeyword = StringHelper.NormalizeKeyword(rawKeyword); // Dùng cho no_space_name
                     ProductListResponseModel data = new ProductListResponseModel();
-                    var list = await _productESRepository.SearchByKeywordAsync(request.keyword);
+                    var list = await _productESRepository.SearchByKeywordAsync(rawKeyword, normalizedKeyword);
                     if(list!=null && list.Count > 0)
                     {
                         data.count=list.Count;

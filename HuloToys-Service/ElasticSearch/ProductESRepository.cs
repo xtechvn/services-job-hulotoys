@@ -60,78 +60,76 @@ namespace Caching.Elasticsearch
             return response.IsValid;
         }
         // Tìm kiếm theo keyword trên trường name và product_code
-        public async Task<List<ProductESModel>> SearchByKeywordAsync(string keyword)
+        public async Task<List<ProductESModel>> SearchByKeywordAsync(string keyword, string keywordNoSpace)
         {
-            //var response = await _client.SearchAsync<ProductESModel>(s => s
-            //    .Query(q => q
-            //        .MultiMatch(m => m
-            //            .Fields(f => f
-            //                .Field(p => p.name)
-            //                .Field(p => p.product_code)
-            //            )
-            //            .Query(keyword)
-            //            .Type(TextQueryType.BestFields)
-            //            .Analyzer("standard") // Sử dụng analyzer chuẩn hỗ trợ Unicode
-            //            .Fuzziness(Fuzziness.Auto) // Cho phép tìm gần đúng
-            //        )
-            //    )
-            //);
+            if (string.IsNullOrWhiteSpace(keyword))
+                return new List<ProductESModel>();
+
+            Console.WriteLine($"[ElasticSearch] Exact search for keyword: '{keyword}'");
+
+            var shouldQueries = new List<Func<QueryContainerDescriptor<ProductESModel>, QueryContainer>>();
+
+            // 1. Exact phrase match (ưu tiên cao nhất)
+            shouldQueries.Add(sh => sh.MatchPhrase(mp => mp
+                .Field(f => f.name)
+                .Query(keyword)
+                .Boost(20)
+            ));
+
+            // 2. Prefix match (từ bắt đầu bằng keyword, ví dụ "đăng" -> "đăng ký", "đăng nhập")
+            shouldQueries.Add(sh => sh.MatchPhrasePrefix(mpp => mpp
+                .Field(f => f.name)
+                .Query(keyword)
+                .Boost(10)
+            ));
+
+            // 3. Wildcard match trên trường không dấu và không khoảng trắng (đã normalize sẵn)
+            shouldQueries.Add(sh => sh.Wildcard(w => w
+                .Field(f => f.no_space_name)
+                .Value($"*{keywordNoSpace.ToLower()}*")
+                .Boost(8)
+            ));
+
+            // 4. Match all terms (tất cả từ trong keyword phải có trong tên sản phẩm)
+            shouldQueries.Add(sh => sh.Match(m => m
+                .Field(f => f.name)
+                .Query(keyword)
+                .Operator(Operator.And)
+                .Boost(5)
+            ));
+
+            // 5. Fuzzy match (chỉ dùng khi keyword đủ dài để tránh match bậy như "đăng" ra "dán")
+            if (keyword.Length >= 5)
+            {
+                shouldQueries.Add(sh => sh.Match(m => m
+                    .Field(f => f.name)
+                    .Query(keyword)
+                    .Fuzziness(Fuzziness.Auto)
+                    .Operator(Operator.And)
+                    .Boost(3)
+                ));
+            }
+
+            // Thực thi truy vấn
             var response = await _client.SearchAsync<ProductESModel>(s => s
                 .Query(q => q
                     .Bool(b => b
-                        .Should(
-                            // Tìm kiếm chính xác với boost cao
-                            sh => sh.MatchPhrase(m => m
-                                .Field(p => p.name)
-                                .Query(keyword)
-                                .Boost(10)
-                            ),
-                            // Tìm kiếm từng từ
-                            sh => sh.Match(m => m
-                                .Field(p => p.name)
-                                .Query(keyword)
-                                .Operator(Operator.And)
-                                .Boost(5)
-                            ),
-                            // Tìm kiếm mờ
-                            sh => sh.Match(m => m
-                                .Field(p => p.name)
-                                .Query(keyword)
-                                .Fuzziness(Fuzziness.Auto)
-                                .Operator(Operator.Or)
-                                .Boost(3)
-                            ),
-                            // Tìm kiếm trong các trường khác
-                            sh => sh.MultiMatch(mm => mm
-                                .Fields(f => f
-                                    .Field(p => p.product_code)
-                                    .Field(p => p.description, 0.5)
-                                )
-                                .Query(keyword)
-                                .Type(TextQueryType.BestFields)
-                                .Boost(2)
-                            ),
-                            m=> m.MultiMatch(mf => mf.Fields(f=>
-                                        f.Field(p => p.name)
-                                        .Field(p => p.product_code)
-                                    )
-                                    .Query(keyword)
-                                    .Type(TextQueryType.BestFields)
-                                    .Analyzer("standard") // Sử dụng analyzer chuẩn hỗ trợ Unicode
-                                    .Fuzziness(Fuzziness.Auto) // Cho phép tìm gần đúng
-                                    .Boost(1.5)
-                            )
-                        )
+                        .Should(shouldQueries)
+                        .MinimumShouldMatch(1)
                     )
                 )
                 .Sort(so => so
-                    .Descending(SortSpecialField.Score) 
+                    .Descending(SortSpecialField.Score)
                 )
-                .Size(20)
+                .Size(10)
             );
 
             return response.Documents.ToList();
         }
+
+
+
+
 
 
     }

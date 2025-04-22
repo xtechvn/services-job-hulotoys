@@ -496,7 +496,9 @@ namespace HuloToys_Service.Controllers.News.Business
                             publish_date = detail_article.PublishDate ?? DateTime.Now,
                             category_name = groupProductName ?? "Tin tức"
                         };
+                        model.RelatedArticleList ??= new List<ArticleRelationModel>();
                         model.RelatedArticleList.Add(ArticleRelation);
+
                     }
                     model.RelatedArticleList = model.RelatedArticleList.GroupBy(x => x.Id).Select(x => x.First()).ToList();
                 }
