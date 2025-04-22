@@ -4,7 +4,7 @@ namespace HuloToys_Service.Models.ElasticSearch
 {
     public partial class GroupProductESModel
     {
-        [PropertyName("Id")]
+        [PropertyName("id")]
 
         public int Id { get; set; }
         [PropertyName("ParentId")]
@@ -49,7 +49,7 @@ namespace HuloToys_Service.Models.ElasticSearch
         public bool IsShowFooter { get; set; }
         [PropertyName("Code")]
 
-        public string Code { get; set; }
+        public string? Code { get; set; }
 
         public List<GroupProductESModel> group_product_child { get; set; }
 
