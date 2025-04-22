@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using System.Reflection;
 using Utilities;
 using Utilities.Contants;
+using System.Diagnostics;
 
 namespace HuloToys_Service.Controllers
 {
@@ -85,8 +86,11 @@ namespace HuloToys_Service.Controllers
         [HttpPost("get-list-news.json")]
         public async Task<ActionResult> getListNews([FromBody] APIRequestGenericModel input)
         {
+          
             try
             {
+                Stopwatch sw = new Stopwatch(); // tạo stopwatch
+                sw.Start(); // bắt đầu đo thời gian
                 JArray objParr = null;
                 if (CommonHelper.GetParamWithKey(input.token, out objParr, configuration["KEY:private_key"]))
                 {
@@ -126,8 +130,11 @@ namespace HuloToys_Service.Controllers
 
                     if (list_article != null && list_article.Count() > 0)
                     {
+                        sw.Stop(); // dừng đo
+                        Console.WriteLine($"Thời gian chạy: {sw.ElapsedMilliseconds} ms");
                         return Ok(new
                         {
+                             speed =  sw.ElapsedMilliseconds,
                             status = (int)ResponseType.SUCCESS,
                             data = list_article.ToList().Skip(skip).Take(top)
                         });

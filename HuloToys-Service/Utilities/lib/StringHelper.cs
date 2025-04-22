@@ -14,8 +14,25 @@ namespace HuloToys_Service.Utilities.lib
         }
         public static string RemoveSpecialCharacterExceptVietnameseCharacter(string text)
         {
-            return regex_vietnamese_unicode.Replace(text, "");
+            return Regex.Replace(text, @"[^a-zA-Z0-9À-ỹ\s]", "");
         }
+        public static string NormalizeKeyword(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return "";
+
+            string noDiacritics = RemoveVietnameseAccents(text);
+            return noDiacritics.Replace(" ", "").ToLower();
+        }
+        public static string RemoveVietnameseAccents(string text)
+        {
+            string formD = text.Normalize(NormalizationForm.FormD);
+            var regex = new Regex("\\p{IsCombiningDiacriticalMarks}+");
+            return regex.Replace(formD, "")
+                        .Replace('đ', 'd')
+                        .Replace('Đ', 'D');
+        }
+
+
         public static string RemoveSpecialCharacter(string text)
         {
             var pattern = new Regex("[^a-zA-Z0-9]");
