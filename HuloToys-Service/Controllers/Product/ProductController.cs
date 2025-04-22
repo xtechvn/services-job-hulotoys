@@ -8,6 +8,7 @@ using HuloToys_Service.Models.ElasticSearch;
 using HuloToys_Service.Models.Raiting;
 using HuloToys_Service.MongoDb;
 using HuloToys_Service.RedisWorker;
+using HuloToys_Service.Utilities.lib;
 using HuloToys_Service.Utilities.Lib;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -252,6 +253,7 @@ namespace WEB.CMS.Controllers
                     //{
                     //    _redisService.Set(cache_name, JsonConvert.SerializeObject(data), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
                     //}
+                    request.keyword = StringHelper.RemoveSpecialCharacterExceptVietnameseCharacter(request.keyword);
                     ProductListResponseModel data = new ProductListResponseModel();
                     var list = await _productESRepository.SearchByKeywordAsync(request.keyword);
                     if(list!=null && list.Count > 0)

@@ -62,19 +62,72 @@ namespace Caching.Elasticsearch
         // Tìm kiếm theo keyword trên trường name và product_code
         public async Task<List<ProductESModel>> SearchByKeywordAsync(string keyword)
         {
+            //var response = await _client.SearchAsync<ProductESModel>(s => s
+            //    .Query(q => q
+            //        .MultiMatch(m => m
+            //            .Fields(f => f
+            //                .Field(p => p.name)
+            //                .Field(p => p.product_code)
+            //            )
+            //            .Query(keyword)
+            //            .Type(TextQueryType.BestFields)
+            //            .Analyzer("standard") // Sử dụng analyzer chuẩn hỗ trợ Unicode
+            //            .Fuzziness(Fuzziness.Auto) // Cho phép tìm gần đúng
+            //        )
+            //    )
+            //);
             var response = await _client.SearchAsync<ProductESModel>(s => s
                 .Query(q => q
-                    .MultiMatch(m => m
-                        .Fields(f => f
-                            .Field(p => p.name)
-                            .Field(p => p.product_code)
+                    .Bool(b => b
+                        .Should(
+                            // Tìm kiếm chính xác với boost cao
+                            sh => sh.MatchPhrase(m => m
+                                .Field(p => p.name)
+                                .Query(keyword)
+                                .Boost(10)
+                            ),
+                            // Tìm kiếm từng từ
+                            sh => sh.Match(m => m
+                                .Field(p => p.name)
+                                .Query(keyword)
+                                .Operator(Operator.And)
+                                .Boost(5)
+                            ),
+                            // Tìm kiếm mờ
+                            sh => sh.Match(m => m
+                                .Field(p => p.name)
+                                .Query(keyword)
+                                .Fuzziness(Fuzziness.Auto)
+                                .Operator(Operator.Or)
+                                .Boost(3)
+                            ),
+                            // Tìm kiếm trong các trường khác
+                            sh => sh.MultiMatch(mm => mm
+                                .Fields(f => f
+                                    .Field(p => p.product_code)
+                                    .Field(p => p.description, 0.5)
+                                )
+                                .Query(keyword)
+                                .Type(TextQueryType.BestFields)
+                                .Boost(2)
+                            ),
+                            m=> m.MultiMatch(mf => mf.Fields(f=>
+                                        f.Field(p => p.name)
+                                        .Field(p => p.product_code)
+                                    )
+                                    .Query(keyword)
+                                    .Type(TextQueryType.BestFields)
+                                    .Analyzer("standard") // Sử dụng analyzer chuẩn hỗ trợ Unicode
+                                    .Fuzziness(Fuzziness.Auto) // Cho phép tìm gần đúng
+                                    .Boost(1.5)
+                            )
                         )
-                        .Query(keyword)
-                        .Type(TextQueryType.BestFields)
-                        .Analyzer("standard") // Sử dụng analyzer chuẩn hỗ trợ Unicode
-                        .Fuzziness(Fuzziness.Auto) // Cho phép tìm gần đúng
                     )
                 )
+                .Sort(so => so
+                    .Descending(SortSpecialField.Score) 
+                )
+                .Size(20)
             );
 
             return response.Documents.ToList();

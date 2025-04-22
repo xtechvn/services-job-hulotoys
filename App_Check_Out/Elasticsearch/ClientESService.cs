@@ -28,7 +28,7 @@ namespace Caching.Elasticsearch
                 var query = elasticClient.Search<ClientESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Term("id", id)
+                                   .Term("Id", id)
                                ));
 
                 if (query.IsValid)
