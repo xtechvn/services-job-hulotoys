@@ -22,7 +22,7 @@ namespace App_Push_Consummer.Engines.Address
 			try
 			{
                 int response = Repository.saveAddressClient(data);
-                workQueueClient.SyncES(response, "SP_GetAddressClient", "address_client_hulotoys_store", Convert.ToInt16(ProjectType.HULOTOYS));
+                workQueueClient.SyncES(response, "SP_GetAddressClient", "hulotoys_sp_getaddressclient", Convert.ToInt16(ProjectType.HULOTOYS));
                 return response;
 
 			}
@@ -37,7 +37,7 @@ namespace App_Push_Consummer.Engines.Address
             try
             {
                 int response = Repository.updateAddressClient(data);
-                workQueueClient.SyncES(response, "SP_GetAddressClient", "address_client_hulotoys_store", Convert.ToInt16(ProjectType.HULOTOYS));
+                workQueueClient.SyncES(response, "SP_GetAddressClient", "hulotoys_sp_getaddressclient", Convert.ToInt16(ProjectType.HULOTOYS));
                 return response;
 
             }
