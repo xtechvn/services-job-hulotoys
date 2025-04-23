@@ -62,49 +62,59 @@ namespace Caching.Elasticsearch
         // Tìm kiếm theo keyword trên trường name và product_code
         public async Task<List<ProductESModel>> SearchByKeywordAsync(string keyword, string keywordNoSpace)
         {
-            if (string.IsNullOrWhiteSpace(keyword)) return new List<ProductESModel>();
+            if (string.IsNullOrWhiteSpace(keyword))
+                return new List<ProductESModel>();
 
-            
-            Console.WriteLine($"[ElasticSearch] Strict search with keyword: '{keyword}'");
+            Console.WriteLine($"[ElasticSearch] Exact search for keyword: '{keyword}'");
 
+            var shouldQueries = new List<Func<QueryContainerDescriptor<ProductESModel>, QueryContainer>>();
+
+            // 1. Exact phrase match (ưu tiên cao nhất)
+            shouldQueries.Add(sh => sh.MatchPhrase(mp => mp
+                .Field(f => f.name)
+                .Query(keyword)
+                .Boost(20)
+            ));
+
+            // 2. Prefix match (từ bắt đầu bằng keyword, ví dụ "đăng" -> "đăng ký", "đăng nhập")
+            shouldQueries.Add(sh => sh.MatchPhrasePrefix(mpp => mpp
+                .Field(f => f.name)
+                .Query(keyword)
+                .Boost(10)
+            ));
+
+            // 3. Wildcard match trên trường không dấu và không khoảng trắng (đã normalize sẵn)
+            shouldQueries.Add(sh => sh.Wildcard(w => w
+                .Field(f => f.no_space_name)
+                .Value($"*{keywordNoSpace.ToLower()}*")
+                .Boost(8)
+            ));
+
+            // 4. Match all terms (tất cả từ trong keyword phải có trong tên sản phẩm)
+            shouldQueries.Add(sh => sh.Match(m => m
+                .Field(f => f.name)
+                .Query(keyword)
+                .Operator(Operator.And)
+                .Boost(5)
+            ));
+
+            // 5. Fuzzy match (chỉ dùng khi keyword đủ dài để tránh match bậy như "đăng" ra "dán")
+            if (keyword.Length >= 5)
+            {
+                shouldQueries.Add(sh => sh.Match(m => m
+                    .Field(f => f.name)
+                    .Query(keyword)
+                    .Fuzziness(Fuzziness.Auto)
+                    .Operator(Operator.And)
+                    .Boost(3)
+                ));
+            }
+
+            // Thực thi truy vấn
             var response = await _client.SearchAsync<ProductESModel>(s => s
                 .Query(q => q
                     .Bool(b => b
-                        .Should(
-                            // 1. Exact phrase
-                            sh => sh.MatchPhrase(mp => mp
-                                .Field(f => f.name)
-                                .Query(keyword)
-                                .Boost(20)
-                            ),
-                            // 2. Phrase prefix
-                            sh => sh.MatchPhrasePrefix(mpp => mpp
-                                .Field(f => f.name)
-                                .Query(keyword)
-                                .Boost(10)
-                            ),
-                               sh => sh.Wildcard(w => w
-                                    .Field(f => f.no_space_name)
-                                    .Value($"*{keywordNoSpace}*")  // wildcard cho phép match chuỗi con
-                                    .Boost(8)
-                                ),
-
-                            // 4. Loose AND search
-                            sh => sh.Match(m => m
-                                .Field(f => f.name)
-                                .Query(keyword)
-                                .Operator(Operator.And)
-                                .Boost(5)
-                            ),
-                            // 👉 5. match fuzzy gần đúng
-                            sh => sh.Match(m => m
-                                .Field(f => f.name)
-                                .Query(keyword)
-                                .Fuzziness(Fuzziness.Auto)
-                                .Operator(Operator.And)
-                                .Boost(3)
-                            )
-                        )
+                        .Should(shouldQueries)
                         .MinimumShouldMatch(1)
                     )
                 )
