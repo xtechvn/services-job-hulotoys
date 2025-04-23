@@ -4,6 +4,7 @@ using App_Push_Consummer.Model.Address;
 using App_Push_Consummer.Model.DB_Core;
 using App_Push_Consummer.RabitMQ;
 using System.Configuration;
+using Utilities.Contants;
 
 namespace App_Push_Consummer.Engines.Address
 {
@@ -11,13 +12,18 @@ namespace App_Push_Consummer.Engines.Address
     {
         private static string tele_group_id = ConfigurationManager.AppSettings["tele_group_id"];
         private static string tele_token = ConfigurationManager.AppSettings["tele_token"];
-        
+        private readonly WorkQueueClient workQueueClient;
+        public AddressBusiness()
+        {
+            workQueueClient = new WorkQueueClient();
+        }
         public async Task<Int32> saveAddressClient(AddressModel data)
         {
 			try
 			{
                 int response = Repository.saveAddressClient(data);
-				return response;
+                workQueueClient.SyncES(response, "SP_GetAddressClient", "address_client_hulotoys_store", Convert.ToInt16(ProjectType.HULOTOYS));
+                return response;
 
 			}
 			catch (Exception ex)
@@ -31,6 +37,7 @@ namespace App_Push_Consummer.Engines.Address
             try
             {
                 int response = Repository.updateAddressClient(data);
+                workQueueClient.SyncES(response, "SP_GetAddressClient", "address_client_hulotoys_store", Convert.ToInt16(ProjectType.HULOTOYS));
                 return response;
 
             }

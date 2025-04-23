@@ -24,8 +24,8 @@ namespace App_Push_Consummer.RabitMQ
                 host = ConfigurationManager.AppSettings["QUEUE_HOST"],
                 port = Convert.ToInt32(ConfigurationManager.AppSettings["QUEUE_PORT"]),
                 v_host = ConfigurationManager.AppSettings["QUEUE_V_HOST_SYNC"],
-                username = ConfigurationManager.AppSettings["QUEUE_USERNAME"],
-                password = ConfigurationManager.AppSettings["QUEUE_PASSWORD"],
+                username = ConfigurationManager.AppSettings["QUEUE_USERNAME_SYNC"],
+                password = ConfigurationManager.AppSettings["QUEUE_PASSWORD_SYNC"],
                 queue_Name = ConfigurationManager.AppSettings["QUEUE_SYNC_ES"],
             };
             factory = new ConnectionFactory()

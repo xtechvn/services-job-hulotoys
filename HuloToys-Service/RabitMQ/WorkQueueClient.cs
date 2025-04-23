@@ -42,7 +42,7 @@ namespace HuloToys_Service.RabitMQ
                 try
                 {
                     channel.QueueDeclare(queue: queueName,
-                                     durable: true,
+                                     durable: false,
                                      exclusive: false,
                                      autoDelete: false,
                                      arguments: null);
