@@ -62,6 +62,7 @@ namespace Caching.Elasticsearch
         // Tìm kiếm theo keyword trên trường name và product_code
         public async Task<List<ProductESModel>> SearchByKeywordAsync(string keyword, string keywordNoSpace)
         {
+<<<<<<< HEAD
             if (string.IsNullOrWhiteSpace(keyword))
                 return new List<ProductESModel>();
 
@@ -115,6 +116,51 @@ namespace Caching.Elasticsearch
                 .Query(q => q
                     .Bool(b => b
                         .Should(shouldQueries)
+=======
+            if (string.IsNullOrWhiteSpace(keyword)) return new List<ProductESModel>();
+
+            
+            Console.WriteLine($"[ElasticSearch] Strict search with keyword: '{keyword}'");
+
+            var response = await _client.SearchAsync<ProductESModel>(s => s
+                .Query(q => q
+                    .Bool(b => b
+                        .Should(
+                            // 1. Exact phrase
+                            sh => sh.MatchPhrase(mp => mp
+                                .Field(f => f.name)
+                                .Query(keyword)
+                                .Boost(20)
+                            ),
+                            // 2. Phrase prefix
+                            sh => sh.MatchPhrasePrefix(mpp => mpp
+                                .Field(f => f.name)
+                                .Query(keyword)
+                                .Boost(10)
+                            ),
+                               sh => sh.Wildcard(w => w
+                                    .Field(f => f.no_space_name)
+                                    .Value($"*{keywordNoSpace}*")  // wildcard cho phép match chuỗi con
+                                    .Boost(8)
+                                ),
+
+                            // 4. Loose AND search
+                            sh => sh.Match(m => m
+                                .Field(f => f.name)
+                                .Query(keyword)
+                                .Operator(Operator.And)
+                                .Boost(5)
+                            ),
+                            // 👉 5. match fuzzy gần đúng
+                            sh => sh.Match(m => m
+                                .Field(f => f.name)
+                                .Query(keyword)
+                                .Fuzziness(Fuzziness.Auto)
+                                .Operator(Operator.And)
+                                .Boost(3)
+                            )
+                        )
+>>>>>>> PRODUCTION
                         .MinimumShouldMatch(1)
                     )
                 )
@@ -131,7 +177,10 @@ namespace Caching.Elasticsearch
 
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> PRODUCTION
     }
 
 

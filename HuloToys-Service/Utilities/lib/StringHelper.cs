@@ -14,9 +14,14 @@ namespace HuloToys_Service.Utilities.lib
         }
         public static string RemoveSpecialCharacterExceptVietnameseCharacter(string text)
         {
+<<<<<<< HEAD
             return Regex.Replace(text, @"[^a-zA-Z0-9À-ỹĐđ\s]", "");
         }
 
+=======
+            return Regex.Replace(text, @"[^a-zA-Z0-9À-ỹ\s]", "");
+        }
+>>>>>>> PRODUCTION
         public static string NormalizeKeyword(string text)
         {
             if (string.IsNullOrWhiteSpace(text)) return "";
