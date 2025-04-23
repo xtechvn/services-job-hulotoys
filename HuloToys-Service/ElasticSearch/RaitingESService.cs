@@ -39,7 +39,7 @@ namespace HuloToys_Service.ElasticSearch
                     Size = request.page_size, // Set the number of documents to return
                     Sort = new List<ISort>
                     {
-                         new FieldSort { Field = Infer.Field<RatingESModel>(x => x.createddate), Order = SortOrder.Descending },
+                         new FieldSort { Field = Infer.Field<RatingESModel>(x => x.CreatedDate), Order = SortOrder.Descending },
 
                     },
                     Query = new BoolQuery
@@ -54,7 +54,7 @@ namespace HuloToys_Service.ElasticSearch
 
                 mustQueries.Add(new MatchQuery
                 {
-                    Field = Infer.Field<RatingESModel>(x => x.productid),
+                    Field = Infer.Field<RatingESModel>(x => x.ProductId),
                     Query=request.id
                 });
 
@@ -62,7 +62,7 @@ namespace HuloToys_Service.ElasticSearch
                 {
                     mustQueries.Add(new TermQuery
                     {
-                        Field = Infer.Field<RatingESModel>(x => x.star),
+                        Field = Infer.Field<RatingESModel>(x => x.Star),
                         Value = request.stars
                     });
                 }
@@ -70,7 +70,7 @@ namespace HuloToys_Service.ElasticSearch
                 {
                     mustQueries.Add(new ExistsQuery
                     {
-                        Field = Infer.Field<RatingESModel>(x => x.comment)
+                        Field = Infer.Field<RatingESModel>(x => x.Comment)
                     });
                 }
                 if (request.has_media == true)
@@ -79,8 +79,8 @@ namespace HuloToys_Service.ElasticSearch
                     {
                         Should = new List<QueryContainer>
                         {
-                            new ExistsQuery { Field = Infer.Field<RatingESModel>(x => x.imglink) },  // Check if 'age' exists
-                            new ExistsQuery { Field = Infer.Field<RatingESModel>(x => x.videolink) }  // Check if 'name' exists
+                            new ExistsQuery { Field = Infer.Field<RatingESModel>(x => x.ImgLink) },  // Check if 'age' exists
+                            new ExistsQuery { Field = Infer.Field<RatingESModel>(x => x.VideoLink) }  // Check if 'name' exists
                         },
                         MinimumShouldMatch = 1 // At least one field ('age' or 'name') must exist
                     };
@@ -108,7 +108,7 @@ namespace HuloToys_Service.ElasticSearch
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -123,7 +123,7 @@ namespace HuloToys_Service.ElasticSearch
                 {
                     Query = new TermQuery
                     {
-                        Field = Infer.Field<RatingESModel>(p => p.productid), // Filter by product ID
+                        Field = Infer.Field<RatingESModel>(p => p.ProductId), // Filter by product ID
                         Value = product_id
                     },
                     Size = 0, // No hits needed, just aggregations
@@ -132,7 +132,7 @@ namespace HuloToys_Service.ElasticSearch
                         {
                             "stars_count", new TermsAggregation("stars_count")
                             {
-                                Field = Infer.Field<RatingESModel>(x => x.star), // Use 'Stars' field for aggregation
+                                Field = Infer.Field<RatingESModel>(x => x.Star), // Use 'Stars' field for aggregation
                                 Size = 5, // Expecting 6 possible buckets (1 to 5 stars)
                                 Order = new List<TermsOrder> // Ensure results are ordered by star value
                                 {
@@ -151,8 +151,8 @@ namespace HuloToys_Service.ElasticSearch
                                     {
                                         Should = new List<QueryContainer>
                                         {
-                                            new ExistsQuery { Field = Infer.Field<RatingESModel>(x => x.imglink) }, // Check for 'description'
-                                            new ExistsQuery { Field = Infer.Field<RatingESModel>(x => x.videolink) }  // Check for 'information'
+                                            new ExistsQuery { Field = Infer.Field<RatingESModel>(x => x.ImgLink) }, // Check for 'description'
+                                            new ExistsQuery { Field = Infer.Field<RatingESModel>(x => x.VideoLink) }  // Check for 'information'
                                         },
                                         MinimumShouldMatch = 1 // At least one of 'description' or 'information' must exist
                                     }
@@ -164,7 +164,7 @@ namespace HuloToys_Service.ElasticSearch
                             {
                                 Filters = new List<QueryContainer>
                                 {
-                                    new ExistsQuery { Field = Infer.Field<RatingESModel>(x => x.comment) }, // Count products with 'description'
+                                    new ExistsQuery { Field = Infer.Field<RatingESModel>(x => x.Comment) }, // Count products with 'description'
                                 }
                             }
                         },
@@ -173,7 +173,7 @@ namespace HuloToys_Service.ElasticSearch
                            {
                                 Filters = new List<QueryContainer>()
                                 {
-                                   new ExistsQuery { Field = Infer.Field<RatingESModel>(x => x.id) },
+                                   new ExistsQuery { Field = Infer.Field<RatingESModel>(x => x.Id) },
 
                                 }
                            }
@@ -209,7 +209,7 @@ namespace HuloToys_Service.ElasticSearch
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return result;
@@ -224,7 +224,7 @@ namespace HuloToys_Service.ElasticSearch
                 {
                     Query = new TermQuery
                     {
-                        Field = Infer.Field<RatingESModel>(p => p.orderid), // Filter by product ID
+                        Field = Infer.Field<RatingESModel>(p => p.OrderId), // Filter by product ID
                         Value = order_id
                     },
                     Size = 0, // No hits needed, just aggregations
@@ -243,7 +243,7 @@ namespace HuloToys_Service.ElasticSearch
                                         {
                                               new TermQuery
                                               {
-                                                    Field = Infer.Field<RatingESModel>(x => x.userid),
+                                                    Field = Infer.Field<RatingESModel>(x => x.UserId),
                                                     Value = client_id
                                               }
                                         },
@@ -262,7 +262,7 @@ namespace HuloToys_Service.ElasticSearch
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return total_count;

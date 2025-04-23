@@ -232,7 +232,7 @@ namespace Utilities
             }
             catch (Exception ex)
             {
-                // Utilities.Common.WriteLog(Models.Contants.FOLDER_LOG, "ERROR CheckMaxLength : " + ex.Message);
+                // Utilities.Common.WriteLog(Models.Contants.FOLDER_LOG, "ERROR CheckMaxLength : " + ex.ToString());
                 return string.Empty;
             }
         }

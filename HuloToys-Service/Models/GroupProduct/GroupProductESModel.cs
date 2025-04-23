@@ -1,32 +1,57 @@
-﻿namespace HuloToys_Service.Models.ElasticSearch
+﻿using Nest;
+
+namespace HuloToys_Service.Models.ElasticSearch
 {
     public partial class GroupProductESModel
     {
-        public int id { get; set; }
+        [PropertyName("id")]
 
-        public int parentid { get; set; }
+        public int Id { get; set; }
+        [PropertyName("ParentId")]
 
-        public int? positionid { get; set; }
+        public int ParentId { get; set; }
+        [PropertyName("PositionId")]
 
-        public string name { get; set; } = null!;
+        public int? PositionId { get; set; }
+        [PropertyName("Name")]
 
-        public string? imagepath { get; set; }
+        public string Name { get; set; }
+        [PropertyName("ImagePath")]
 
-        public int? orderno { get; set; }
+        public string ImagePath { get; set; }
+        [PropertyName("OrderNo")]
 
-        public string? path { get; set; }
+        public int? OrderNo { get; set; }
+        [PropertyName("Path")]
 
-        public int? status { get; set; }
+        public string Path { get; set; }
+        [PropertyName("Status")]
 
-        public DateTime? createdon { get; set; }
+        public int? Status { get; set; }
+        [PropertyName("CreatedOn")]
 
-        public DateTime? modifiedon { get; set; }
+        public DateTime? CreatedOn { get; set; }
+        [PropertyName("ModifiedOn")]
+
+        public DateTime? ModifiedOn { get; set; }
+        [PropertyName("Priority")]
+
+        public int? Priority { get; set; }
+        [PropertyName("Description")]
+
+        public string Description { get; set; }
+        [PropertyName("IsShowHeader")]
 
 
-        public string? description { get; set; }
+        public bool IsShowHeader { get; set; }
+        [PropertyName("IsShowFooter")]
 
-        public bool isshowheader { get; set; }
+        public bool IsShowFooter { get; set; }
+        [PropertyName("Code")]
 
-        public bool isshowfooter { get; set; }
+        public string? Code { get; set; }
+
+        public List<GroupProductESModel> group_product_child { get; set; }
+
     }
 }

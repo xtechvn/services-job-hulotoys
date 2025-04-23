@@ -6,7 +6,7 @@ namespace HuloToys_Service.Controllers.Files
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    
     public class FileController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -24,7 +24,7 @@ namespace HuloToys_Service.Controllers.Files
             return View();
         }
         [HttpPost]
-        [Authorize]
+        
         [DisableRequestSizeLimit]
         [RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = int.MaxValue)]
         [Route("upload")]

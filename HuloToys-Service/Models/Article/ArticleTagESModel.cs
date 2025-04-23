@@ -1,12 +1,19 @@
-﻿namespace HuloToys_Service.Models.Article
+﻿using Nest;
+
+namespace HuloToys_Service.Models.Article
 {
     public class ArticleTagESModel
     {
-        public long id { get; set; }
+        [PropertyName("Id")]
 
-        public long? tagid { get; set; }
+        public long Id { get; set; }
+        [PropertyName("TagId")]
 
-        public long? articleid { get; set; }
+        public long? TagId { get; set; }
+        [PropertyName("ArticleId")]
+
+        public long? ArticleId { get; set; }
+
 
 
     }

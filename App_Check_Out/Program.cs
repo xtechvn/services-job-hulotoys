@@ -7,37 +7,36 @@ using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
-using Microsoft.Extensions.Configuration;
+using System.Configuration;
+using MongoDB.Driver.Core.Events;
 
-//-- DI:
-IConfiguration configuration = new ConfigurationBuilder()
-       .SetBasePath(Directory.GetCurrentDirectory())
-       .AddJsonFile("appSettings.json", false)
-       .Build();
+
 
 ServiceCollection service_collection = new ServiceCollection();
-service_collection.AddSingleton<IConfiguration>(configuration);
 service_collection.AddSingleton<IMainServices, MainServices>();
 service_collection.AddSingleton<ILoggingService, LoggingService>();
 var service_provider = service_collection.BuildServiceProvider();
-var _configuration = service_provider.GetService<IConfiguration>();
 var main_service = service_provider.GetService<IMainServices>();
 var log_service = service_provider.GetService<ILoggingService>();
 try
 {
-   
+    var host = ConfigurationManager.AppSettings["QUEUE_HOST"];
+     host = ConfigurationManager.AppSettings["QUEUE_PORT"];
+     host = ConfigurationManager.AppSettings["QUEUE_USERNAME"];
+     host = ConfigurationManager.AppSettings["QUEUE_PASSWORD"];
+     host = ConfigurationManager.AppSettings["QUEUE_V_HOST"];
     var factory = new ConnectionFactory()
     {
-        HostName = _configuration["Queue:Host"],
-        Port = Convert.ToInt32(_configuration["Queue:Port"]),
-        VirtualHost = _configuration["Queue:V_Host"],
-        UserName = _configuration["Queue:Username"],
-        Password = _configuration["Queue:Password"],
+        HostName = ConfigurationManager.AppSettings["QUEUE_HOST"],
+        Port = Convert.ToInt32(ConfigurationManager.AppSettings["QUEUE_PORT"]),
+        VirtualHost = ConfigurationManager.AppSettings["QUEUE_V_HOST"],
+        UserName = ConfigurationManager.AppSettings["QUEUE_USERNAME"],
+        Password = ConfigurationManager.AppSettings["QUEUE_PASSWORD"],
     };
     using (var connection = factory.CreateConnection())
     using (var channel = connection.CreateModel())
     {
-        channel.QueueDeclare(queue: _configuration["Queue:QueueName"],
+        channel.QueueDeclare(queue: ConfigurationManager.AppSettings["queue_name"],
                                             durable: true,
                                             exclusive: false,
                                             autoDelete: false,
@@ -51,7 +50,9 @@ try
             try
             {
                 var body = ea.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
+                log_service.InsertLogTelegramDirect("Received: "+body);
+
+                 var message = Encoding.UTF8.GetString(body);
                 try
                 {
                     var request = JsonConvert.DeserializeObject<CheckoutQueueModel>(message);
@@ -64,12 +65,12 @@ try
             {
                 string err = "Program: " + ex.ToString();
                 Console.WriteLine(err);
-                log_service.LoggingAppOutput(err, true,true);
+                log_service.InsertLogTelegramDirect(err);
 
             }
         };
 
-        channel.BasicConsume(queue: _configuration["Queue:QueueName"], autoAck: false, consumer: consumer);
+        channel.BasicConsume(queue: ConfigurationManager.AppSettings["queue_name"], autoAck: false, consumer: consumer);
 
         Console.ReadLine();
 
@@ -79,5 +80,5 @@ catch (Exception ex)
 {
     string err = "Main: " + ex.ToString();
     Console.WriteLine(err);
-    log_service.LoggingAppOutput(err, true, true);
+    log_service.InsertLogTelegramDirect(err);
 }

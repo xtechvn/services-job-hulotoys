@@ -39,8 +39,9 @@ namespace Caching.Elasticsearch
                 var query = elasticClient.Search<OrderESModel>(sd => sd
                             .Index(index)
                             .Query(q => q
-                                .Match(m => m.Field("clientid").Query(client_id.ToString())
-                                ))
+                                .Term(m => m.ClientId, client_id)
+                            )
+
                             .Size(100)
 
                             );
@@ -57,7 +58,7 @@ namespace Caching.Elasticsearch
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -74,8 +75,7 @@ namespace Caching.Elasticsearch
                 if (status == null || status.Trim() == "")
                 {
                     Func<QueryContainerDescriptor<OrderESModel>, QueryContainer> query_container = q => q
-                                  .Match(m => m.Field(x=>x.clientid).Query(client_id.ToString())
-                                  );
+                                  .Term(m => m.ClientId, client_id);
                     var query = elasticClient.Search<OrderESModel>(sd => sd
                               .Index(index)
                               .Query(query_container)
@@ -104,9 +104,9 @@ namespace Caching.Elasticsearch
                 else
                 {
                     Func<QueryContainerDescriptor<OrderESModel>, QueryContainer> query_container = q =>
-                                q.Match(m => m.Field(x => x.clientid).Query(client_id.ToString()))
+                                q.Match(m => m.Field(x => x.ClientId).Query(client_id.ToString()))
                                  &&
-                                q.Terms(t => t.Field(x => x.orderstatus).Terms(status.Split(",")))
+                                q.Terms(t => t.Field(x => x.OrderStatus).Terms(status.Split(",")))
                                 ;
                     var query = elasticClient.Search<OrderESModel>(sd => sd
                              .Index(index)
@@ -134,7 +134,7 @@ namespace Caching.Elasticsearch
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -153,9 +153,9 @@ namespace Caching.Elasticsearch
                                .Index(index)
 
                                .Query(q => q
-                                   .Match(m => m.Field("clientid").Query(client_id.ToString())
-                                   ))
-                                .Sort(q => q.Descending(u => u.createddate))); ;
+                                   .Term(m => m.ClientId, client_id)
+                                   )
+                                .Sort(q => q.Descending(u => u.CreatedDate))); ;
 
                 if (!query.IsValid)
                 {
@@ -169,7 +169,7 @@ namespace Caching.Elasticsearch
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -190,9 +190,9 @@ namespace Caching.Elasticsearch
                         .Query(q =>
                          q.Bool(
                              qb => qb.Must(
-                                 q => q.Term("clientid", client_id.ToString()),
+                                 q => q.Term("ClientId", client_id.ToString()),
                                  q => q.QueryString(qs => qs
-                                 .Fields(new[] { "orderno" })
+                                 .Fields(new[] { "OrderNo" })
                                  .Query("*" + text.ToUpper() + "*")
                                  .Analyzer("standard")
 
@@ -212,7 +212,7 @@ namespace Caching.Elasticsearch
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return new List<OrderESModel>();
@@ -233,7 +233,7 @@ namespace Caching.Elasticsearch
                                    q.Bool(
                                        qb => qb.Must(
                                           q => q.DateRange(m => m
-                                          .Name("createddate")
+                                          .Name("CreatedDate")
                                           .GreaterThanOrEquals(new DateTime(DateTime.Now.Year, 01, 01, 0, 0, 0).ToString("dd/MM/yyyy"))
                                           .Format("dd/MM/yyyy")
                                           .TimeZone("+07:00")
@@ -252,7 +252,7 @@ namespace Caching.Elasticsearch
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return -1;
@@ -271,8 +271,8 @@ namespace Caching.Elasticsearch
                                .Index(index)
 
                                .Query(q => q
-                                   .Match(m => m.Field(x => x.orderid).Query(order_id.ToString())
-                                   )));
+                                    .Term(m => m.Id, order_id)
+                                   ));
 
                 if (!query.IsValid)
                 {
@@ -280,13 +280,13 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    var rs = query.Documents as List<OrderESModel>;
-                    return rs.FirstOrDefault();
+                    var data = query.Documents as List<OrderESModel>;
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;

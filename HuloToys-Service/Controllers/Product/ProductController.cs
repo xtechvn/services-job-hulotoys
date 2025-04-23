@@ -8,11 +8,12 @@ using HuloToys_Service.Models.ElasticSearch;
 using HuloToys_Service.Models.Raiting;
 using HuloToys_Service.MongoDb;
 using HuloToys_Service.RedisWorker;
-using Microsoft.AspNetCore.Authorization;
+using HuloToys_Service.Utilities.lib;
+using HuloToys_Service.Utilities.Lib;
 using Microsoft.AspNetCore.Mvc;
-using Nest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Reflection;
 using Utilities;
 using Utilities.Contants;
 
@@ -20,7 +21,7 @@ namespace WEB.CMS.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    
     public class ProductController : ControllerBase
     {
         private readonly ProductDetailMongoAccess _productDetailMongoAccess;
@@ -33,6 +34,7 @@ namespace WEB.CMS.Controllers
         private readonly GroupProductESService groupProductESService;
         private readonly ProductRaitingService productRaitingService;
         private readonly ProductDetailService productDetailService;
+        private readonly ProductESRepository _productESRepository;
 
         public ProductController(IConfiguration configuration, RedisConn redisService)
         {
@@ -44,6 +46,7 @@ namespace WEB.CMS.Controllers
             orderDetailESService = new OrderDetailESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
             groupProductESService = new GroupProductESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
             _raitingESService = new RaitingESService(configuration["DataBaseConfig:Elastic:Host"], configuration);
+            _productESRepository = new ProductESRepository(configuration["DataBaseConfig:Elastic:Host"], configuration);
 
             _configuration = configuration;
             _redisService = new RedisConn(configuration);
@@ -68,7 +71,8 @@ namespace WEB.CMS.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    if (request.keyword ==null) request.keyword  = "";
+                    if (request.keyword == null) request.keyword = "";
+
                     if (request.page_size <= 0) request.page_size = 10;
                     if (request.page_index < 1) request.page_index = 1;
                     //var cache_name = CacheType.PRODUCT_LISTING + (request.keyword ?? "") + request.group_id+ request.page_index+ request.page_size;
@@ -87,8 +91,9 @@ namespace WEB.CMS.Controllers
                     //    }
                     //}
 
+                    //request.keyword = StringHelpers.NormalizeString(request.keyword);
                     var data = await productDetailService.ProductListing(request);
-                   
+
                     //if (data != null  && data.items.Count > 0)
                     //{
                     //    _redisService.Set(cache_name, JsonConvert.SerializeObject(data), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
@@ -101,9 +106,10 @@ namespace WEB.CMS.Controllers
                     });
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
+                LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return Ok(new
             {
@@ -210,7 +216,7 @@ namespace WEB.CMS.Controllers
         }
         [HttpPost("search")]
         public async Task<IActionResult> ProductSearch([FromBody] APIRequestGenericModel input)
-        {
+       {
             try
             {
                 JArray objParr = null;
@@ -225,28 +231,24 @@ namespace WEB.CMS.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    //var cache_name = CacheType.PRODUCT_SEARCH + (request.keyword ?? "");
-                    //var j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
-                    //if (j_data != null && j_data.Trim() != "")
-                    //{
-                    //    ProductListResponseModel result = JsonConvert.DeserializeObject<ProductListResponseModel>(j_data);
-                    //    if (result != null && result.items != null && result.items.Count > 0)
-                    //    {
-                    //        return Ok(new
-                    //        {
-                    //            status = (int)ResponseType.SUCCESS,
-                    //            msg = ResponseMessages.Success,
-                    //            data = result
-                    //        });
-                    //    }
-                    //}
 
-                    var data = await _productDetailMongoAccess.Search(request.keyword);
-
-                    //if (data != null && data.items.Count > 0)
-                    //{
-                    //    _redisService.Set(cache_name, JsonConvert.SerializeObject(data), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
-                    //}
+                    // ✅ Chuẩn hóa keyword: bỏ ký tự đặc biệt + giữ dấu + normalize cho search
+                    string rawKeyword = StringHelper.RemoveSpecialCharacterExceptVietnameseCharacter(request.keyword);
+                    string normalizedKeyword = StringHelper.NormalizeKeyword(rawKeyword); // Dùng cho no_space_name
+                    ProductListResponseModel data = new ProductListResponseModel();
+                    var list = await _productESRepository.SearchByKeywordAsync(rawKeyword, normalizedKeyword);
+                    if(list!=null && list.Count > 0)
+                    {
+                        data.count=list.Count;
+                        data.items = list.Select(x => new ProductMongoDbModel()
+                        {
+                            amount = x.amount,
+                            _id = x.product_id,
+                            code = x.product_code,
+                            description = x.description,
+                            name = x.name
+                        }).ToList();
+                    }
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
@@ -367,7 +369,7 @@ namespace WEB.CMS.Controllers
                             msg = ResponseMessages.DataInvalid
                         });
                     }
-                    var data = await _productDetailMongoAccess.GlobalSearch("", 0, "", "", 1, 500);
+                    var data = await _productDetailMongoAccess.GlobalSearch(request.keyword, 0, "", "", 1, 500);
                     List<ProductSpecificationDetailMongoDbModel> brands = new List<ProductSpecificationDetailMongoDbModel>();
                     List<GroupProductESModel> groups = new List<GroupProductESModel>();
                     ProductListResponseModel items = new ProductListResponseModel();

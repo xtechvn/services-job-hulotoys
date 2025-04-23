@@ -1,25 +1,19 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+﻿using APP_CHECKOUT.Utilities.Lib;
+using System.Configuration;
 using Telegram.Bot;
 
 namespace APP.READ_MESSAGES.Libraries
 {
     public  class LoggingService : ILoggingService
     {
-        private readonly IConfiguration _configuration;
-        public string token = "5321912147:AAFhcJ9DolwPWL74WbMjOOyP6-0G7w88PWY";
-        public string group = "-620666227";
+
         public string env = "Product";
         public string name = "APP_CHECKOUT";
 
-        public LoggingService(IConfiguration configuration) {
+        public LoggingService() {
 
-            _configuration = configuration;
-            token = configuration["BotSetting:bot_token"];
-            group = configuration["BotSetting:bot_group_id"];
-            env = configuration["BotSetting:environment"];
-            name = configuration["BotSetting:Name"];
+            env = ConfigurationManager.AppSettings["BotSetting_environment"];
+            name = ConfigurationManager.AppSettings["BotSetting_Name"];
 
         }
 
@@ -60,13 +54,12 @@ namespace APP.READ_MESSAGES.Libraries
                 return false;
             }
         }
-        private int InsertLogTelegramDirect(string message)
+        public int InsertLogTelegramDirect(string message)
         {
             var rs = 1;
             try
             {
-                TelegramBotClient alertMsgBot = new TelegramBotClient(token);
-                var rs_push = alertMsgBot.SendTextMessageAsync(group, message).Result;
+                LogHelper.InsertLogTelegram(message);
             }
             catch (Exception)
             {

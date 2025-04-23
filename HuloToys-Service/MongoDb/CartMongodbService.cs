@@ -15,14 +15,15 @@ namespace HuloToys_Service.MongoDb
         public CartMongodbService(IConfiguration configuration) {
 
             _configuration= configuration;
-            //      "connection_string": "mongodb://adavigolog_writer:adavigolog_2022@103.163.216.42:27017/?authSource=Adavigo"
-            string _connection = "mongodb://" + _configuration["DataBaseConfig:MongoServer:user"]
-                 + ":" + _configuration["DataBaseConfig:MongoServer:pwd"]
-                 + "@" + _configuration["DataBaseConfig:MongoServer:Host"]
-                 + ":" + _configuration["DataBaseConfig:MongoServer:Port"]
-                 + "/?authSource=" + _configuration["DataBaseConfig:MongoServer:catalog_log"];
-            var booking = new MongoClient(_connection);
-            IMongoDatabase db = booking.GetDatabase(_configuration["DataBaseConfig:MongoServer:catalog_log"]);
+            //mongodb://adavigolog_writer:adavigolog_2022@103.163.216.42:27017/?authSource=HoanBds
+            string url = "mongodb://" + configuration["DataBaseConfig:MongoServer:user"] +
+                ":" + configuration["DataBaseConfig:MongoServer:pwd"] +
+                "@" + configuration["DataBaseConfig:MongoServer:Host"] +
+                ":" + configuration["DataBaseConfig:MongoServer:Port"] +
+                "/?authSource=" + configuration["DataBaseConfig:MongoServer:catalog_core"] + "";
+
+            var client = new MongoClient(url);
+            IMongoDatabase db = client.GetDatabase(_configuration["DataBaseConfig:MongoServer:catalog_core"]);
             bookingCollection = db.GetCollection<CartItemMongoDbModel>("Cart");
         }
         public async Task<string> Insert(CartItemMongoDbModel item)
@@ -35,7 +36,7 @@ namespace HuloToys_Service.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -57,7 +58,7 @@ namespace HuloToys_Service.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -79,7 +80,7 @@ namespace HuloToys_Service.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -102,7 +103,7 @@ namespace HuloToys_Service.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -126,7 +127,7 @@ namespace HuloToys_Service.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return 0;
@@ -152,7 +153,7 @@ namespace HuloToys_Service.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -172,7 +173,7 @@ namespace HuloToys_Service.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return false;

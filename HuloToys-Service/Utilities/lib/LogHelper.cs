@@ -1,9 +1,45 @@
-﻿using System.Net;
+﻿using Newtonsoft.Json;
+using System.Net;
+using Telegram.Bot;
 
 namespace HuloToys_Service.Utilities.Lib
 {
     public static class LogHelper
     {
+        public static string botToken = "5321912147:AAFhcJ9DolwPWL74WbMjOOyP6-0G7w88PWY";
+        public static string group_Id = "-739120187";
+        public static string enviromment = "DEV";
+        public static string CompanyType = " ";
+        public static int CompanyTypeInt = 0;
+        public static int InsertLogTelegram(string message)
+        {
+            var rs = 1;
+            try
+            {
+                LoadConfig();
+                TelegramBotClient alertMsgBot = new TelegramBotClient(botToken);
+                var rs_push = alertMsgBot.SendTextMessageAsync(group_Id, "[" + enviromment + "-" + CompanyType + "] - " + message).Result;
+            }
+            catch (Exception ex)
+            {
+                rs = -1;
+            }
+            return rs;
+        }
+        public static int InsertLogTelegram(string bot_token, string id_group, string message)
+        {
+            var rs = 1;
+            try
+            {
+                TelegramBotClient alertMsgBot = new TelegramBotClient(bot_token);
+                var rs_push = alertMsgBot.SendTextMessageAsync(id_group, message).Result;
+            }
+            catch (Exception ex)
+            {
+                rs = -1;
+            }
+            return rs;
+        }
         public static void InsertLogTelegramByUrl(string bot_token, string id_group, string msg)
         {
             string JsonContent = string.Empty;
@@ -65,7 +101,44 @@ namespace HuloToys_Service.Utilities.Lib
                 }
             }
         }
+        private static void LoadConfig()
+        {
 
+            using (StreamReader r = new StreamReader("appsettings.json"))
+            {
+                AppSettings _appconfig = new AppSettings();
+                string json = r.ReadToEnd();
+                _appconfig = JsonConvert.DeserializeObject<AppSettings>(json);
+                enviromment = _appconfig.BotSetting.environment;
+                botToken = _appconfig.BotSetting.bot_token;
+                group_Id = _appconfig.BotSetting.bot_group_id;
+                CompanyType = "Hulotoys ";
 
+            }
+        }
+        public class AppSettings
+        {
+            public BotSetting BotSetting { get; set; }
+            public string CompanyType { get; set; }
+
+        }
+
+        public class BotSetting
+        {
+            public string bot_token { get; set; }
+            public string bot_group_id { get; set; }
+            public string environment { get; set; }
+        }
+        public class SystemLog
+        {
+
+            public int SourceID { get; set; } // log từ nguồn nào, quy định trong SystemLogSourceID
+            public string Type { get; set; } // nội dung: booking, order,....
+            public string KeyID { get; set; } // Key: mã đơn, mã khách hàng, mã booking,....
+            public string ObjectType { get; set; } // ObjectType: Dùng để phân biệt các đối tượng cần log với nhau. Ví dụ: log cho đơn hàng, khách hàng, hợp đồng, Phiếu thu...
+            public int CompanyType { get; set; }//dùng để phân biệt company nào
+            public string Log { get; set; } // nội dung log
+            public DateTime CreatedTime { get; set; } // thời gian tạo
+        }
     }
 }

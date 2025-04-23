@@ -16,8 +16,14 @@ namespace HuloToys_Service.MongoDb
         public ProductSpecificationMongoAccess(IConfiguration configuration)
         {
             _configuration = configuration;
-            string url = "mongodb://" + configuration["DataBaseConfig:MongoServer:Host"] + "";
-            var client = new MongoClient("mongodb://" + configuration["DataBaseConfig:MongoServer:Host"] + "");
+            //mongodb://adavigolog_writer:adavigolog_2022@103.163.216.42:27017/?authSource=HoanBds
+            string url = "mongodb://" + configuration["DataBaseConfig:MongoServer:user"] +
+                ":" + configuration["DataBaseConfig:MongoServer:pwd"] +
+                "@" + configuration["DataBaseConfig:MongoServer:Host"] +
+                ":" + configuration["DataBaseConfig:MongoServer:Port"] +
+                "/?authSource=" + configuration["DataBaseConfig:MongoServer:catalog_core"] + "";
+
+            var client = new MongoClient(url);
             IMongoDatabase db = client.GetDatabase(configuration["DataBaseConfig:MongoServer:catalog_core"]);
             _product_specification_collection = db.GetCollection<ProductSpecificationMongoDbModel>("ProductSpecification");
         }
@@ -31,7 +37,7 @@ namespace HuloToys_Service.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
                 return null;
             }
@@ -48,7 +54,7 @@ namespace HuloToys_Service.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
                 return null;
             }
@@ -67,7 +73,7 @@ namespace HuloToys_Service.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
                 return null;
             }
@@ -85,7 +91,7 @@ namespace HuloToys_Service.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
                 return null;
             }
@@ -109,7 +115,7 @@ namespace HuloToys_Service.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
                 return null;
             }

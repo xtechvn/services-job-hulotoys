@@ -26,7 +26,7 @@ namespace HuloToys_Service.Controllers.Address
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    
     public class AddressController : ControllerBase
     {
         private readonly IConfiguration configuration;
@@ -79,7 +79,7 @@ namespace HuloToys_Service.Controllers.Address
                         }
                         //-- check if account client exists
                         var account_client = accountClientESService.GetById(request.AccountClientId);
-                        if(account_client==null || account_client.id <= 0)
+                        if(account_client==null || account_client.Id <= 0)
                         {
                             return Ok(new
                             {
@@ -87,12 +87,12 @@ namespace HuloToys_Service.Controllers.Address
                                 msg = ResponseMessages.DataInvalid
                             });
                         }
-                        request.ClientId = (long)account_client.clientid;
+                        request.ClientId = (long)account_client.ClientId;
                         bool is_add_new = true;
                         int address_count = 1;
                         if (request.Id > 0 )
                         {
-                            var address_update = addressClientESService.GetById(request.Id, (long)account_client.clientid);
+                            var address_update = addressClientESService.GetById(request.Id, (long)account_client.ClientId);
                             if (address_update == null || address_update.id <= 0)
                             {
                                 return Ok(new
@@ -105,7 +105,7 @@ namespace HuloToys_Service.Controllers.Address
                         }
                         else
                         {
-                            var address_by_client = addressClientESService.GetByClientID((long)account_client.clientid);
+                            var address_by_client = addressClientESService.GetByClientID((long)account_client.ClientId);
                             if (address_by_client != null) address_count = address_by_client.Count;
                         }
                         var j_param = new Dictionary<string, object>
@@ -147,7 +147,7 @@ namespace HuloToys_Service.Controllers.Address
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
 
             }
@@ -228,7 +228,7 @@ namespace HuloToys_Service.Controllers.Address
         //    }
         //    catch (Exception ex)
         //    {
-        //        string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+        //        string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
         //        LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
 
         //    }
@@ -333,7 +333,7 @@ namespace HuloToys_Service.Controllers.Address
                     //{
                     //    redisService.Set(cache_name, JsonConvert.SerializeObject(model), Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
                     //}
-                    var selected = model.list.FirstOrDefault(x => x.isactive == true);
+                    var selected = model.list.FirstOrDefault(x => x.IsActive == true);
                     if (selected == null) selected = model.list.FirstOrDefault();
                     return Ok(new
                     {
@@ -397,7 +397,7 @@ namespace HuloToys_Service.Controllers.Address
                         }
                     }
                     var account_client = accountClientESService.GetById(account_client_id);
-                    var detail = addressClientESService.GetById(request.id, (long)account_client.clientid);
+                    var detail = addressClientESService.GetById(request.id, (long)account_client.ClientId);
                     if (detail != null && detail.id > 0)
                     {
                         redisService.Set(cache_name, JsonConvert.SerializeObject(detail), Convert.ToInt32(configuration["Redis:Database:db_search_result"]));

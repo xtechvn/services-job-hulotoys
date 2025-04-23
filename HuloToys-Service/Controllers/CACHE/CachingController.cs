@@ -11,7 +11,7 @@ namespace API_CORE.Controllers.CACHE
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    
     public class CachingController : Controller
     {
         private IConfiguration configuration;
@@ -49,7 +49,7 @@ namespace API_CORE.Controllers.CACHE
                     for (int i = 0; i <= category_list_id.Length - 1; i++)
                     {
                         int category_id = Convert.ToInt32(category_list_id[i]);
-                        redisService.clear(CacheType.ARTICLE_CATEGORY_ID + category_id, Convert.ToInt32(configuration["Redis:Database:db_common"]));
+                        redisService.clear(CacheType.ARTICLE_CATEGORY_ID + "22", Convert.ToInt32(configuration["Redis:Database:db_common"]));
                         redisService.clear(CacheType.CATEGORY_NEWS + "1", Convert.ToInt32(configuration["Redis:Database:db_common"]));
                         redisService.clear(CacheType.CATEGORY_NEWS + category_id, Convert.ToInt32(configuration["Redis:Database:db_common"]));
                         redisService.clear(CacheType.ARTICLE_MOST_VIEWED, Convert.ToInt32(configuration["Redis:Database:db_common"]));
@@ -64,7 +64,7 @@ namespace API_CORE.Controllers.CACHE
             }
             catch (Exception ex)
             {
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "sync-article.json - clearCacheArticle " + ex.Message + " token=" + input.token.ToString());
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "sync-article.json - clearCacheArticle " + ex.ToString() + " token=" + input.token.ToString());
                 return Ok(new { status = (int)ResponseType.ERROR, _token = input.token, msg = "Sync error !!!" });
             }
         }

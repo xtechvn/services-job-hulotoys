@@ -1,5 +1,6 @@
 ﻿using Caching.Elasticsearch;
 using HuloToys_Service.Models.Client;
+using HuloToys_Service.Utilities.Lib;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Utilities;
@@ -47,17 +48,29 @@ namespace HuloToys_Service.Controllers.Client.Business
                 var decoded = CommonHelper.Decode(token, _configuration["KEY:private_key"]);
                 if(decoded!=null && decoded.Trim() != "")
                 {
-                    var model=JsonConvert.DeserializeObject<ClientFELoginModel>(decoded);   
-                    if(model!=null && model.user_name!=null && model.user_name.Trim() != "")
+                    var model=JsonConvert.DeserializeObject<ClientFELoginModel>(decoded);
+
+                    if (model!=null && model.user_name!=null && model.user_name.Trim() != "")
                     {
                         var account = _accountClientESService.GetByUsername(model.user_name);
-                        account_client_id = account.id;
+                        if (account == null)
+                        {
+                            LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], 
+                                "GetAccountClientIdFromToken with ["+model.user_name+"] ID=" + (account == null ? "[accountclient null]" : account.Id.ToString()));
+
+                        }
+                        else
+                        {
+                            account_client_id = account.Id;
+
+                        }
                     }
 
                 }
             }
-            catch
+            catch(Exception ex)
             {
+                LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], "GetAccountClientIdFromToken"+ex.ToString());
 
             }
             return account_client_id;

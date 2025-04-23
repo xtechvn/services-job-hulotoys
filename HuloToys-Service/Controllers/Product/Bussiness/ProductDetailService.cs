@@ -5,9 +5,11 @@ using HuloToys_Service.ElasticSearch;
 using HuloToys_Service.Models.APIRequest;
 using HuloToys_Service.MongoDb;
 using HuloToys_Service.Utilities.lib;
+using HuloToys_Service.Utilities.Lib;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Reflection;
 using Utilities.Contants;
 
 namespace HuloToys_Service.Controllers.Product.Bussiness
@@ -38,7 +40,8 @@ namespace HuloToys_Service.Controllers.Product.Bussiness
             ProductListFEResponseModel result = new ProductListFEResponseModel();
             try
             {
-                request.keyword = StringHelper.NormalizeTextForSearch(request.keyword);
+                // Chuẩn hóa từ khóa tìm kiếm
+                request.keyword = StringHelper.ValidateTextForSearch(request.keyword);
 
                 var data = await _productDetailMongoAccess.ResponseListing(request.keyword, request.group_id,request.page_index,request.page_size);
                 result = JsonConvert.DeserializeObject<ProductListFEResponseModel>(JsonConvert.SerializeObject(data));
@@ -58,7 +61,7 @@ namespace HuloToys_Service.Controllers.Product.Bussiness
                         if(raiting!=null && raiting.Count > 0)
                         {
                             i.review_count = raiting.Count;
-                            i.rating = raiting.Sum(x => x.star == null ? 0 : (float)x.star) / (float)raiting.Count;
+                            i.rating = raiting.Sum(x => x.Star == null ? 0 : (float)x.Star) / (float)raiting.Count;
                             i.total_sold = orderDetailESService.CountByProductId(new List<string>() { i._id });
 
                         }
@@ -66,9 +69,10 @@ namespace HuloToys_Service.Controllers.Product.Bussiness
                     }
                 }
             }
-            catch
+            catch(Exception ex)
             {
-
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
+                LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return result;
         }

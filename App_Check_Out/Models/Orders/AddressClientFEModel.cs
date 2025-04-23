@@ -1,6 +1,4 @@
-﻿using HuloToys_Service.Models.Location;
-using System;
-using System.Collections.Generic;
+﻿using APP_CHECKOUT.Models.Location;
 
 namespace Entities.Models
 {

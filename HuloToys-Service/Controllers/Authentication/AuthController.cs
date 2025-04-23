@@ -1,10 +1,8 @@
 ﻿// Create by: cuonglv
 // Create date: 24-07-2024-
-using Caching.Elasticsearch;
 using HuloToys_Service.ElasticSearch;
 using HuloToys_Service.Models;
 using HuloToys_Service.Utilities.Lib;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -46,11 +44,14 @@ namespace HuloToys_Service.Controllers
                         msg = "Thông tin đăng nhập không đúng. Xin vui lòng thử lại"
                     });
                 }
+
                 var Password = CommonHelper.MD5Hash(user.Password);
                 var accountClient = accountApiESService.GetByUsername(user.Username);
-                if (accountClient == null) { return Ok(new { status = (int)ResponseType.ERROR, msg = "Tài khoản " + user.Username + " không tồn tại" }); }
-                if (accountClient.status != (int)AccountClientStatusType.BINH_THUONG) { return Ok(new { status = (int)ResponseType.ERROR, msg = "Tài khoản đã khóa" }); }
-                if (user.Username == accountClient.username && Password == accountClient.password)
+
+                if (accountClient == null) {
+                    return Ok(new { status = (int)ResponseType.ERROR, msg = "Tài khoản " + user.Username + " không tồn tại" }); }
+                if (accountClient.Status != (int)AccountClientStatusType.BINH_THUONG) { return Ok(new { status = (int)ResponseType.ERROR, msg = "Tài khoản đã khóa" }); }
+                if (user.Username == accountClient.UserName && Password == accountClient.Password)
                 {
                     var token = GenerateJwtToken(user.Username);
                     return Ok(new { status = (int)ResponseType.SUCCESS, token });
@@ -63,8 +64,10 @@ namespace HuloToys_Service.Controllers
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "Get account api with usr=" + user.Username + ". Error" + ex.ToString());
+
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
+                LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
                 return Ok(new { status = (int)ResponseType.ERROR, msg = "Thông tin đăng nhập không hợp lệ. Vui lòng liên hệ với Admin" });
             }
         }
@@ -95,7 +98,7 @@ namespace HuloToys_Service.Controllers
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
                 return "";
             }

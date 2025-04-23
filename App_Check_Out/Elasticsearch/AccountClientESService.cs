@@ -1,23 +1,20 @@
-﻿using System.Reflection;
-using APP_CHECKOUT.Elasticsearch;
-using APP_CHECKOUT.Models.Account;
-using Elasticsearch.Net;
-using Microsoft.Extensions.Configuration;
+﻿using Elasticsearch.Net;
 using Nest;
+using System.Reflection;
+using APP_CHECKOUT.Models.Account;
+using APP_CHECKOUT.Elasticsearch;
+using Microsoft.Extensions.Configuration;
 
-namespace APP_CHECKOUT.Elasticsearch
+namespace Caching.Elasticsearch
 {
     public class AccountClientESService : ESRepository<AccountESModel>
     {
-        public string index = "account_client_hulotoys_store";
-        private readonly IConfiguration configuration;
+        public string index = "hulotoys_sp_getaccountclient";
         private static string _ElasticHost;
 
-        public AccountClientESService(string Host, IConfiguration _configuration) : base(Host, _configuration)
+        public AccountClientESService(string Host) : base(Host)
         {
             _ElasticHost = Host;
-            configuration = _configuration;
-            index = _configuration["DataBaseConfig:Elastic:Index:AccountClient"];
 
         }
         public AccountESModel GetByUsername(string user_name)
@@ -32,22 +29,23 @@ namespace APP_CHECKOUT.Elasticsearch
                 var query = elasticClient.Search<AccountESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field("username").Query(user_name)
+                                   .Match(m => m.Field(y=>y.UserName).Query(user_name)
                                )));
 
                 if (query.IsValid)
                 {
                     var result = query.Documents as List<AccountESModel>;
+                   // logging_service.InsertLogTelegramDirect( "GetByUsername - AccountClientESService ["+user_name+"]["+ JsonConvert.SerializeObject(result) + "]" );
                     return result.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                //LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
+      
         public AccountESModel GetById(long id)
         {
             try
@@ -60,19 +58,19 @@ namespace APP_CHECKOUT.Elasticsearch
                 var query = elasticClient.Search<AccountESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field("id").Query(id.ToString())
-                               )));
+                                   .Term(m => m.Id, id)
+                               ));
 
                 if (query.IsValid)
                 {
                     var result = query.Documents as List<AccountESModel>;
+                    //logging_service.InsertLogTelegramDirect( "GetById - AccountClientESService [" + id + "][" + JsonConvert.SerializeObject(result) + "]");
                     return result.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                //LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -89,9 +87,15 @@ namespace APP_CHECKOUT.Elasticsearch
                                .Index(index)
                              .Query(q =>
                                q.Bool(
-                                   qb => qb.Must(
-                                      qb => qb.Term("username", user_name),
-                                       qb => qb.Term("password", password)
+                                   qb => qb.Must( q=>
+                                      q.Match(qs => qs
+                                        .Field(s => s.UserName)
+                                        .Query(user_name)
+                                       )
+                                     && q.Match(qs => qs
+                                        .Field(s => s.Password)
+                                        .Query(password)
+                                       )
 
                                     )
                                )
@@ -100,14 +104,14 @@ namespace APP_CHECKOUT.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<AccountESModel>;
-                    return result.FirstOrDefault();
+                    var data = query.Documents as List<AccountESModel>;
+
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                //LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -125,8 +129,10 @@ namespace APP_CHECKOUT.Elasticsearch
                              .Query(q =>
                                q.Bool(
                                    qb => qb.Must(
-                                      qb => qb.Term("username", user_name),
-                                       qb => qb.Term("googletoken", token)
+                                      qb => qb.Match(qs => qs
+                                        .Field(s => s.UserName)
+                                        .Query(user_name)
+                                       )
 
                                     )
                                )
@@ -135,14 +141,14 @@ namespace APP_CHECKOUT.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<AccountESModel>;
-                    return result.FirstOrDefault();
+                    var data = query.Documents as List<AccountESModel>;
+
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                //LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -160,8 +166,12 @@ namespace APP_CHECKOUT.Elasticsearch
                              .Query(q =>
                                q.Bool(
                                    qb => qb.Must(
-                                      qb => qb.Term("clientid", client_id),
-                                       qb => qb.Term("password", password)
+                                      qb => qb.Term(x=>x.ClientId, client_id) 
+                                      &&
+                                       qb.Match(qs => qs
+                                        .Field(s => s.Password)
+                                        .Query(password)
+                                       )
 
                                     )
                                )
@@ -170,14 +180,49 @@ namespace APP_CHECKOUT.Elasticsearch
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<AccountESModel>;
-                    return result.FirstOrDefault();
+                    var data = query.Documents as List<AccountESModel>;
+
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
-                //LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
+            }
+            return null;
+        }
+        public AccountESModel GetByClientID(long client_id)
+        {
+            try
+            {
+                var nodes = new Uri[] { new Uri(_ElasticHost) };
+                var connectionPool = new StaticConnectionPool(nodes);
+                var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
+                var elasticClient = new ElasticClient(connectionSettings);
+
+
+                var query = elasticClient.Search<AccountESModel>(sd => sd
+                             .Index(index)
+                           .Query(q =>
+                             q.Bool(
+                                 qb => qb.Must(
+                                    qb => qb.Term(x=>x.ClientId, client_id)
+
+
+                                  )
+                             )
+                          ));
+
+                if (query.IsValid)
+                {
+                    var data = query.Documents as List<AccountESModel>;
+
+                    return data.FirstOrDefault();
+                }
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }

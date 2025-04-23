@@ -1,8 +1,12 @@
-﻿using HuloToys_Service.ElasticSearch;
+﻿using Entities.ConfigModels;
+using Entities.Models;
+using HuloToys_Service.ElasticSearch;
+using HuloToys_Service.Models;
 using HuloToys_Service.Models.Article;
 using HuloToys_Service.Models.ElasticSearch;
 using HuloToys_Service.Models.Products;
 using HuloToys_Service.Utilities.Lib;
+using Microsoft.EntityFrameworkCore;
 using Nest;
 using Newtonsoft.Json;
 using System.Reflection;
@@ -20,7 +24,9 @@ namespace HuloToys_Service.Controllers.News.Business
         public ArticleCategoryESService articleCategoryESService;
         public ArticleRelatedESService articleRelatedESService;
         public GroupProductESService groupProductESService;
-        public NewsBusiness( IConfiguration _configuration)
+        private readonly DataMSContext _dbContext;
+        private readonly string _UrlStaticImage = "https://static-image.adavigo.com";
+        public NewsBusiness( IConfiguration _configuration, DataMSContext dbContext)
         {
 
             configuration = _configuration;
@@ -30,7 +36,248 @@ namespace HuloToys_Service.Controllers.News.Business
             articleCategoryESService = new ArticleCategoryESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
             articleRelatedESService = new ArticleRelatedESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
             groupProductESService = new GroupProductESService(_configuration["DataBaseConfig:Elastic:Host"], _configuration);
+            _dbContext = dbContext;
+            
         }
+
+        public async Task<ResultModel<long>> SaveArticle(ArticleModel model)
+        {
+            var result = new ResultModel<long>();
+
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // Xử lý ảnh
+                    Task<string> TBody = Task.FromResult(model.Body);
+                    if (model.ArticleType == 0)
+                    {
+                        TBody = StringHelpers.ReplaceEditorImage(model.Body, _UrlStaticImage);
+                        var t11 = UpLoadHelper.UploadBase64Src(model.Image11, _UrlStaticImage);
+                        var t43 = UpLoadHelper.UploadBase64Src(model.Image43, _UrlStaticImage);
+                        var t169 = UpLoadHelper.UploadBase64Src(model.Image169, _UrlStaticImage);
+                        await Task.WhenAll(TBody, t11, t43, t169);
+
+                        model.Body = TBody.Result;
+                        model.Image11 = t11.Result;
+                        model.Image43 = t43.Result;
+                        model.Image169 = t169.Result;
+                    }
+
+                    if (!string.IsNullOrEmpty(model.Image11) && !model.Image11.Contains(_UrlStaticImage))
+                        model.Image11 = _UrlStaticImage + model.Image11;
+                    if (!string.IsNullOrEmpty(model.Image43) && !model.Image43.Contains(_UrlStaticImage))
+                        model.Image43 = _UrlStaticImage + model.Image43;
+                    if (!string.IsNullOrEmpty(model.Image169) && !model.Image169.Contains(_UrlStaticImage))
+                        model.Image169 = _UrlStaticImage + model.Image169;
+
+                    if (model.PublishDate == DateTime.MinValue)
+                        model.PublishDate = DateTime.Now;
+                    if (model.DownTime == DateTime.MinValue)
+                        model.DownTime = model.PublishDate.AddHours(1);
+
+                    long articleId;
+
+                    // Create hoặc Update Article
+                    if (model.Id > 0)
+                    {
+                        var entity = await _dbContext.Articles.FindAsync(model.Id);
+                        if (entity == null)
+                        {
+                            result.IsSuccess = false;
+                            result.Message = "Không tìm thấy bài viết để cập nhật.";
+                            return result;
+                        }
+
+                        entity.Title = model.Title;
+                        entity.Lead = model.Lead;
+                        entity.Body = model.Body;
+                        entity.Image11 = model.Image11 ?? string.Empty;
+                        entity.Image43 = model.Image43 ?? string.Empty;
+                        entity.Image169 = model.Image169 ?? string.Empty;
+                        entity.Status = model.Status;
+                        entity.ArticleType = model.ArticleType;
+                        entity.ModifiedOn = DateTime.Now;
+                        entity.PublishDate = model.PublishDate;
+                        entity.UpTime = model.PublishDate;
+                        entity.DownTime = model.DownTime;
+                        entity.Position = (short?)model.Position;
+
+                        _dbContext.Articles.Update(entity);
+                        await _dbContext.SaveChangesAsync();
+
+                        articleId = entity.Id;
+                    }
+                    else
+                    {
+                        var entity = new Article
+                        {
+                            Title = model.Title,
+                            Lead = model.Lead,
+                            Body = model.Body,
+                            Status = model.Status,
+                            Image11 = model.Image11 ?? string.Empty,
+                            Image43 = model.Image43 ?? string.Empty,
+                            Image169 = model.Image169 ?? string.Empty,
+                            ArticleType = model.ArticleType,
+                            AuthorId = model.AuthorId,
+                            CreatedOn = DateTime.Now,
+                            ModifiedOn = DateTime.Now,
+                            PublishDate = model.PublishDate,
+                            UpTime = model.PublishDate,
+                            DownTime = model.DownTime,
+                            Position = (short?)model.Position
+                        };
+
+                        await _dbContext.Articles.AddAsync(entity);
+                        await _dbContext.SaveChangesAsync();
+
+                        articleId = entity.Id;
+                    }
+
+                    // ⬇ Lưu Tags
+                    var tagIds = new List<long>();
+                    if (model.Tags != null)
+                    {
+                        foreach (var tagName in model.Tags)
+                        {
+                            var tag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.TagName == tagName.Trim());
+                            if (tag == null)
+                            {
+                                tag = new Tag
+                                {
+                                    TagName = tagName.Trim(),
+                                    CreatedOn = DateTime.Now
+                                };
+                                await _dbContext.Tags.AddAsync(tag);
+                                await _dbContext.SaveChangesAsync();
+                            }
+                            tagIds.Add(tag.Id);
+                        }
+                    }
+
+                    // ⬇ Xóa & Thêm ArticleTag
+                    var oldTags = _dbContext.ArticleTags.Where(x => x.ArticleId == articleId);
+                    _dbContext.ArticleTags.RemoveRange(oldTags);
+                    await _dbContext.SaveChangesAsync();
+
+                    foreach (var tagId in tagIds)
+                    {
+                        var newTag = new ArticleTag
+                        {
+                            ArticleId = articleId,
+                            TagId = tagId,
+                            UpdateLast = DateTime.Now
+                        };
+                        await _dbContext.ArticleTags.AddAsync(newTag);
+                    }
+                    await _dbContext.SaveChangesAsync();
+
+                    // ⬇ Xóa & Thêm ArticleCategory
+                    var oldCategories = _dbContext.ArticleCategories.Where(x => x.ArticleId == articleId);
+                    _dbContext.ArticleCategories.RemoveRange(oldCategories);
+                    await _dbContext.SaveChangesAsync();
+
+                    foreach (var cateId in model.Categories ?? new List<int>())
+                    {
+                        var cate = new ArticleCategory
+                        {
+                            ArticleId = articleId,
+                            CategoryId = cateId,
+                            UpdateLast = DateTime.Now
+                        };
+                        await _dbContext.ArticleCategories.AddAsync(cate);
+                    }
+                    await _dbContext.SaveChangesAsync();
+
+                    // ⬇ Xóa & Thêm ArticleRelated
+                    var oldRelations = _dbContext.ArticleRelateds.Where(x => x.ArticleId == articleId);
+                    _dbContext.ArticleRelateds.RemoveRange(oldRelations);
+                    await _dbContext.SaveChangesAsync();
+
+                    foreach (var relatedId in model.RelatedArticleIds ?? new List<long>())
+                    {
+                        var relation = new ArticleRelated
+                        {
+                            ArticleId = articleId,
+                            ArticleRelatedId = relatedId,
+                            UpdateLast = DateTime.Now
+                        };
+                        await _dbContext.ArticleRelateds.AddAsync(relation);
+                    }
+                    await _dbContext.SaveChangesAsync();
+
+                    // Commit all
+                    await transaction.CommitAsync();
+
+                    result.IsSuccess = true;
+                    result.Data = articleId;
+                    result.Message = "Lưu bài viết thành công";
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    LogHelper.InsertLogTelegram("SaveArticle - Transaction Rollback: " + ex);
+                    result.IsSuccess = false;
+                    result.Message = "Lỗi khi lưu bài viết: " + ex.Message;
+                }
+            }
+
+            return result;
+        }
+
+
+
+
+
+        public async Task<List<CategoryArticleModel>> getListNews(int category_id, int take)
+        {
+            var list_article = new List<CategoryArticleModel>();
+            try
+            {
+                // Lấy ra danh sách id các bài viết mới nhất
+                var obj_top_story = articleESService.getListNews(category_id, take);
+
+                return obj_top_story;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "getArticleListByCategoryId - ArticleDAL: " + ex);
+                return list_article;
+            }
+        }
+        public async Task<ArticleModel2> getArticleDetail(long article_id)
+        {
+            try
+            {
+                var article_list = articleESService.GetArticleDetailById(article_id);
+                return article_list;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "GetArticleCategoryByParentID -GroupProductRepository : " + ex);
+            }
+            return null;
+        }
+        public async Task<int> getTotalItemNewsByCategoryId(int cate_id)
+        {
+            var list_article = new List<CategoryArticleModel>();
+            try
+            {
+                // Lấy ra danh sách id các bài viết theo chuyên mục
+                var total = articleESService.getTotalItemNewsByCategoryId(cate_id);
+
+                return total;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "getArticleListByCategoryId - ArticleDAL: " + ex);
+                return 0;
+            }
+        }
+
+
+
         public async Task<ArticleModel> GetArticleDetail(long Id)
         {
             try
@@ -42,28 +289,28 @@ namespace HuloToys_Service.Controllers.News.Business
                     var article = articleESService.GetDetailById(Id);
                     model = new ArticleModel
                     {
-                        Id = article.id,
-                        Title = article.title,
-                        Lead = article.lead,
-                        Body = article.body,
-                        Status = article.status,
-                        ArticleType = article.articletype,
-                        Image11 = article.image11,
-                        Image43 = article.image43,
-                        Image169 = article.image169,
-                        PublishDate = article.publishdate ?? DateTime.MinValue,
-                        DownTime = article.downtime ?? DateTime.MinValue,
-                        Position = article.position ?? 0
+                        Id = article.Id,
+                        Title = article.Title,
+                        Lead = article.Lead,
+                        Body = article.Body,
+                        Status = article.Status,
+                        ArticleType = article.ArticleType,
+                        Image11 = article.Image11,
+                        Image43 = article.Image43,
+                        Image169 = article.Image169,
+                        PublishDate = article.PublishDate ?? DateTime.MinValue,
+                        DownTime = article.DownTime ?? DateTime.MinValue,
+                        Position = article.Position ?? 0
                     };
-                    var data_ArticleTag_By_ArticleId = articleTagESService.GetListArticleTagByArticleId(article.id);
-                    var TagIds = data_ArticleTag_By_ArticleId.Select(s => s.tagid).ToList();
+                    var data_ArticleTag_By_ArticleId = articleTagESService.GetListArticleTagByArticleId(article.Id);
+                    var TagIds = data_ArticleTag_By_ArticleId.Select(s => s.TagId).ToList();
                     var List_tag = tagESService.GetListTag();
-                    var List_articleCategory = articleCategoryESService.GetByArticleId(article.id);
-                    var List_relatedArticleIds = articleRelatedESService.GetListArticleRelatedByArticleId(article.id);
+                    var List_articleCategory = articleCategoryESService.GetByArticleId(article.Id);
+                    var List_relatedArticleIds = articleRelatedESService.GetListArticleRelatedByArticleId(article.Id);
                     model.Tags = List_tag.Where(s => TagIds.Contains(s.Id)).Select(s => s.TagName).ToList();
                     model.Categories = List_articleCategory.Select(s => (int)s.categoryid).ToList();
                     model.MainCategory = model.Categories != null || model.Categories.Count > 0 ? model.Categories[0] : -1;
-                    model.RelatedArticleIds = List_relatedArticleIds.Select(s => (long)s.articleRelatedid).ToList();
+                    model.RelatedArticleIds = List_relatedArticleIds.Select(s => (long)s.ArticleRelatedId).ToList();
 
                     if (model.RelatedArticleIds != null && model.RelatedArticleIds.Count > 0)
                     {
@@ -71,22 +318,22 @@ namespace HuloToys_Service.Controllers.News.Business
                         {
                             var groupProductName = string.Empty;
                             var detail_article = articleESService.GetDetailById(item);
-                            var articleCategory = articleCategoryESService.GetByArticleId(detail_article.id);
+                            var articleCategory = articleCategoryESService.GetByArticleId(detail_article.Id);
                             if (articleCategory != null && articleCategory.Count > 0)
                             {
                                 foreach (var item2 in articleCategory)
                                 {
                                     var groupProduct = groupProductESService.GetDetailGroupProductById((long)item2.categoryid);
-                                    groupProductName += groupProduct.name + ",";
+                                    groupProductName += groupProduct.Name + ",";
                                 }
                             }
 
                             var ArticleRelation = new ArticleRelationModel
                             {
-                                Id = detail_article.id,
-                                Image = detail_article.image169 ?? detail_article.image43 ?? detail_article.image11,
-                                Title = detail_article.title,
-                                publish_date = detail_article.publishdate ?? DateTime.Now,
+                                Id = detail_article.Id,
+                                Image = detail_article.Image169 ?? detail_article.Image43 ?? detail_article.Image11,
+                                Title = detail_article.Title,
+                                publish_date = detail_article.PublishDate ?? DateTime.Now,
                                 category_name = groupProductName ?? "Tin tức"
                             };
                             model.RelatedArticleList.Add(ArticleRelation);
@@ -133,18 +380,18 @@ namespace HuloToys_Service.Controllers.News.Business
                             var _article = articleESService.GetDetailById((long)item.articleid);
                             if (_article == null) continue;
                           
-                            if (_article.status == ArticleStatus.PUBLISH)
+                            if (_article.Status == ArticleStatus.PUBLISH)
                             {
                                 var detail_model = new ArticleFeModel
                                 {
-                                    id = _article.id,
-                                    title = _article.title,
-                                    lead = _article.lead,
-                                    image_169 = _article.image169,
-                                    image_43 = _article.image43,
-                                    image_11 = _article.image11,
-                                    publish_date = (DateTime)_article.publishdate,
-                                    body = _article.body
+                                    id = _article.Id,
+                                    title = _article.Title,
+                                    lead = _article.Lead,
+                                    image_169 = _article.Image169,
+                                    image_43 = _article.Image43,
+                                    image_11 = _article.Image11,
+                                    publish_date = (DateTime)_article.PublishDate,
+                                    body = _article.Body
                                 };
                                 list_article.Add(detail_model);
                             }
@@ -188,24 +435,24 @@ namespace HuloToys_Service.Controllers.News.Business
                 if (article == null) return null;
                 model = new ArticleFeDetailModel
                 {
-                    id = article.id,
-                    title = article.title,
-                    lead = article.lead,
-                    body = article.body,
-                    status = article.status,
-                    article_type = article.articletype,
-                    image_11 = article.image11,
-                    image_43 = article.image43,
-                    image_169 = article.image169,
-                    publish_date = article.publishdate ?? DateTime.Now,
-                    author_id = (int)article.authorid
+                    id = article.Id,
+                    title = article.Title,
+                    lead = article.Lead,
+                    body = article.Body,
+                    status = article.Status,
+                    article_type = article.ArticleType,
+                    image_11 = article.Image11 ?? string.Empty,
+                    image_43 = article.Image43 ?? string.Empty,
+                    image_169 = article.Image169 ?? string.Empty,
+                    publish_date = article.PublishDate ?? DateTime.Now,
+                    author_id = article.AuthorId ?? -1,
                 };
 
-                var data_ArticleTag_By_ArticleId = articleTagESService.GetListArticleTagByArticleId(article.id);
-                var TagIds = data_ArticleTag_By_ArticleId.Select(s => s.tagid).ToList();
+                var data_ArticleTag_By_ArticleId = articleTagESService.GetListArticleTagByArticleId(article.Id);
+                var TagIds = data_ArticleTag_By_ArticleId.Select(s => s.TagId).ToList();
                 var List_tag = tagESService.GetListTag();
-                var List_articleCategory = articleCategoryESService.GetByArticleId(article.id);
-                var List_relatedArticleIds = articleRelatedESService.GetListArticleRelatedByArticleId(article.id);
+                var List_articleCategory = articleCategoryESService.GetByArticleId(article.Id);
+                var List_relatedArticleIds = articleRelatedESService.GetListArticleRelatedByArticleId(article.Id);
 
 
 
@@ -213,17 +460,17 @@ namespace HuloToys_Service.Controllers.News.Business
                 model.category_id = model.Categories != null || model.Categories.Count > 0 ? model.Categories[0] : -1;
                 model.MainCategory = model.Categories != null || model.Categories.Count > 0 ? model.Categories[0] : -1;
                 var group_product = groupProductESService.GetDetailGroupProductById(model.MainCategory);
-                if (group_product == null || group_product.id < 0) return null;
+                if (group_product == null || group_product.Id < 0) return null;
 
                 if (model.MainCategory > 0)
                 {
-                    model.category_name = group_product.name;
+                    model.category_name = group_product.Name;
                 }
                 else
                 {
                     model.category_name = "Tin tức";
                 }
-                model.RelatedArticleIds = List_relatedArticleIds != null ? List_relatedArticleIds.Select(s => (long)s.articleRelatedid).ToList() : null;
+                model.RelatedArticleIds = List_relatedArticleIds != null ? List_relatedArticleIds.Select(s => (long)s.ArticleRelatedId).ToList() : null;
 
                 if (model.RelatedArticleIds != null && model.RelatedArticleIds.Count > 0)
                 {
@@ -231,25 +478,27 @@ namespace HuloToys_Service.Controllers.News.Business
                     {
                         var groupProductName = string.Empty;
                         var detail_article = articleESService.GetDetailById(item);
-                        var articleCategory = articleCategoryESService.GetByArticleId(detail_article.id);
+                        var articleCategory = articleCategoryESService.GetByArticleId(detail_article.Id);
                         if (articleCategory != null && articleCategory.Count > 0)
                         {
                             foreach (var item2 in articleCategory)
                             {
                                 var groupProduct = groupProductESService.GetDetailGroupProductById((long)item2.categoryid);
-                                groupProductName += groupProduct.name + ",";
+                                groupProductName += groupProduct.Name + ",";
                             }
                         }
 
                         var ArticleRelation = new ArticleRelationModel
                         {
-                            Id = detail_article.id,
-                            Image = detail_article.image169 ?? detail_article.image43 ?? detail_article.image11,
-                            Title = detail_article.title,
-                            publish_date = detail_article.publishdate ?? DateTime.Now,
+                            Id = detail_article.Id,
+                            Image = detail_article.Image169 ?? detail_article.Image43 ?? detail_article.Image11,
+                            Title = detail_article.Title,
+                            publish_date = detail_article.PublishDate ?? DateTime.Now,
                             category_name = groupProductName ?? "Tin tức"
                         };
+                        model.RelatedArticleList ??= new List<ArticleRelationModel>();
                         model.RelatedArticleList.Add(ArticleRelation);
+
                     }
                     model.RelatedArticleList = model.RelatedArticleList.GroupBy(x => x.Id).Select(x => x.First()).ToList();
                 }
@@ -282,9 +531,9 @@ namespace HuloToys_Service.Controllers.News.Business
                     if (group_product_detail == null)
                     {
                         var group_product_list = groupProductESService.GetListGroupProductByParentId(parent_cate_faq_id);
-                        arr_cate_child_help_id = group_product_list.Select(x => x.id).ToList();
+                        arr_cate_child_help_id = group_product_list.Select(x => x.Id).ToList();
                     }
-                    arr_cate_child_help_id.Add(group_product_detail.id);
+                    arr_cate_child_help_id.Add(group_product_detail.Id);
 
 
 
@@ -294,11 +543,11 @@ namespace HuloToys_Service.Controllers.News.Business
                         {
                             var groupProductName = string.Empty;
                             var DetailGroupProductById = groupProductESService.GetDetailGroupProductById(item);
-                            if (DetailGroupProductById.isshowheader == true)
+                            if (DetailGroupProductById.IsShowHeader == true)
                             {
-                                groupProductName += DetailGroupProductById.name + ",";
+                                groupProductName += DetailGroupProductById.Name + ",";
                             }
-                            var List_articleCategory = articleCategoryESService.GetByCategoryId(DetailGroupProductById.id);
+                            var List_articleCategory = articleCategoryESService.GetByCategoryId(DetailGroupProductById.Id);
                             if (List_articleCategory != null && List_articleCategory.Count > 0)
                             {
                                 foreach (var item2 in List_articleCategory)
@@ -308,11 +557,11 @@ namespace HuloToys_Service.Controllers.News.Business
                                     {
                                         var ArticleRelation = new ArticleRelationModel
                                         {
-                                            Id = detail_article.id,
-                                            Lead = detail_article.lead,
-                                            Image = detail_article.image169 ?? detail_article.image43 ?? detail_article.image11,
-                                            Title = detail_article.title,
-                                            publish_date = detail_article.publishdate ?? DateTime.Now,
+                                            Id = detail_article.Id,
+                                            Lead = detail_article.Lead,
+                                            Image = detail_article.Image169 ?? detail_article.Image43 ?? detail_article.Image11,
+                                            Title = detail_article.Title,
+                                            publish_date = detail_article.PublishDate ?? DateTime.Now,
                                             category_name = groupProductName ?? "Tin tức"
                                         };
                                         list_article.Add(ArticleRelation);
@@ -383,30 +632,30 @@ namespace HuloToys_Service.Controllers.News.Business
                                 foreach (var item2 in article_Category)
                                 {
                                     var groupProduct = groupProductESService.GetDetailGroupProductById((long)item2.categoryid);
-                                    if (groupProduct != null && groupProduct.parentid > 0)
+                                    if (groupProduct != null && groupProduct.ParentId > 0)
                                     {
-                                        groupProductName += groupProduct.name + ",";
-                                        groupProductId += groupProduct.id + ",";
+                                        groupProductName += groupProduct.Name + ",";
+                                        groupProductId += groupProduct.Id + ",";
                                     }
                                 }
                             }
 
                             var _article = articleESService.GetDetailById((long)item.articleid);
-                            if (_article != null && _article.status == ArticleStatus.PUBLISH)
+                            if (_article != null && _article.Status == ArticleStatus.PUBLISH)
                             {
                                 var model = new ArticleFeModel
                                 {
-                                    id = _article.id,
+                                    id = _article.Id,
                                     category_name = groupProductName,
-                                    title = _article.title,
-                                    lead = _article.lead,
-                                    image_169 = _article.image169,
-                                    image_43 = _article.image43,
-                                    image_11 = _article.image11,
-                                    publish_date = (DateTime)_article.publishdate,
-                                    article_type = _article.articletype,
-                                    update_last = (DateTime)_article.modifiedon,
-                                    position = _article.position,
+                                    title = _article.Title,
+                                    lead = _article.Lead,
+                                    image_169 = _article.Image169,
+                                    image_43 = _article.Image43,
+                                    image_11 = _article.Image11,
+                                    publish_date = (DateTime)_article.PublishDate,
+                                    article_type = _article.ArticleType,
+                                    update_last = (DateTime)_article.ModifiedOn,
+                                    position = _article.Position,
                                     category_id = groupProductId,
                                 };
                                 list_article.Add(model);
@@ -417,45 +666,45 @@ namespace HuloToys_Service.Controllers.News.Business
 
 
                     var article = articleESService.GetListArticlePosition();
-                    article = article.Where(S => S.status == ArticleStatus.PUBLISH).ToList();
+                    article = article.Where(S => S.Status == ArticleStatus.PUBLISH).ToList();
                     if (article != null && article.Count > 0)
                     {
                         foreach (var _article in article)
                         {
                             var groupProductName = string.Empty;
                             var groupProductId = string.Empty;
-                            var article_Category = articleCategoryESService.GetByArticleId(_article.id);
+                            var article_Category = articleCategoryESService.GetByArticleId(_article.Id);
                             if (article_Category != null)
                             {
                                 article_Category = article_Category.GroupBy(s => s.categoryid).Select(s => s.First()).ToList();
                                 foreach (var item2 in article_Category)
                                 {
                                     var groupProduct = groupProductESService.GetDetailGroupProductById((long)item2.categoryid);
-                                    if (groupProduct != null && groupProduct.parentid > 0)
+                                    if (groupProduct != null && groupProduct.ParentId > 0)
                                     {
-                                        groupProductName += groupProduct.name + ",";
-                                        groupProductId += groupProduct.id + ",";
+                                        groupProductName += groupProduct.Name + ",";
+                                        groupProductId += groupProduct.Id + ",";
                                     }
                                     else
                                     {
-                                        groupProductId += groupProduct.id + ",";
+                                        groupProductId += groupProduct.Id + ",";
                                     }
 
                                 }
                             }
                             var model = new ArticleFeModel
                             {
-                                id = _article.id,
+                                id = _article.Id,
                                 category_name = groupProductName,
-                                title = _article.title,
-                                lead = _article.lead,
-                                image_169 = _article.image169,
-                                image_43 = _article.image43,
-                                image_11 = _article.image11,
-                                publish_date = (DateTime)_article.publishdate,
-                                position = _article.position,
-                                article_type = _article.articletype,
-                                update_last = (DateTime)_article.modifiedon,
+                                title = _article.Title,
+                                lead = _article.Lead,
+                                image_169 = _article.Image169,
+                                image_43 = _article.Image43,
+                                image_11 = _article.Image11,
+                                publish_date = (DateTime)_article.PublishDate,
+                                position = _article.Position,
+                                article_type = _article.ArticleType,
+                                update_last = (DateTime)_article.ModifiedOn,
                                 category_id = groupProductId,
                             };
 
@@ -546,22 +795,22 @@ namespace HuloToys_Service.Controllers.News.Business
                         var articleTag = articleTagESService.GetListArticleTagByTagid(item.Id);
                         if (articleTag != null && articleTag.Count > 0)
                         {
-                            articleTag = articleTag.GroupBy(s => s.articleid).Select(s => s.First()).ToList();
+                            articleTag = articleTag.GroupBy(s => s.ArticleId).Select(s => s.First()).ToList();
                             foreach (var item2 in articleTag)
                             {
-                                var _article = articleESService.GetDetailById((long)item2.articleid);
+                                var _article = articleESService.GetDetailById((long)item2.ArticleId);
                                 var model = new ArticleFeModel
                                 {
-                                    id = _article.id,
+                                    id = _article.Id,
                                     category_name = "",
-                                    title = _article.title,
-                                    lead = _article.lead,
-                                    image_169 = _article.image169,
-                                    image_43 = _article.image43,
-                                    image_11 = _article.image11,
-                                    publish_date = (DateTime)_article.publishdate,
-                                    article_type = _article.articletype,
-                                    position = _article.position
+                                    title = _article.Title,
+                                    lead = _article.Lead,
+                                    image_169 = _article.Image169,
+                                    image_43 = _article.Image43,
+                                    image_11 = _article.Image11,
+                                    publish_date = (DateTime)_article.PublishDate,
+                                    article_type = _article.ArticleType,
+                                    position = _article.Position
                                 };
                                 list_article.Add(model);
                             }
@@ -589,7 +838,7 @@ namespace HuloToys_Service.Controllers.News.Business
             {
 
                 var data = articleTagESService.GetListArticleTagByArticleId(articleID);
-                var List_TagId = data.Select(s => s.tagid);
+                var List_TagId = data.Select(s => s.TagId);
                 if (List_TagId != null && List_TagId.Count() > 0)
                 {
                     var json = JsonConvert.SerializeObject(List_TagId.Distinct().ToList());
@@ -599,7 +848,7 @@ namespace HuloToys_Service.Controllers.News.Business
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -650,7 +899,7 @@ namespace HuloToys_Service.Controllers.News.Business
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
                 return null;
             }
@@ -666,7 +915,7 @@ namespace HuloToys_Service.Controllers.News.Business
                 if (detail != null)
                 {
                     var group = GetById(detail.category_id);
-                    if (!group.isshowheader) return null;
+                    if (!group.IsShowHeader) return null;
                     var fe_detail = new ArticleFeModel()
                     {
                         id = detail.id,
@@ -710,8 +959,8 @@ namespace HuloToys_Service.Controllers.News.Business
             try
             {
                 var dataModel = GetById(cateID);
-                if (dataModel == null || dataModel.name == null) return "";
-                group_name = dataModel.name;
+                if (dataModel == null || dataModel.Name == null) return "";
+                group_name = dataModel.Name;
             }
             catch (Exception ex)
             {
@@ -725,7 +974,7 @@ namespace HuloToys_Service.Controllers.News.Business
             try
             {
                 var group = GetByParentId(parent_id);
-                group = group.Where(x => x.isshowheader == true).ToList();
+                group = group.Where(x => x.IsShowHeader == true).ToList();
                 var list = new List<ArticleGroupViewModel>();
                 //list.Add(new ArticleGroupViewModel()
                 //{
@@ -735,7 +984,7 @@ namespace HuloToys_Service.Controllers.News.Business
                 //    image_path = "",
                 //    url_path = "tin-tuc-" + parent_id
                 //});
-                list.AddRange(group.Select(x => new ArticleGroupViewModel() { id = x.id, image_path = x.imagepath, name = x.name, order_no = (int)x.orderno, url_path = x.path }).OrderBy(x => x.order_no).ToList());
+                list.AddRange(group.Select(x => new ArticleGroupViewModel() { id = x.Id, image_path = x.ImagePath, name = x.Name, order_no = (int)x.OrderNo, url_path = x.Path }).OrderBy(x => x.order_no).ToList());
                 return list;
             }
             catch (Exception ex)
@@ -749,10 +998,10 @@ namespace HuloToys_Service.Controllers.News.Business
             try
             {
                 var group = GetByParentId(parent_id);
-                group = group.Where(x => x.isshowfooter == true).ToList();
+                group = group.Where(x => x.IsShowFooter == true).ToList();
                 var list = new List<ArticleGroupViewModel>();
 
-                list.AddRange(group.Select(x => new ArticleGroupViewModel() { id = x.id, image_path = x.imagepath, name = x.name, order_no = (int)x.orderno, url_path = x.path }).OrderBy(x => x.order_no).ToList());
+                list.AddRange(group.Select(x => new ArticleGroupViewModel() { id = x.Id, image_path = x.ImagePath, name = x.Name, order_no = (int)x.OrderNo, url_path = x.Path }).OrderBy(x => x.order_no).ToList());
                 return list;
             }
             catch (Exception ex)
@@ -767,7 +1016,7 @@ namespace HuloToys_Service.Controllers.News.Business
             {
                 var group = GetByParentId(parent_id);
                 var list = new List<ProductGroupViewModel>();
-                list.AddRange(group.Select(x => new ProductGroupViewModel() { id = x.id, image = url_static + x.imagepath, name = x.name, link = CommonHelper.RemoveSpecialCharacters(CommonHelper.RemoveUnicode(x.name.ToLower())).Replace(" ", "-").Replace("--", "-") }).ToList());
+                list.AddRange(group.Select(x => new ProductGroupViewModel() { id = x.Id, image = url_static + x.ImagePath, name = x.Name, link = CommonHelper.RemoveSpecialCharacters(CommonHelper.RemoveUnicode(x.Name.ToLower())).Replace(" ", "-").Replace("--", "-") }).ToList());
                 return list;
             }
             catch (Exception ex)
@@ -799,11 +1048,11 @@ namespace HuloToys_Service.Controllers.News.Business
                         {
                             var groupProductName = string.Empty;
                             var DetailGroupProductById = groupProductESService.GetDetailGroupProductById(Convert.ToInt32(item));
-                            if (DetailGroupProductById.isshowheader == true)
+                            if (DetailGroupProductById.IsShowHeader == true)
                             {
-                                groupProductName += DetailGroupProductById.name + ",";
+                                groupProductName += DetailGroupProductById.Name + ",";
                             }
-                            var List_articleCategory = articleCategoryESService.GetByCategoryId(DetailGroupProductById.id);
+                            var List_articleCategory = articleCategoryESService.GetByCategoryId(DetailGroupProductById.Id);
                             list_articleid.AddRange(List_articleCategory.Select(s => s.articleid).ToList());
                         }
                         string articleid = string.Join(',', list_articleid);

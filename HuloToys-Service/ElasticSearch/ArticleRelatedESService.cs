@@ -34,7 +34,7 @@ namespace HuloToys_Service.ElasticSearch
                                .Index(index)
                                .Size(4000)
                                .Query(q => q
-                                   .Match(m => m.Field("articleid").Query(articleid.ToString())
+                                   .Match(m => m.Field("ArticleId").Query(articleid.ToString())
                                )));
 
                 if (query.IsValid)
@@ -54,7 +54,7 @@ namespace HuloToys_Service.ElasticSearch
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;

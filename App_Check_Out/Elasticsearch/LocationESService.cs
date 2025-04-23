@@ -1,25 +1,21 @@
 ﻿using Elasticsearch.Net;
 using Nest;
 using System.Reflection;
-using HuloToys_Service.Models.Location;
-using Newtonsoft.Json;
-using Microsoft.Extensions.Configuration;
 using APP_CHECKOUT.Elasticsearch;
+using APP_CHECKOUT.Models.Location;
 
 namespace Caching.Elasticsearch
 {
     public class LocationESService : ESRepository<Province>
     {
-        public string index_province = "provinces_store";
-        public string index_district = "districts_store";
-        public string index_wards = "wards_store";
-        private readonly IConfiguration configuration;
+        public string index_province = "hulotoys_sp_getprovince";
+        public string index_district = "hulotoys_sp_getdistrict";
+        public string index_wards = "hulotoys_sp_getward";
         private static string _ElasticHost;
 
-        public LocationESService(string Host, IConfiguration _configuration) : base(Host, _configuration)
+        public LocationESService(string Host) : base(Host)
         {
             _ElasticHost = Host;
-            configuration = _configuration;
 
         }
         public List<Province> GetAllProvinces()
@@ -31,7 +27,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<Province>(sd => sd
                             .Index(index_province)
                             .Size(4000)
                             .Query(q => q
@@ -45,13 +41,13 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<Province>;
-                    result = JsonConvert.DeserializeObject<List<Province>>(JsonConvert.SerializeObject(query.Documents));
+                    result = query.Documents as List<Province>;
                     return result;
                 }
             }
             catch (Exception ex)
             {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -64,7 +60,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<Province>(sd => sd
                             .Index(index_province)
                             .Size(4000)
                            .Query(q => q.Bool(
@@ -81,13 +77,13 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<Province>;
-                    result = JsonConvert.DeserializeObject<List<Province>>(JsonConvert.SerializeObject(query.Documents));
+                    result = query.Documents as List<Province>;
                     return result.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -100,7 +96,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<District>(sd => sd
                             .Index(index_district)
                              .Size(4000)
                             .Query(q => q
@@ -114,15 +110,13 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<District>;
-                    result = JsonConvert.DeserializeObject<List<District>>(JsonConvert.SerializeObject(query.Documents));
-
+                    result = query.Documents as List<District>;
                     return result;
                 }
             }
             catch (Exception ex)
             {
-              
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -135,7 +129,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<District>(sd => sd
                             .Index(index_district)
                             .Size(4000)
                             .Query(q => q.Bool(
@@ -152,15 +146,14 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<District>;
-                    result = JsonConvert.DeserializeObject<List<District>>(JsonConvert.SerializeObject(query.Documents));
+                    result = query.Documents as List<District>;
 
                     return result;
                 }
             }
             catch (Exception ex)
             {
-                
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -173,7 +166,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<District> (sd => sd
                             .Index(index_district)
                             .Size(4000)
                            .Query(q => q.Bool(
@@ -191,15 +184,14 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<District>;
-                    result = JsonConvert.DeserializeObject<List<District>>(JsonConvert.SerializeObject(query.Documents));
+                    result = query.Documents as List<District>;
 
                     return result.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
-              
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -212,7 +204,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<Ward>(sd => sd
                             .Index(index_wards)
                             .Size(4000)
                             .Query(q => q
@@ -226,15 +218,14 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<Ward>;
-                    result = JsonConvert.DeserializeObject<List<Ward>>(JsonConvert.SerializeObject(query.Documents));
+                    result = query.Documents as List<Ward>;
 
                     return result;
                 }
             }
             catch (Exception ex)
             {
-                
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -247,7 +238,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<Ward>(sd => sd
                             .Index(index_wards)
                             .Size(4000)
                             .Query(q => q.Bool(
@@ -265,15 +256,14 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<Ward>;
-                    result = JsonConvert.DeserializeObject<List<Ward>>(JsonConvert.SerializeObject(query.Documents));
+                    result = query.Documents as List<Ward>;
 
                     return result;
                 }
             }
             catch (Exception ex)
             {
-               
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
@@ -286,7 +276,7 @@ namespace Caching.Elasticsearch
                 var connectionPool = new StaticConnectionPool(nodes);
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
-                var query = elasticClient.Search<dynamic>(sd => sd
+                var query = elasticClient.Search<Ward>(sd => sd
                             .Index(index_wards)
                             .Size(4000)
                             .Query(q => q.Bool(
@@ -304,15 +294,14 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    //result = query.Documents as List<Ward>;
-                    result = JsonConvert.DeserializeObject<List<Ward>>(JsonConvert.SerializeObject(query.Documents));
+                    result = query.Documents as List<Ward>;
 
                     return result.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
-               
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }

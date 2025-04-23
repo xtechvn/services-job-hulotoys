@@ -39,8 +39,10 @@ namespace HuloToys_Service.ElasticSearch
                           .Query(q =>
                            q.Bool(
                                qb => qb.Must(
-                                  q => q.Match(m => m.Field("status").Query(ArticleStatus.PUBLISH.ToString())),
-                                   sh => sh.Match(m => m.Field("parentid").Query(parent_id.ToString())
+                                  
+                                  q => q.Term(m => m.Field("Status").Value(ArticleStatus.PUBLISH))
+                                  ,
+                                   sh => sh.Term(m => m.Field("ParentId").Value(parent_id.ToString())
                                    )
                                    )
                                )
@@ -71,7 +73,7 @@ namespace HuloToys_Service.ElasticSearch
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -90,8 +92,8 @@ namespace HuloToys_Service.ElasticSearch
                           .Query(q =>
                            q.Bool(
                                qb => qb.Must(
-                                  q => q.Match(m => m.Field("status").Query(ArticleStatus.PUBLISH.ToString())),
-                                   sh => sh.Match(m => m.Field("id").Query(id.ToString())
+                                  q => q.Term(m => m.Field("Status").Value(ArticleStatus.PUBLISH)),
+                                   sh => sh.Term(m => m.Field("id").Value(id)
                                    )
                                    )
                                )
@@ -122,7 +124,7 @@ namespace HuloToys_Service.ElasticSearch
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -141,9 +143,9 @@ namespace HuloToys_Service.ElasticSearch
                          .Query(q =>
                           q.Bool(
                               qb => qb.Must(
-                                 q => q.Match(m => m.Field(x=>x.status).Query(ArticleStatus.PUBLISH.ToString())),
+                                 q => q.Match(m => m.Field(x=>x.Status).Query(ArticleStatus.PUBLISH.ToString())),
                                   sh => sh.Terms(t => t
-                                    .Field(f => f.id)
+                                    .Field(f => f.Id)
                                     .Terms(ids)  // List of IDs to match
                                    )
                                   
@@ -159,7 +161,7 @@ namespace HuloToys_Service.ElasticSearch
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Nest;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,61 +9,109 @@ namespace HuloToys_Service.Models.Orders
 {
     public class OrderESModel
     {
-        public long orderid { get; set; }
+        [PropertyName("Id")]
 
-        public long clientid { get; set; }
+        public long Id { get; set; }
+        [PropertyName("OrderId")]
 
-        public string orderno { get; set; }
+        public long OrderId { get; set; }
+        [PropertyName("ClientId")]
 
-        public DateTime createddate { get; set; }
+        public long ClientId { get; set; }
+        [PropertyName("OrderNo")]
 
-        public int? createdby { get; set; }
+        public string OrderNo { get; set; }
+        [PropertyName("CreatedDate")]
 
-        public DateTime? updatelast { get; set; }
+        public DateTime CreatedDate { get; set; }
+        [PropertyName("CreatedBy")]
 
-        public int? userupdateid { get; set; }
+        public int? CreatedBy { get; set; }
+        [PropertyName("UpdateLast")]
 
-        public double? price { get; set; }
+        public DateTime? UpdateLast { get; set; }
+        [PropertyName("UserUpdateId")]
 
-        public double? profit { get; set; }
+        public int? UserUpdateId { get; set; }
+        [PropertyName("Price")]
 
-        public double? discount { get; set; }
+        public double? Price { get; set; }
+        [PropertyName("Profit")]
 
-        public double? amount { get; set; }
+        public double? Profit { get; set; }
+        [PropertyName("Discount")]
 
-        public int orderstatus { get; set; }
+        public double? Discount { get; set; }
+        [PropertyName("Amount")]
 
-        public short paymenttype { get; set; }
+        public double? Amount { get; set; }
+        [PropertyName("OrderStatus")]
 
-        public int paymentstatus { get; set; }
+        public int OrderStatus { get; set; }
+        [PropertyName("PaymentType")]
 
-        public string utmsource { get; set; }
+        public short PaymentType { get; set; }
+        [PropertyName("PaymentStatus")]
 
-        public string utmmedium { get; set; }
+        public int PaymentStatus { get; set; }
+        [PropertyName("UtmSource")]
 
-        /// <summary>
-        /// chính là label so với wiframe
-        /// </summary>
-        public string note { get; set; }
+        public string UtmSource { get; set; }
+        [PropertyName("UtmMedium")]
 
-        public int? voucherid { get; set; }
+        public string UtmMedium { get; set; }
 
-        public int? isdelete { get; set; }
+        [PropertyName("Note")]
 
-        public int? userid { get; set; }
 
-        public string usergroupids { get; set; }
+        public string Note { get; set; }
+        [PropertyName("VoucherId")]
 
-        public string receivername { get; set; }
+        public int? VoucherId { get; set; }
+        [PropertyName("IsDelete")]
 
-        public string phone { get; set; }
+        public int? IsDelete { get; set; }
+        [PropertyName("UserId")]
 
-        public int? provinceid { get; set; }
+        public int? UserId { get; set; }
+        [PropertyName("UserGroupIds")]
 
-        public int? districtid { get; set; }
+        public string UserGroupIds { get; set; }
+        [PropertyName("ReceiverName")]
 
-        public int? wardid { get; set; }
+        public string ReceiverName { get; set; }
+        [PropertyName("Phone")]
 
-        public string address { get; set; }
+        public string Phone { get; set; }
+        [PropertyName("ProvinceId")]
+
+        public int? ProvinceId { get; set; }
+        [PropertyName("DistrictId")]
+
+        public int? DistrictId { get; set; }
+        [PropertyName("WardId")]
+
+        public int? WardId { get; set; }
+        [PropertyName("Address")]
+
+        public string Address { get; set; }
+        [PropertyName("ShippingFee")]
+
+        public double? ShippingFee { get; set; }
+        [PropertyName("CarrierId")]
+
+        public int? CarrierId { get; set; }
+        [PropertyName("ShippingType")]
+
+        public int? ShippingType { get; set; }
+        [PropertyName("ShippingCode")]
+
+        public string ShippingCode { get; set; }
+        [PropertyName("ShippingStatus")]
+
+        public int? ShippingStatus { get; set; }
+        [PropertyName("PackageWeight")]
+
+        public double? PackageWeight { get; set; }
     }
 }

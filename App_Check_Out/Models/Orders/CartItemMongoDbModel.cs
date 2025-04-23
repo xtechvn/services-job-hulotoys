@@ -3,7 +3,7 @@ using Entities.ViewModels.Products;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Models.MongoDb
+namespace APP_CHECKOUT.Model.Orders
 {
     public class CartItemMongoDbModel
     {
@@ -21,6 +21,7 @@ namespace Models.MongoDb
         public double total_amount { get; set; }
         public DateTime created_date { get; set; }
         public ProductMongoDbModel product { get; set; }
+        //public IList<ProductMongoDbModel> products { get; set; }
         public AddressClientFEModel address { get; set; }
 
     }

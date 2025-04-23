@@ -6,25 +6,18 @@ using APP_CHECKOUT.MongoDb;
 using Entities.Models;
 using APP_CHECKOUT.Models.Models.Queue;
 using APP_CHECKOUT.Utilities.constants;
-using Microsoft.Extensions.Configuration;
-using APP_CHECKOUT.Elasticsearch;
-using Newtonsoft.Json;
-using HuloToys_Service.Models.Location;
-using Nest;
-using Caching.RedisWorker;
+using APP_CHECKOUT.Models.Location;
 using Utilities.Contants;
-using Caching.Elasticsearch;
 using DAL;
-using RestSharp;
-using APP_CHECKOUT.Models.Orders;
-using APP_CHECKOUT.Models.NhanhVN;
-using APP_CHECKOUT.Models.Client;
+using APP_CHECKOUT.RabitMQ;
+using System.Configuration;
+using Caching.Elasticsearch;
+using Newtonsoft.Json;
 
 namespace APP_CHECKOUT.Repositories
 {
     public class MainServices: IMainServices
     {
-        private readonly IConfiguration _configuration;
         private readonly ILoggingService logging_service;
         private readonly OrderMongodbService orderDetailMongoDbModel;
         private readonly OrderDAL orderDAL;
@@ -34,21 +27,20 @@ namespace APP_CHECKOUT.Repositories
         private readonly ClientESService clientESService;
         private readonly AddressClientESService addressClientESService;
         private readonly NhanhVnService nhanhVnService;
-        private readonly RedisConn _redisService;
-        public MainServices(IConfiguration configuration, ILoggingService loggingService) {
+        private readonly WorkQueueClient workQueueClient;
 
-            _configuration=configuration;
+        public MainServices( ILoggingService loggingService) {
+
             logging_service=loggingService;
-            orderDetailMongoDbModel = new OrderMongodbService(configuration);
-            _redisService = new RedisConn(configuration);
-            _redisService.Connect();
-            orderDAL = new OrderDAL(configuration["ConnectionString"]);
-            locationDAL = new LocationDAL(configuration["ConnectionString"]);
-            orderDetailDAL = new OrderDetailDAL(configuration["ConnectionString"]);
-            accountClientESService = new AccountClientESService(configuration["Elastic:Host"], configuration);
-            clientESService = new ClientESService(configuration["Elastic:Host"], configuration);
-            addressClientESService = new AddressClientESService(configuration["Elastic:Host"], configuration);
-            nhanhVnService = new NhanhVnService( configuration,logging_service);
+            orderDetailMongoDbModel = new OrderMongodbService();
+            orderDAL = new OrderDAL(ConfigurationManager.AppSettings["ConnectionString"]);
+            locationDAL = new LocationDAL(ConfigurationManager.AppSettings["ConnectionString"]);
+            orderDetailDAL = new OrderDetailDAL(ConfigurationManager.AppSettings["ConnectionString"]);
+            accountClientESService = new AccountClientESService(ConfigurationManager.AppSettings["Elastic_Host"]);
+            clientESService = new ClientESService(ConfigurationManager.AppSettings["Elastic_Host"]);
+            addressClientESService = new AddressClientESService(ConfigurationManager.AppSettings["Elastic_Host"]);
+            nhanhVnService = new NhanhVnService(logging_service);
+            workQueueClient = new WorkQueueClient( loggingService);
         }
         public async Task Excute(CheckoutQueueModel request)
         {
@@ -83,7 +75,7 @@ namespace APP_CHECKOUT.Repositories
             catch (Exception ex) {
                 string err = "MainServices: " + ex.ToString();
                 Console.WriteLine(err);
-                logging_service.LoggingAppOutput(err, true, true);
+                logging_service.InsertLogTelegramDirect(err);
             }
         }
         private async Task CreateOrder(string order_detail_id)
@@ -119,14 +111,14 @@ namespace APP_CHECKOUT.Repositories
                         Amount = cart.product.amount,
                         ProductCode = cart.product.code,
                         ProductId = cart.product._id,
-                        ProductLink = _configuration["Setting:Domain"] + "/san-pham/" + name_url + "--" + cart.product._id,
+                        ProductLink = ConfigurationManager.AppSettings["Setting_Domain"] + "/san-pham/" + name_url + "--" + cart.product._id,
                         TotalPrice = cart.product.price * cart.quanity,
                         TotalProfit = cart.product.profit * cart.quanity,
                         TotalAmount = cart.product.amount * cart.quanity,
                         TotalDiscount = cart.product.discount * cart.quanity,
                         UpdatedDate = DateTime.Now,
-                        UserCreate = Convert.ToInt32(_configuration["Setting:BOT_UserID"]),
-                        UserUpdated = Convert.ToInt32(_configuration["Setting:BOT_UserID"])
+                        UserCreate = Convert.ToInt32(ConfigurationManager.AppSettings["BOT_UserID"]),
+                        UserUpdated = Convert.ToInt32(ConfigurationManager.AppSettings["BOT_UserID"])
                     });
                     total_price += (cart.product.price * cart.quanity);
                     total_profit += (cart.product.profit * cart.quanity);
@@ -140,13 +132,18 @@ namespace APP_CHECKOUT.Repositories
 
                 }
                 var account_client = accountClientESService.GetById(order.account_client_id);
-                var client = clientESService.GetById((long)account_client.clientid);
-                var address_client = addressClientESService.GetById(order.address_id);
+                //logging_service.InsertLogTelegramDirect(" accountClientESService.GetById("+ order.account_client_id + ") : "+ (account_client == null ? "NULL" : JsonConvert.SerializeObject(account_client)));
+
+                var client = clientESService.GetById((long)account_client.ClientId);
+               // logging_service.InsertLogTelegramDirect(" clientESService.GetById(" + (long)account_client.ClientId + ") : " + (client == null ? "NULL" : JsonConvert.SerializeObject(client)));
+
+                AddressClientESModel address_client = addressClientESService.GetById(order.address_id, client.Id);
+               // logging_service.InsertLogTelegramDirect(" addressClientESService.GetById(" + order.address_id + "," + client.Id + ") : " + (address_client == null ? "NULL" : JsonConvert.SerializeObject(address_client)));
 
                 order_summit = new Order()
                 {
                     Amount = total_amount + order.shipping_fee,
-                    ClientId = (long)account_client.clientid,
+                    ClientId = (long)account_client.ClientId,
                     CreatedDate = DateTime.Now,
                     Discount = total_discount,
                     IsDelete = 0,
@@ -160,12 +157,12 @@ namespace APP_CHECKOUT.Repositories
                     OrderStatus = 0,
                     UpdateLast = DateTime.Now,
                     UserGroupIds = "",
-                    UserId = Convert.ToInt32(_configuration["Setting:BOT_UserID"]),
+                    UserId = Convert.ToInt32(ConfigurationManager.AppSettings["BOT_UserID"]),
                     UtmMedium = order.utm_medium,
                     UtmSource = order.utm_source,
                     VoucherId = order.voucher_id,
-                    CreatedBy = Convert.ToInt32(_configuration["Setting:BOT_UserID"]),
-                    UserUpdateId = Convert.ToInt32(_configuration["Setting:BOT_UserID"]),
+                    CreatedBy = Convert.ToInt32(ConfigurationManager.AppSettings["BOT_UserID"]),
+                    UserUpdateId = Convert.ToInt32(ConfigurationManager.AppSettings["BOT_UserID"]),
                     Address = order.address,
                     ReceiverName = order.receivername,
                     Phone = order.phone,
@@ -180,26 +177,26 @@ namespace APP_CHECKOUT.Repositories
                 List<Province> provinces = GetProvince();
                 List<District> districts = GetDistrict();
                 List<Ward> wards = GetWards();
-                if (address_client != null && address_client.provinceid != null && address_client.districtid != null && address_client.wardid != null)
+                if (address_client != null && address_client.ProvinceId != null && address_client.DistrictId != null && address_client.WardId != null)
                 {
-                    if (address_client.provinceid.Trim() != "" && provinces != null && provinces.Count > 0)
+                    if (address_client.ProvinceId.Trim() != "" && provinces != null && provinces.Count > 0)
                     {
-                        var province = provinces.FirstOrDefault(x => x.ProvinceId == address_client.provinceid);
+                        var province = provinces.FirstOrDefault(x => x.ProvinceId == address_client.ProvinceId);
                         order_summit.ProvinceId = province != null ? province.Id : null;
                     }
-                    if (address_client.districtid.Trim() != "" && districts != null && districts.Count > 0)
+                    if (address_client.DistrictId.Trim() != "" && districts != null && districts.Count > 0)
                     {
-                        var district = districts.FirstOrDefault(x => x.DistrictId == address_client.districtid);
+                        var district = districts.FirstOrDefault(x => x.DistrictId == address_client.DistrictId);
                         order_summit.DistrictId = district != null ? district.Id : null;
                     }
-                    if (address_client.wardid.Trim() != "" && wards != null && wards.Count > 0)
+                    if (address_client.WardId.Trim() != "" && wards != null && wards.Count > 0)
                     {
-                        var ward = wards.FirstOrDefault(x => x.WardId == address_client.wardid);
+                        var ward = wards.FirstOrDefault(x => x.WardId == address_client.WardId);
                         order_summit.WardId = ward != null ? ward.Id : null;
                     }
-                    order_summit.ReceiverName = address_client.receivername;
-                    order_summit.Phone = address_client.phone;
-                    order_summit.Address = address_client.address;
+                    order_summit.ReceiverName = address_client.ReceiverName;
+                    order_summit.Phone = address_client.Phone;
+                    order_summit.Address = address_client.Address;
                 }
                 else
                 {
@@ -216,8 +213,9 @@ namespace APP_CHECKOUT.Repositories
                
 
                 var order_id = await orderDAL.CreateOrder(order_summit);
-                Console.WriteLine("Created Order - " + order.order_no+": "+ order_id);
-                logging_service.LoggingAppOutput("Order Created - " + order.order_no + " - " + total_amount, true, true);
+               // Console.WriteLine("Created Order - " + order.order_no+": "+ order_id);
+                logging_service.InsertLogTelegramDirect("Order Created - " + order.order_no + " - " + total_amount);
+                workQueueClient.SyncES(order_id, "SP_GetOrder", "hulotoys_sp_getorder", Convert.ToInt16(ProjectType.HULOTOYS));
 
                 if (order_id > 0)
                 {
@@ -226,7 +224,7 @@ namespace APP_CHECKOUT.Repositories
                         detail.OrderId = order_id;
                         await orderDetailDAL.CreateOrderDetail(detail);
                         Console.WriteLine("Created OrderDetail - " + detail.OrderId + ": " + detail.OrderDetailId);
-                        logging_service.LoggingAppOutput("OrderDetail Created - " + detail.OrderId + ": " + detail.OrderDetailId, true, false);
+                        logging_service.InsertLogTelegramDirect("OrderDetail Created - " + detail.OrderId + ": " + detail.OrderDetailId);
                         order.order_id=order_id;
                         order.total_price = total_price;
                         order.total_profit=total_profit;
@@ -234,7 +232,8 @@ namespace APP_CHECKOUT.Repositories
                         order.total_discount= total_discount;
                         await orderDetailMongoDbModel.Update(order);
                     }
-                    await nhanhVnService.PostToNhanhVN(order_summit,order, client, address_client);
+                    //await nhanhVnService.PostToNhanhVN(order_summit,order, client, address_client);
+
                 }
 
             }
@@ -242,7 +241,7 @@ namespace APP_CHECKOUT.Repositories
             {
                 string err = "CreateOrder with ["+ order_detail_id+"] error: " + ex.ToString();
                 Console.WriteLine(err);
-                logging_service.LoggingAppOutput(err, true, true);
+                logging_service.InsertLogTelegramDirect(err);
 
             }
         }
@@ -253,22 +252,8 @@ namespace APP_CHECKOUT.Repositories
 
             try
             {
-                try
-                {
-                    provinces_string = _redisService.Get(CacheType.PROVINCE, Convert.ToInt32(_configuration["Redis:Database:db_common"]));
-                } catch{}
-                if (provinces_string == null || provinces_string.Trim() == "")
-                {
-                    provinces = locationDAL.GetListProvinces();
-                    try
-                    {
-                        _redisService.Set(CacheType.PROVINCE, JsonConvert.SerializeObject(provinces), Convert.ToInt32(_configuration["Redis:Database:db_common"]));
-                    }catch{}
-                }
-                else
-                {
-                    provinces = JsonConvert.DeserializeObject<List<Province>>(provinces_string);
-                }
+                provinces = locationDAL.GetListProvinces();
+
             }
             catch
             {
@@ -283,24 +268,8 @@ namespace APP_CHECKOUT.Repositories
 
             try
             {
-                try
-                {
-                    districts_string = _redisService.Get(CacheType.DISTRICT, Convert.ToInt32(_configuration["Redis:Database:db_common"]));
-                }
-                catch { }
-                if (districts_string == null || districts_string.Trim() == "")
-                {
-                    districts = locationDAL.GetListDistrict();
-                    try
-                    {
-                        _redisService.Set(CacheType.DISTRICT, JsonConvert.SerializeObject(districts), Convert.ToInt32(_configuration["Redis:Database:db_common"]));
-                    }
-                    catch { }
-                }
-                else
-                {
-                    districts = JsonConvert.DeserializeObject<List<District>>(districts_string);
-                }
+                districts = locationDAL.GetListDistrict();
+
             }
             catch
             {
@@ -315,24 +284,8 @@ namespace APP_CHECKOUT.Repositories
 
             try
             {
-                try
-                {
-                    wards_string = _redisService.Get(CacheType.WARD, Convert.ToInt32(_configuration["Redis:Database:db_common"]));
-                }
-                catch { }
-                if (wards_string == null || wards_string.Trim() == "")
-                {
-                    wards = locationDAL.GetListWard();
-                    try
-                    {
-                        _redisService.Set(CacheType.WARD, JsonConvert.SerializeObject(wards), Convert.ToInt32(_configuration["Redis:Database:db_common"]));
-                    }
-                    catch { }
-                }
-                else
-                {
-                    wards = JsonConvert.DeserializeObject<List<Ward>>(wards_string);
-                }
+                wards = locationDAL.GetListWard();
+
             }
             catch
             {

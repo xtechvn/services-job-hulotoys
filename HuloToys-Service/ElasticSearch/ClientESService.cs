@@ -4,6 +4,7 @@ using HuloToys_Service.Utilities.Lib;
 using Nest;
 using System.Reflection;
 using HuloToys_Service.Models.Client;
+using Newtonsoft.Json;
 
 namespace Caching.Elasticsearch
 {
@@ -31,7 +32,7 @@ namespace Caching.Elasticsearch
                 var query = elasticClient.Search<ClientESModel>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field("id").Query(id.ToString())
+                                   .Match(m => m.Field("Id").Query(id.ToString())
                                )));
 
                 if (query.IsValid)
@@ -42,7 +43,7 @@ namespace Caching.Elasticsearch
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -60,7 +61,7 @@ namespace Caching.Elasticsearch
                                .Index(index)
                                 .Query(q => q
                                 .MatchPhrase(m => m
-                                .Field(f => f.email)
+                                .Field(f => f.Email)
                                 .Query(email))));
                
                 if (query.IsValid)
@@ -71,7 +72,7 @@ namespace Caching.Elasticsearch
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -85,21 +86,22 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<ClientESModel>(sd => sd
+                var query = elasticClient.Search<dynamic>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field("phone").Query(phone)
+                                   .Match(m => m.Field("Phone").Query(phone)
                                )));
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<ClientESModel>;
-                    return result;
+                    var result = query.Documents as List<dynamic>;
+                    var data = JsonConvert.DeserializeObject<List<ClientESModel>>(JsonConvert.SerializeObject(result));
+                    return data;
                 }
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -113,21 +115,22 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<ClientESModel>(sd => sd
+                var query = elasticClient.Search<dynamic>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field("clienttype").Query(client_type.ToString())
+                                   .Match(m => m.Field("ClientType").Query(client_type.ToString())
                                )));
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<ClientESModel>;
+                    var data = query.Documents as List<dynamic>;
+                    var result = JsonConvert.DeserializeObject<List<ClientESModel>>(JsonConvert.SerializeObject(data));
                     return result.Count;
                 }
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return 0;
@@ -141,21 +144,22 @@ namespace Caching.Elasticsearch
                 var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
                 var elasticClient = new ElasticClient(connectionSettings);
 
-                var query = elasticClient.Search<ClientESModel>(sd => sd
+                var query = elasticClient.Search<dynamic>(sd => sd
                                .Index(index)
                                .Query(q => q
-                                   .Match(m => m.Field(x=>x.email).Query(email)
+                                   .Match(m => m.Field("Email").Query(email)
                                )));
 
                 if (query.IsValid)
                 {
-                    var result = query.Documents as List<ClientESModel>;
+                    var data = query.Documents as List<dynamic>;
+                    var result = JsonConvert.DeserializeObject<List<ClientESModel>>(JsonConvert.SerializeObject(data));
                     return result.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;

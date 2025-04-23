@@ -3,21 +3,17 @@ using Nest;
 using System.Reflection;
 using Entities.Models;
 using APP_CHECKOUT.Elasticsearch;
-using Microsoft.Extensions.Configuration;
 
 namespace Caching.Elasticsearch
 {
     public class AddressClientESService : ESRepository<AddressClientESModel>
     {
-        public string index = "address_client_hulotoys_store";
-        private readonly IConfiguration configuration;
+        public string index = "hulotoys_sp_getaddressclient";
         private static string _ElasticHost;
 
-        public AddressClientESService(string Host, IConfiguration _configuration) : base(Host, _configuration)
+        public AddressClientESService(string Host) : base(Host)
         {
             _ElasticHost = Host;
-            configuration = _configuration;
-            index = _configuration["Elastic:Index:AddressClient"];
 
 
         }
@@ -32,29 +28,26 @@ namespace Caching.Elasticsearch
                 var elasticClient = new ElasticClient(connectionSettings);
                 var query = elasticClient.Search<AddressClientESModel>(sd => sd
                             .Index(index)
-                            .Query(q => q
-                                .Match(m => m.Field(x=>x.clientid).Query(client_id.ToString())
-                                ))
+                            .Query(q => q.Term(m => m.ClientId,client_id)
+                                )
                             .Size(100)
 
                             );
+                if (query.IsValid)
+                {
+                    var data = query.Documents as List<AddressClientESModel>;
+                    //logging_service.InsertLogTelegramDirect( "GetByClientID - AddressClientESService [" + client_id + "][" + JsonConvert.SerializeObject(result) + "]");
 
-                if (!query.IsValid)
-                {
-                    return result;
-                }
-                else
-                {
-                    result = query.Documents as List<AddressClientESModel>;
-                    return result;
+                    return data;
                 }
             }
             catch (Exception ex)
             {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
             }
             return null;
         }
-        public AddressClientESModel GetById(long id)
+        public AddressClientESModel GetById(long id,long client_id)
         {
             AddressClientESModel result = new AddressClientESModel();
             try
@@ -65,9 +58,9 @@ namespace Caching.Elasticsearch
                 var elasticClient = new ElasticClient(connectionSettings);
                 var query = elasticClient.Search<AddressClientESModel>(sd => sd
                             .Index(index)
-                            .Query(q => q
-                                .Match(m => m.Field(x => x.id).Query(id.ToString())
-                                ) 
+                            .Query(q => q.Term(m => m.Id, id) 
+                                &&
+                                q.Term(m => m.ClientId, client_id)
                                 )
                             .Size(100)
 
@@ -79,12 +72,14 @@ namespace Caching.Elasticsearch
                 }
                 else
                 {
-                    var list = query.Documents as List<AddressClientESModel>;
-                    return list.FirstOrDefault();
+
+                    var data = query.Documents as List<AddressClientESModel>;
+                    return data.FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
+                string error_msg = "AddressClientESService" + "->" + "InsertOrUpdateAddress" + "=>" + ex.ToString();
             }
             return null;
         }

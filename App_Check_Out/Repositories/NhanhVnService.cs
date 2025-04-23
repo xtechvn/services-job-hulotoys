@@ -1,29 +1,28 @@
 ﻿using APP.READ_MESSAGES.Libraries;
+using APP_CHECKOUT.Elasticsearch;
 using APP_CHECKOUT.Helpers;
 using APP_CHECKOUT.Models.Client;
 using APP_CHECKOUT.Models.NhanhVN;
 using APP_CHECKOUT.Models.Orders;
 using Caching.Elasticsearch;
 using Entities.Models;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
+using System.Configuration;
 
 namespace APP_CHECKOUT.Repositories
 {
     public class NhanhVnService
     {
-        private readonly IConfiguration _configuration;
         private readonly LocationESService locationESService;
         private readonly ILoggingService _logging_service;
 
-        public NhanhVnService(IConfiguration configuration, ILoggingService logging_service)
+        public NhanhVnService( ILoggingService logging_service)
         {
 
-            _configuration = configuration;
             _logging_service = logging_service;
-            locationESService = new LocationESService(configuration["Elastic:Host"], configuration);
+            locationESService = new LocationESService(ConfigurationManager.AppSettings["Elastic_Host"]);
 
         }
         public async Task PostToNhanhVN(Entities.Models.Order order_summit, OrderDetailMongoDbModel order, ClientESModel client, AddressClientESModel address_client)
@@ -31,14 +30,14 @@ namespace APP_CHECKOUT.Repositories
             try
             {
 
-                var options = new RestClientOptions(_configuration["NhanhVN:API:Domain"]);
+                var options = new RestClientOptions(ConfigurationManager.AppSettings["NhanhVN_API:Domain"]);
                 var http_client = new RestClient(options);
-                var request = new RestRequest(_configuration["NhanhVN:API:Domain"] + _configuration["NhanhVN:API:AddOrder"], Method.Post);
+                var request = new RestRequest(ConfigurationManager.AppSettings["NhanhVN_API:Domain"] + ConfigurationManager.AppSettings["NhanhVN_API:AddOrder"], Method.Post);
                 request.AlwaysMultipartFormData = true;
                 request.AddParameter("version", "2.0");
-                request.AddParameter("appId", _configuration["NhanhVN:AppId"]);
-                request.AddParameter("businessId", _configuration["NhanhVN:BussinessID"]);
-                request.AddParameter("accessToken", _configuration["NhanhVN:AccessToken"]);
+                request.AddParameter("appId", ConfigurationManager.AppSettings["NhanhVN_AppId"]);
+                request.AddParameter("businessId", ConfigurationManager.AppSettings["NhanhVN_BussinessID"]);
+                request.AddParameter("accessToken", ConfigurationManager.AppSettings["NhanhVN_AccessToken"]);
                 var city = await GetLocationByType(0);
                 string city_name = "";
                 string district_name = "";
@@ -72,9 +71,9 @@ namespace APP_CHECKOUT.Repositories
                     id = order_summit.OrderId.ToString(),
                     depotId = null,
                     type = "Shipping",
-                    customerName = address_client==null?order.receivername: address_client.receivername,
-                    customerMobile = address_client == null ? order.phone : address_client.receivername,
-                    customerEmail = client.email,
+                    customerName = address_client==null?order.receivername: address_client.ReceiverName,
+                    customerMobile = address_client == null ? order.phone : address_client.ReceiverName,
+                    customerEmail = client.Email,
                     customerAddress = order_summit.Address,
                     customerCityName = city_name,
                     customerDistrictName= district_name,
@@ -139,14 +138,14 @@ namespace APP_CHECKOUT.Repositories
                 if (status == 1)
                 {
                     Console.WriteLine(response.Content);
-                    _logging_service.LoggingAppOutput("["+order.order_no+"] -> Nhanh VN OrderCreated: "+jsonData["data"]["orderId"].ToString(), true, true);
+                    _logging_service.InsertLogTelegramDirect("["+order.order_no+"] -> Nhanh VN OrderCreated: "+jsonData["data"]["orderId"].ToString());
 
                 }
                 else
                 {
                     string err = "PostToNhanhVN with [" + order._id + "] error: " + response.Content;
                     Console.WriteLine(err);
-                    _logging_service.LoggingAppOutput(err, true, true);
+                    _logging_service.InsertLogTelegramDirect(err);
                 }
 
 
@@ -185,14 +184,14 @@ namespace APP_CHECKOUT.Repositories
                         }
 
                 }
-                var options = new RestClientOptions(_configuration["NhanhVN:API:Domain"]);
+                var options = new RestClientOptions(ConfigurationManager.AppSettings["NhanhVN_API:Domain"]);
                 var http_client = new RestClient(options);
-                var request = new RestRequest(_configuration["NhanhVN:API:Domain"]+ _configuration["NhanhVN:API:Location"], Method.Post);
+                var request = new RestRequest(ConfigurationManager.AppSettings["NhanhVN_API:Domain"]+ ConfigurationManager.AppSettings["NhanhVN_API:Location"], Method.Post);
                 request.AlwaysMultipartFormData = true;
                 request.AddParameter("version", "2.0");
-                request.AddParameter("appId", _configuration["NhanhVN:AppId"]);
-                request.AddParameter("businessId", _configuration["NhanhVN:BussinessID"]);
-                request.AddParameter("accessToken", _configuration["NhanhVN:AccessToken"]);
+                request.AddParameter("appId", ConfigurationManager.AppSettings["NhanhVN_AppId"]);
+                request.AddParameter("businessId", ConfigurationManager.AppSettings["NhanhVN_BussinessID"]);
+                request.AddParameter("accessToken", ConfigurationManager.AppSettings["NhanhVN_AccessToken"]);
                 request.AddParameter("data", "{\"type\":\""+ type_string + "\",\"parentId\":"+ parent_id + "}");
               
                 RestResponse response = await http_client.ExecuteAsync(request);
@@ -210,7 +209,7 @@ namespace APP_CHECKOUT.Repositories
             {
                 string err = "PostToNhanhVN ->GetLocationByType with [" + type+"-"+parent_id + "] error: " + ex.ToString();
                 Console.WriteLine(err);
-                _logging_service.LoggingAppOutput(err, true, true);
+                _logging_service.InsertLogTelegramDirect(err);
             }
             return new List<NhanhVNLocationResponseLocation>();
 

@@ -1,10 +1,25 @@
 ﻿
 using System.Net;
+using Telegram.Bot;
 
 namespace App_Push_Consummer.Common
 {
     public class ErrorWriter
     {
+        public static int InsertLogTelegram(string bot_token, string id_group, string message)
+        {
+            var rs = 1;
+            try
+            {
+                TelegramBotClient alertMsgBot = new TelegramBotClient(bot_token);
+                var rs_push = alertMsgBot.SendTextMessageAsync(id_group, message).Result;
+            }
+            catch (Exception ex)
+            {
+                rs = -1;
+            }
+            return rs;
+        }
         public static void WriteLog(string AppPath, string sFunction, string sAction)
         {
             StreamWriter sLogFile = null;

@@ -1,5 +1,4 @@
-﻿using HuloToys_Service.Models.Location;
-using Models.MongoDb;
+﻿using Entities.Models;
 
 namespace HuloToys_Service.Models.Orders
 {

@@ -1,26 +1,25 @@
-﻿using Microsoft.Extensions.Configuration;
-using Models.MongoDb;
+﻿using APP_CHECKOUT.Model.Orders;
+using APP_CHECKOUT.Models.Orders;
 using MongoDB.Driver;
+using System.Configuration;
 using System.Reflection;
 
 namespace APP_CHECKOUT.MongoDb
 {
     public class CartMongodbService
     {
-        private readonly IConfiguration _configuration;
         private IMongoCollection<CartItemMongoDbModel> bookingCollection;
 
-        public CartMongodbService(IConfiguration configuration) {
+        public CartMongodbService() {
 
-            _configuration= configuration;
             //      "connection_string": "mongodb://adavigolog_writer:adavigolog_2022@103.163.216.42:27017/?authSource=Adavigo"
-            string _connection = "mongodb://" + _configuration["DataBaseConfig:MongoServer:user"]
-                 + ":" + _configuration["DataBaseConfig:MongoServer:pwd"]
-                 + "@" + _configuration["DataBaseConfig:MongoServer:Host"]
-                 + ":" + _configuration["DataBaseConfig:MongoServer:Port"]
-                 + "/?authSource=" + _configuration["DataBaseConfig:MongoServer:catalog_log"];
+            string _connection = "mongodb://" + ConfigurationManager.AppSettings["Mongo_usr"]
+                 + ":" + ConfigurationManager.AppSettings["Mongo_pwd"]
+                 + "@" + ConfigurationManager.AppSettings["Mongo_Host"]
+                 + ":" + ConfigurationManager.AppSettings["Mongo_Port"]
+                 + "/?authSource=" + ConfigurationManager.AppSettings["Mongo_catalog"];
             var booking = new MongoClient(_connection);
-            IMongoDatabase db = booking.GetDatabase(_configuration["DataBaseConfig:MongoServer:catalog_log"]);
+            IMongoDatabase db = booking.GetDatabase(ConfigurationManager.AppSettings["Mongo_catalog"]);
             bookingCollection = db.GetCollection<CartItemMongoDbModel>("Cart");
         }
         public async Task<string> Insert(CartItemMongoDbModel item)
@@ -33,7 +32,7 @@ namespace APP_CHECKOUT.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 //LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -55,7 +54,7 @@ namespace APP_CHECKOUT.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 //LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -77,7 +76,7 @@ namespace APP_CHECKOUT.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 //LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -100,7 +99,7 @@ namespace APP_CHECKOUT.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 //LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -124,7 +123,7 @@ namespace APP_CHECKOUT.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 //LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return 0;
@@ -147,7 +146,7 @@ namespace APP_CHECKOUT.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 //LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;
@@ -167,7 +166,7 @@ namespace APP_CHECKOUT.MongoDb
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 //LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return false;

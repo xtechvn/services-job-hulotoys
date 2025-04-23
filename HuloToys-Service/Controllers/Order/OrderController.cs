@@ -17,17 +17,17 @@ using HuloToys_Service.Controllers.Order.Business;
 using HuloToys_Service.RedisWorker;
 using HuloToys_Service.Models.Orders;
 using HuloToys_Service.Models.APIRequest;
-using HuloToys_Service.Models.Location;
 using HuloToys_Service.Controllers.Client.Business;
 using App_Push_Consummer.Model.Comments;
 using HuloToys_Service.ElasticSearch;
 using HuloToys_Service.Controllers.Shipping.Business;
+using Entities.Models;
 
 namespace HuloToys_Service.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    
     public class OrderController : ControllerBase
     {
         private readonly IConfiguration configuration;
@@ -96,9 +96,9 @@ namespace HuloToys_Service.Controllers
                         });
                     }
                     var account_client = accountClientESService.GetById(account_client_id);
-                    var client = clientESService.GetById((long)account_client.clientid);
+                    var client = clientESService.GetById((long)account_client.ClientId);
 
-                    var result=  orderESRepository.GetByClientID(client.id);
+                    var result=  orderESRepository.GetByClientID(client.Id);
 
                     return Ok(new
                     {
@@ -112,7 +112,7 @@ namespace HuloToys_Service.Controllers
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return Ok(new
@@ -153,11 +153,11 @@ namespace HuloToys_Service.Controllers
                         });
                     }
                     var account_client = accountClientESService.GetById(account_client_id);
-                    var client = clientESService.GetById((long)account_client.clientid);
+                    var client = clientESService.GetById((long)account_client.ClientId);
 
                     if (request.status == "-1") request.status = "";
 
-                    var cache_name = CacheType.ORDER_DETAIL_FE + client.id+request.status+request.page_index+request.page_size;
+                    var cache_name = CacheType.ORDER_DETAIL_FE + client.Id+request.status+request.page_index+request.page_size;
                     var j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"]));
                     if (j_data != null && j_data.Trim() != "")
                     {
@@ -172,10 +172,10 @@ namespace HuloToys_Service.Controllers
                             });
                         }
                     }
-                    var result = orderESRepository.GetFEByClientID((long)account_client.clientid, request.status, (request.page_index <= 0 ? 1 : request.page_index), (request.page_size <= 0 ? 10 : request.page_size));
+                    var result = orderESRepository.GetFEByClientID((long)account_client.ClientId, request.status, (request.page_index <= 0 ? 1 : request.page_index), (request.page_size <= 0 ? 10 : request.page_size));
                     if(result!=null && result.data!=null && result.data.Count > 0)
                     {
-                        result.data_order = await orderMongodbService.GetListByOrderId(result.data.Select(x => x.orderid).ToList());
+                        result.data_order = await orderMongodbService.GetListByOrdersNo(result.data.Select(x => x.OrderNo).ToList());
                     }
                     return Ok(new
                     {
@@ -189,7 +189,7 @@ namespace HuloToys_Service.Controllers
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return Ok(new
@@ -229,9 +229,9 @@ namespace HuloToys_Service.Controllers
                         });
                     }
                     var account_client = accountClientESService.GetById(account_client_id);
-                    var client = clientESService.GetById((long)account_client.clientid);
+                    var client = clientESService.GetById((long)account_client.ClientId);
 
-                    var result = orderESRepository.GetLastestClientID(client.id);
+                    var result = orderESRepository.GetLastestClientID(client.Id);
 
 
                     return Ok(new
@@ -246,7 +246,7 @@ namespace HuloToys_Service.Controllers
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return Ok(new
@@ -286,8 +286,8 @@ namespace HuloToys_Service.Controllers
                         });
                     }
                     var account_client = accountClientESService.GetById(account_client_id);
-                    var client = clientESService.GetById((long)account_client.clientid);
-                    var order=orderESRepository.GetByOrderNo(request.order_no,client.id);
+                    var client = clientESService.GetById((long)account_client.ClientId);
+                    var order=orderESRepository.GetByOrderNo(request.order_no,client.Id);
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
@@ -300,7 +300,7 @@ namespace HuloToys_Service.Controllers
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return Ok(new
@@ -350,7 +350,7 @@ namespace HuloToys_Service.Controllers
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return Ok(new
@@ -382,26 +382,43 @@ namespace HuloToys_Service.Controllers
                     }
                     OrderDetailResponseModel result = new OrderDetailResponseModel()
                     {
-                        data_order = (await orderMongodbService.GetListByOrderId(new List<long>() { request.id })).FirstOrDefault(),
                         data = orderESRepository.GetByOrderId(request.id)
                     };
+                    if (result.data == null)
+                    {
+                        LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"],
+                            "HistoryDetail - OrderController orderESRepository.GetByOrderId("+request.id+") : NULL");
+
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    else
+                    {
+                        LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"],
+                           "HistoryDetail - OrderController orderESRepository.GetByOrderId(" + request.id + ") : "+JsonConvert.SerializeObject(result.data));
+                        result.data_order = await orderMongodbService.GetByOrderNo(result.data.OrderNo);
+                    }
+
                     var provinces = _redisService.Get(CacheType.PROVINCE, Convert.ToInt32(configuration["Redis:Database:db_common"]));
                     var district = _redisService.Get(CacheType.DISTRICT, Convert.ToInt32(configuration["Redis:Database:db_common"]));
                     var ward = _redisService.Get(CacheType.WARD, Convert.ToInt32(configuration["Redis:Database:db_common"]));
-                    if (result.data.provinceid>0&& provinces != null && provinces.Trim() != "")
+                    if (result.data.ProvinceId>0&& provinces != null && provinces.Trim() != "")
                     {
                         var data = JsonConvert.DeserializeObject<List<Province>>(provinces);
-                        result.province = data.FirstOrDefault(x => x.Id == result.data.provinceid);
+                        result.province = data.FirstOrDefault(x => x.Id == result.data.ProvinceId);
                     }
-                    if (result.data.districtid > 0 && district != null && district.Trim() != "")
+                    if (result.data.DistrictId > 0 && district != null && district.Trim() != "")
                     {
                         var data = JsonConvert.DeserializeObject<List<District>>(district);
-                        result.district = data.FirstOrDefault(x => x.Id == result.data.districtid);
+                        result.district = data.FirstOrDefault(x => x.Id == result.data.DistrictId);
                     }
-                    if (result.data.wardid > 0 && ward != null && ward.Trim() != "")
+                    if (result.data.WardId > 0 && ward != null && ward.Trim() != "")
                     {
                         var data = JsonConvert.DeserializeObject<List<Ward>>(ward);
-                        result.ward = data.FirstOrDefault(x => x.Id == result.data.wardid);
+                        result.ward = data.FirstOrDefault(x => x.Id == result.data.WardId);
                     }
 
                     long account_client_id = await clientServices.GetAccountClientIdFromToken(request.token);
@@ -415,7 +432,7 @@ namespace HuloToys_Service.Controllers
                     }
                     var account_client = accountClientESService.GetById(account_client_id);
 
-                    var raiting_count = raitingESService.CountCommentByOrderID(request.id, (long)account_client.clientid);
+                    var raiting_count = raitingESService.CountCommentByOrderID(request.id, (long)account_client.ClientId);
                     result.has_raiting=raiting_count> 0;
                     if (result != null)
                     {
@@ -434,7 +451,7 @@ namespace HuloToys_Service.Controllers
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return Ok(new
@@ -468,6 +485,7 @@ namespace HuloToys_Service.Controllers
                     long account_client_id = await clientServices.GetAccountClientIdFromToken(request.token);
                     if (account_client_id <= 0)
                     {
+
                         return Ok(new
                         {
                             status = (int)ResponseType.FAILED,
@@ -493,13 +511,13 @@ namespace HuloToys_Service.Controllers
                         delivery_detail = request.delivery_detail,
                         order_no = order_no,
                         total_amount=0,
-                        address=request.address.address,
-                        districtid=request.address.districtid,
-                        provinceid=request.address.provinceid,
-                        wardid=request.address.wardid,
+                        address=request.address.Address,
+                        districtid=request.address.DistrictId,
+                        provinceid=request.address.ProvinceId,
+                        wardid=request.address.WardId,
                         address_id=request.address_id,
-                        receivername=request.address.receivername,
-                        phone=request.address.phone,
+                        receivername=request.address.ReceiverName,
+                        phone=request.address.Phone,
                     };
                     
                     foreach (var item in request.carts)
@@ -534,17 +552,23 @@ namespace HuloToys_Service.Controllers
 
                     }
                     //-- Shipping fee
-                    var shipping_fee = await shippingBussinessSerice.GetShippingFeeResponse(request.delivery_detail);
-                    shipping_fee ??= new Models.NinjaVan.ShippingFeeResponseModel();
-                    if (shipping_fee.total_shipping_fee <= 0) shipping_fee.total_shipping_fee = 0;
-                    model.shipping_fee = shipping_fee.total_shipping_fee;
-                    model.total_amount += shipping_fee.total_shipping_fee;
+                    //var shipping_fee = await shippingBussinessSerice.GetShippingFeeResponse(request.delivery_detail);
+                    //shipping_fee ??= new Models.NinjaVan.ShippingFeeResponseModel();
+                    //if (shipping_fee.total_shipping_fee <= 0) shipping_fee.total_shipping_fee = 0;
+                    //model.shipping_fee = shipping_fee.total_shipping_fee;
+                    //model.total_amount += shipping_fee.total_shipping_fee;
+                    model.shipping_fee = 0;
                     //-- Mongodb:
                     var result = await orderMongodbService.Insert(model);
                     //-- Insert Queue:
                     var queue_model = new CheckoutQueueModel() { event_id = (int)CheckoutEventID.CREATE_ORDER, order_mongo_id = result };
-                    var pushed_queue=work_queue.InsertQueueSimpleDurable(JsonConvert.SerializeObject(queue_model) , QueueName.QUEUE_CHECKOUT);
                    
+
+                    var pushed_queue =work_queue.InsertQueueSimpleDurable(JsonConvert.SerializeObject(queue_model) , QueueName.QUEUE_CHECKOUT);
+                    LogHelper.InsertLogTelegram(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], "Push Queue: "
+                       + QueueName.QUEUE_CHECKOUT
+                       + "[" + JsonConvert.SerializeObject(queue_model) + "] ["+pushed_queue+"]");
+
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
@@ -555,7 +579,7 @@ namespace HuloToys_Service.Controllers
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
                 return Ok(new
                 {
@@ -611,7 +635,7 @@ namespace HuloToys_Service.Controllers
                     }
                     ProductRaitingPushQueueModel model = new ProductRaitingPushQueueModel()
                     {
-                         UserId= (long)account_client.clientid,
+                         UserId= (long)account_client.ClientId,
                          Comment= request.comment,
                          CreatedDate=DateTime.UtcNow.ToLocalTime(),
                          ImgLink=request.img_link,
@@ -638,7 +662,7 @@ namespace HuloToys_Service.Controllers
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
                 return Ok(new
                 {

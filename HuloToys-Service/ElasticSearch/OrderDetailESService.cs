@@ -71,7 +71,7 @@ namespace Caching.Elasticsearch
                 {
                     Query = new TermsQuery
                     {
-                        Field = Infer.Field<OrderDetailESModel>(p => p.productid), // Field selector for ProductId
+                        Field = Infer.Field<OrderDetailESModel>(p => p.ProductId), // Field selector for ProductId
                         Terms = product_id // The list of product IDs
                     },
                     Size = 0, // No hits needed, just aggregations
@@ -82,7 +82,7 @@ namespace Caching.Elasticsearch
                                {
                                     Filters = new List<QueryContainer>()
                                     {
-                                       new ExistsQuery { Field = Infer.Field<OrderDetailESModel>(x => x.orderdetailid) },
+                                       new ExistsQuery { Field = Infer.Field<OrderDetailESModel>(x => x.OrderDetailId) },
 
                                     }
                                }
@@ -90,14 +90,17 @@ namespace Caching.Elasticsearch
                         }
                 };
                 var response = elasticClient.Search<OrderDetailESModel>(searchRequest);
-
-                // Process the field data counts (description and information)
-                var total_product_count = response.Aggregations.Filters("total_product_count");
-                return total_product_count.Buckets.First().DocCount; // Products with 'description' field
+                if (response.IsValid)
+                {
+                    // Process the field data counts (description and information)
+                    var total_product_count = response.Aggregations.Filters("total_product_count");
+                    return total_product_count.Buckets.First().DocCount; // Products with 'description' field
+                }
+              
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return 0;

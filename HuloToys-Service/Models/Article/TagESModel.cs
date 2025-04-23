@@ -3,10 +3,10 @@
     public class TagESModel
     {
 
-        public long id { get; set; }
+        public long Id { get; set; }
 
-        public string? tagname { get; set; }
+        public string? TagName { get; set; }
 
-        public DateTime? createdon { get; set; }
+        public DateTime? CreatedOn { get; set; }
     }
 }

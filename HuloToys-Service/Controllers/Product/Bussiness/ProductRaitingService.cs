@@ -42,10 +42,10 @@ namespace HuloToys_Service.Controllers.Product.Bussiness
                     {
                         try
                         {
-                            var client = _clientESService.GetById((int)r.userid);
-                            var product = await _productDetailMongoAccess.GetByID(r.productdetailid);
-                            r.client_avatar = client.avartar;
-                            r.client_name = client.clientname;
+                            var client = _clientESService.GetById((int)r.UserId);
+                            var product = await _productDetailMongoAccess.GetByID(r.ProductDetailId);
+                            r.client_avatar = client.Avartar;
+                            r.client_name = client.ClientName;
                             r.variation_detail = "";
                             if (product.variation_detail != null && product.variation_detail.Count > 0)
                             {
@@ -67,7 +67,7 @@ namespace HuloToys_Service.Controllers.Product.Bussiness
             }
             catch (Exception ex)
             {
-                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.Message;
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                 LogHelper.InsertLogTelegramByUrl(_configuration["telegram:log_try_catch:bot_token"], _configuration["telegram:log_try_catch:group_id"], error_msg);
             }
             return null;

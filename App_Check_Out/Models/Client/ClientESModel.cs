@@ -1,40 +1,84 @@
-﻿using System;
+﻿using Nest;
+using System;
 using System.Collections.Generic;
 
-// Code scaffolded by EF Core assumes nullable reference types (NRTs) are not used or disabled.
-// If you have enabled NRTs for your project, then un-comment the following line:
-// #nullable disable
 
 namespace APP_CHECKOUT.Models.Client
 {
-    public partial class ClientESModel
+    public  class ClientESModel
     {
+        [PropertyName("Id")]
 
+        public long Id { get; set; }
+        [PropertyName("ClientMapId")]
 
-        public long id { get; set; }
-        public int? clientmapid { get; set; }
-        public int? salemapid { get; set; }
-        public int? clienttype { get; set; }
-        public string clientname { get; set; }
-        public string email { get; set; }
-        public int? gender { get; set; }
-        public int status { get; set; }
-        public string note { get; set; }
-        public string avartar { get; set; }
-        public DateTime joindate { get; set; }
-        public bool? isreceiverinfoemail { get; set; }
-        public string phone { get; set; }
-        public DateTime? birthday { get; set; }
-        public DateTime? upDateTime { get; set; }
-        public string taxno { get; set; }
-        public int? agencytype { get; set; }
-        public int? permisiontype { get; set; }
-        public string businessaddress { get; set; }
-        public string exportbilladdress { get; set; }
-        public string clientcode { get; set; }
-        public bool? isregisteraffiliate { get; set; }
-        public string referralid { get; set; }
-        public int? parentid { get; set; }
+        public int? ClientMapId { get; set; }
+        [PropertyName("SaleMapId")]
+
+        public int? SaleMapId { get; set; }
+        [PropertyName("ClientType")]
+
+        public int? ClientType { get; set; }
+        [PropertyName("ClientName")]
+
+        public string ClientName { get; set; }
+        [PropertyName("Email")]
+
+        public string Email { get; set; }
+        [PropertyName("Gender")]
+
+        public int? Gender { get; set; }
+        [PropertyName("Status")]
+
+        public int Status { get; set; }
+        [PropertyName("Note")]
+
+        public string Note { get; set; }
+        [PropertyName("Avartar")]
+
+        public string Avartar { get; set; }
+        [PropertyName("JoinDate")]
+
+        public DateTime JoinDate { get; set; }
+        [PropertyName("IsReceiverInfoEmail")]
+
+        public bool? IsReceiverInfoEmail { get; set; }
+        [PropertyName("Phone")]
+
+        public string Phone { get; set; }
+        [PropertyName("Birthday")]
+
+        public DateTime? Birthday { get; set; }
+        [PropertyName("UpdateTime")]
+
+        public DateTime? UpdateTime { get; set; }
+        [PropertyName("TaxNo")]
+
+        public string TaxNo { get; set; }
+        [PropertyName("AgencyType")]
+
+        public int? AgencyType { get; set; }
+        [PropertyName("PermisionType")]
+
+        public int? PermisionType { get; set; }
+        [PropertyName("BusinessAddress")]
+
+        public string BusinessAddress { get; set; }
+        [PropertyName("ExportBillAddress")]
+
+        public string ExportBillAddress { get; set; }
+        [PropertyName("ClientCode")]
+
+        public string ClientCode { get; set; }
+        [PropertyName("IsRegisterAffiliate")]
+
+        public bool? IsRegisterAffiliate { get; set; }
+        [PropertyName("ReferralId")]
+
+        public string ReferralId { get; set; }
+        [PropertyName("ParentId")]
+
+        public int? ParentId { get; set; }
 
     }
 }

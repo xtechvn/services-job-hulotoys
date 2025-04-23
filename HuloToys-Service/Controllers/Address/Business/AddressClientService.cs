@@ -2,11 +2,7 @@
 using Entities.Models;
 using HuloToys_Service.Controllers.Client.Business;
 using HuloToys_Service.Models.Client;
-using HuloToys_Service.Models.Location;
-using HuloToys_Service.RabitMQ;
 using HuloToys_Service.RedisWorker;
-using Microsoft.Extensions.Configuration;
-using Nest;
 using Newtonsoft.Json;
 using Utilities.Contants;
 
@@ -45,7 +41,7 @@ namespace HuloToys_Service.Controllers.Address.Business
                     return model;
                 }
                 var account_client = accountClientESService.GetById(account_client_id);
-                var client_id = (long)account_client.clientid;
+                var client_id = (long)account_client.ClientId;
                
                 var list = addressClientESService.GetByClientID(client_id);
                 if (list!=null && list.Count > 0)
@@ -53,9 +49,9 @@ namespace HuloToys_Service.Controllers.Address.Business
                     foreach (var item in list) {
                         AddressClientFEModel submit_item = JsonConvert.DeserializeObject<AddressClientFEModel>(JsonConvert.SerializeObject(item));
                         if (submit_item != null) {
-                            submit_item.province_detail =  locationESService.GetProvincesByProvinceId(submit_item.provinceid);
-                            submit_item.district_detail = locationESService.GetDistrictByDistrictId(submit_item.districtid);
-                            submit_item.ward_detail = locationESService.GetWardsByWardId(submit_item.wardid);
+                            submit_item.province_detail =  locationESService.GetProvincesByProvinceId(submit_item.ProvinceId);
+                            submit_item.district_detail = locationESService.GetDistrictByDistrictId(submit_item.DistrictId);
+                            submit_item.ward_detail = locationESService.GetWardsByWardId(submit_item.WardId);
                             model.list.Add(submit_item);
                         }
                     }
@@ -79,7 +75,7 @@ namespace HuloToys_Service.Controllers.Address.Business
                     return model;
                 }
                 var account_client = accountClientESService.GetById(account_client_id);
-                var client_id = (long)account_client.clientid;
+                var client_id = (long)account_client.ClientId;
 
                 var list = addressClientESService.GetByClientID(client_id);
                 var provinces = redisService.Get(CacheType.PROVINCE, Convert.ToInt32(configuration["Redis:Database:db_common"]));
@@ -91,12 +87,12 @@ namespace HuloToys_Service.Controllers.Address.Business
 
                 if (list != null && list.Count > 0)
                 {
-                    var selected = list.FirstOrDefault(x => x.isactive == true);
+                    var selected = list.FirstOrDefault(x => x.IsActive == true);
                     if (selected == null) selected = list.FirstOrDefault();
                     model = JsonConvert.DeserializeObject<AddressClientFEModel>(JsonConvert.SerializeObject(selected));
-                    model.province_detail = data_provinces.FirstOrDefault(x => x.ProvinceId == selected.provinceid);
-                    model.district_detail = data_district.FirstOrDefault(x => x.DistrictId == selected.districtid);
-                    model.ward_detail = data_ward.FirstOrDefault(x => x.WardId == selected.wardid);
+                    model.province_detail = data_provinces.FirstOrDefault(x => x.ProvinceId == selected.ProvinceId);
+                    model.district_detail = data_district.FirstOrDefault(x => x.DistrictId == selected.DistrictId);
+                    model.ward_detail = data_ward.FirstOrDefault(x => x.WardId == selected.WardId);
                 }
 
             }

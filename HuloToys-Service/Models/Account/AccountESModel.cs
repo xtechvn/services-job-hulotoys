@@ -1,27 +1,48 @@
-﻿using System;
+﻿using Nest;
+using System;
 using System.Collections.Generic;
 
 
 namespace HuloToys_Service.Models.Account
 {
-    public partial class AccountESModel
+    public class AccountESModel
     {
-        public int id { get; set; }
-        public long? clientid { get; set; }
-        public int? clienttype { get; set; }
-        public string username { get; set; }
-        public string password { get; set; }
-        public string passwordbackup { get; set; }
-        public string forgotpasswordtoken { get; set; }
-        public byte? status { get; set; }
-        public int? grouppermission { get; set; }
+        [PropertyName("Id")]
+        public int Id { get; set; }
+
+        [PropertyName("ClientId")]
+        public long? ClientId { get; set; }
+
+        [PropertyName("ClientType")]
+        public int? ClientType { get; set; }
+        [PropertyName("UserName")]
+        public string UserName { get; set; }
+        [PropertyName("Password")]
+        public string Password { get; set; }
+        [PropertyName("PasswordBackup")]
+        public string PasswordBackup { get; set; }
+        [PropertyName("ForgotPasswordToken")]
+        public string ForgotPasswordToken { get; set; }
+        [PropertyName("Status")]
+        public byte? Status { get; set; }
+        [PropertyName("GroupPermission")]
+        public int? GroupPermission { get; set; }
+
     }
     public partial class AccountApiESModel
     {
-        public int id { get; set; }
-        public string username { get; set; }
-        public string password { get; set; }
-        public byte? status { get; set; }
+        [PropertyName("id")]
+
+        public int Id { get; set; }
+        [PropertyName("UserName")]
+
+        public string UserName { get; set; }
+        [PropertyName("Password")]
+
+        public string Password { get; set; }
+        [PropertyName("Status")]
+
+        public int? Status { get; set; }
 
     }
 }

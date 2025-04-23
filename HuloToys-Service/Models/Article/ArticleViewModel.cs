@@ -49,22 +49,22 @@
         public string Lead { get; set; }
         public string Body { get; set; }
         public int Status { get; set; }
-        public int ArticleType { get; set; }
-        public string Image169 { get; set; }
-        public string Image43 { get; set; }
-        public string Image11 { get; set; }
+        public int? ArticleType { get; set; }
+        public string? Image169 { get; set; }
+        public string? Image43 { get; set; }
+        public string? Image11 { get; set; }
 
-        public List<string> Tags { get; set; }
-        public List<int> Categories { get; set; }
-        public List<long> RelatedArticleIds { get; set; }
-        public List<ArticleRelationModel> RelatedArticleList { get; set; }
+        public List<string>? Tags { get; set; }
+        public List<int>? Categories { get; set; }
+        public List<long>? RelatedArticleIds { get; set; }
+        public List<ArticleRelationModel>? RelatedArticleList { get; set; }
         public DateTime PublishDate { get; set; }
-        public int AuthorId { get; set; }
-        public string AuthorName { get; set; }
-        public int MainCategory { get; set; }
-        public string CategoryName { get; set; }
-        public DateTime DownTime { get; set; }
-        public int Position { get; set; }
+        public int? AuthorId { get; set; }
+        public string? AuthorName { get; set; }
+        public int? MainCategory { get; set; }
+        public string? CategoryName { get; set; }
+        public DateTime? DownTime { get; set; }
+        public int? Position { get; set; }
     }
 
     public class ArticleSearchModel
@@ -90,7 +90,7 @@
         public string Image { get; set; }
         public DateTime publish_date { get; set; }
         public string category_name { get; set; }
-        public string Lead { get; set; }
+        public string? Lead { get; set; }
 
     }
     public class ArticleFeModel
