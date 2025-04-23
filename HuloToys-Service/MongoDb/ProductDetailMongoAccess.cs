@@ -207,6 +207,8 @@ namespace HuloToys_Service.MongoDb
                 //)
 
                 );
+                filterDefinition &= Builders<ProductMongoDbModel>.Filter.Eq(x => x.status, (int)ProductStatus.ACTIVE);
+
                 filterDefinition &= Builders<ProductMongoDbModel>.Filter.Or(
                     Builders<ProductMongoDbModel>.Filter.Eq(p => p.parent_product_id, null),
                     Builders<ProductMongoDbModel>.Filter.Eq(p => p.parent_product_id, "")
