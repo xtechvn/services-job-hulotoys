@@ -75,34 +75,53 @@ namespace WEB.CMS.Controllers
 
                     if (request.page_size <= 0) request.page_size = 10;
                     if (request.page_index < 1) request.page_index = 1;
-                    //var cache_name = CacheType.PRODUCT_LISTING + (request.keyword ?? "") + request.group_id+ request.page_index+ request.page_size;
-                    //var j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
-                    //if (j_data != null && j_data.Trim() != "")
-                    //{
-                    //    ProductListResponseModel result = JsonConvert.DeserializeObject<ProductListResponseModel>(j_data);
-                    //    if (result != null && result.items != null && result.items.Count >0)
-                    //    {
-                    //        return Ok(new
-                    //        {
-                    //            status = (int)ResponseType.SUCCESS,
-                    //            msg = ResponseMessages.Success,
-                    //            data = result
-                    //        });
-                    //    }
-                    //}
+                    var cache_name = CacheType.PRODUCT_LISTING + (request.keyword ?? "") + request.group_id + request.page_index + request.page_size;
+                    var j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
+                    ProductListFEResponseModel result = null;
+                    if (j_data != null && j_data.Trim() != "")
+                    {
+                        result = JsonConvert.DeserializeObject<ProductListFEResponseModel>(j_data);
+                        
+                    }
+                    if (result == null || result.items == null || result.items.Count <= 0)
+                    {
+                        //request.keyword = StringHelpers.NormalizeString(request.keyword);
+                        //var data = await productDetailService.ProductListing(request);
+                        result = await productDetailService.ProductListing(request);
 
-                    //request.keyword = StringHelpers.NormalizeString(request.keyword);
-                    var data = await productDetailService.ProductListing(request);
-
-                    //if (data != null  && data.items.Count > 0)
-                    //{
-                    //    _redisService.Set(cache_name, JsonConvert.SerializeObject(data), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
-                    //}
+                    }
+                    if (result != null && result.items.Count > 0)
+                    {
+                        _redisService.Set(cache_name, JsonConvert.SerializeObject(result), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
+                        var list = result.items.Select(x => new
+                        {
+                            x._id,
+                            x.code,
+                            x.name,
+                            x.avatar,
+                            x.price,
+                            x.amount,
+                            x.amount_min,
+                            x.amount_max,
+                            x.rating,
+                            x.star,
+                            x.total_sold,
+                            x.review_count
+                        });
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.SUCCESS,
+                            msg = ResponseMessages.Success,
+                            data = new {
+                                items=list,
+                                count=result.count
+                            }
+                        });
+                    }
                     return Ok(new
                     {
-                        status = (int)ResponseType.SUCCESS,
-                        msg = ResponseMessages.Success,
-                        data = data
+                        status = (int)ResponseType.FAILED,
+                        msg = "No Items"
                     });
                 }
             }
