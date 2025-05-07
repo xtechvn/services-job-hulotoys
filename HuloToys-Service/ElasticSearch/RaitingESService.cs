@@ -185,22 +185,32 @@ namespace HuloToys_Service.ElasticSearch
                 // Process the aggregation results
                 var starCounts = new Dictionary<int, long>();
                 var starsAgg = response.Aggregations.Terms("stars_count");
-
-                foreach (var bucket in starsAgg.Buckets)
+                if (starsAgg != null)
                 {
-                    // Convert the bucket key to an integer and store the document count
-                    starCounts[int.Parse(bucket.Key)] = bucket.DocCount ?? 0;
-                }
+                    foreach (var bucket in starsAgg.Buckets)
+                    {
+                        // Convert the bucket key to an integer and store the document count
+                        starCounts[int.Parse(bucket.Key)] = bucket.DocCount ?? 0;
+                    }
+                    result.comment_count_by_star = starCounts;
 
-                result.comment_count_by_star = starCounts;
+                }
 
                 // Process the field data counts (description and information)
                 var fieldDataAgg = response.Aggregations.Filters("media_count");
-                result.has_media_count = fieldDataAgg.Buckets.First().DocCount; // Products with 'description' field
+                if (fieldDataAgg != null)
+                {
+                    result.has_media_count = fieldDataAgg.Buckets.First().DocCount; // Products with 'description' field
+
+                }
 
                 //// Process the field data counts (description and information)
                 var comment_agg = response.Aggregations.Filters("comment_count");
-                result.has_comment_count = comment_agg.Buckets.First().DocCount; // Products with 'description' field
+                if (comment_agg != null)
+                {
+                    result.has_comment_count = comment_agg.Buckets.First().DocCount; // Products with 'description' field
+
+                }
                 // Process the field data counts (description and information)
                 var total_product_count = response.Aggregations.Filters("total_product_count");
                 result.total_count = total_product_count.Buckets.First().DocCount; // Products with 'description' field

@@ -46,12 +46,34 @@ namespace HuloToys_Service.Controllers.Address.Business
                 var list = addressClientESService.GetByClientID(client_id);
                 if (list!=null && list.Count > 0)
                 {
+                    List<Entities.Models.Province> provinces = new List<Province>();
+                    List<Entities.Models.District> districts = new List<District>();
+                    List<Entities.Models.Ward> wards = new List<Ward>();
+
+                    var cache_name = CacheType.PROVINCE;
+                    var j_data =  redisService.GetAsync(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"])).Result;
+                    if (j_data != null && j_data.Trim() != "")
+                    {
+                        provinces = JsonConvert.DeserializeObject<List<Entities.Models.Province>>(j_data);
+                    }
+                    cache_name = CacheType.DISTRICT;
+                    j_data = redisService.GetAsync(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"])).Result;
+                    if (j_data != null && j_data.Trim() != "")
+                    {
+                        districts = JsonConvert.DeserializeObject<List<Entities.Models.District>>(j_data);
+                    }
+                    cache_name = CacheType.WARD;
+                    j_data = redisService.GetAsync(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"])).Result;
+                    if (j_data != null && j_data.Trim() != "")
+                    {
+                        wards = JsonConvert.DeserializeObject<List<Entities.Models.Ward>>(j_data);
+                    }
                     foreach (var item in list) {
                         AddressClientFEModel submit_item = JsonConvert.DeserializeObject<AddressClientFEModel>(JsonConvert.SerializeObject(item));
                         if (submit_item != null) {
-                            submit_item.province_detail =  locationESService.GetProvincesByProvinceId(submit_item.ProvinceId);
-                            submit_item.district_detail = locationESService.GetDistrictByDistrictId(submit_item.DistrictId);
-                            submit_item.ward_detail = locationESService.GetWardsByWardId(submit_item.WardId);
+                            submit_item.province_detail = (provinces==null || provinces.Count<=0) ? locationESService.GetProvincesByProvinceId(submit_item.ProvinceId) : provinces.FirstOrDefault(x=>x.ProvinceId==submit_item.ProvinceId);
+                            submit_item.district_detail = (districts == null || districts.Count <= 0) ? locationESService.GetDistrictByDistrictId(submit_item.DistrictId) : districts.FirstOrDefault(x => x.DistrictId == submit_item.DistrictId);
+                            submit_item.ward_detail = (wards == null || wards.Count <= 0) ? locationESService.GetWardsByWardId(submit_item.WardId) : wards.FirstOrDefault(x => x.WardId == submit_item.WardId);
                             model.list.Add(submit_item);
                         }
                     }

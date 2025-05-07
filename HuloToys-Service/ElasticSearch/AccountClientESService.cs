@@ -241,5 +241,49 @@ namespace Caching.Elasticsearch
             }
             return null;
         }
+        public AccountESModel GetByClientIdAndGoogleToken(long client_id, string token)
+        {
+            try
+            {
+                var nodes = new Uri[] { new Uri(_ElasticHost) };
+                var connectionPool = new StaticConnectionPool(nodes);
+                var connectionSettings = new ConnectionSettings(connectionPool).DisableDirectStreaming().DefaultIndex("people");
+                var elasticClient = new ElasticClient(connectionSettings);
+                var queryContainer = new BoolQuery
+                {
+                    Must = new List<QueryContainer>
+                    {
+                        new MatchQuery
+                        {
+                            Field = "GoogleToken",
+                            Query = token
+                        },
+                        new TermQuery
+                        {
+                            Field = "ClientId",
+                            Value = client_id
+                        }
+                    }
+                };
+                var query = elasticClient.Search<AccountESModel>(sd => sd
+                               .Index(index)
+                             .Query(q=>queryContainer));
+
+
+                if (query.IsValid)
+                {
+                    var data = query.Documents as List<AccountESModel>;
+
+                    return data.FirstOrDefault();
+                }
+            }
+            catch (Exception ex)
+            {
+                string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
+                LogHelper.InsertLogTelegramByUrl(configuration["telegram:log_try_catch:bot_token"], configuration["telegram:log_try_catch:group_id"], error_msg);
+            }
+            return null;
+        }
+
     }
 }

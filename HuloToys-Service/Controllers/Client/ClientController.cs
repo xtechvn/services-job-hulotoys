@@ -140,31 +140,35 @@ namespace HuloToys_Service.Controllers
                             break;
                         case (int)AccountLoginType.Google:
                             {
-                                var account_client = accountClientESService.GetByUsernameAndGoogleToken(request.user_name, request.token);
-                                if (account_client != null && account_client.Id > 0 && account_client.ClientId > 0)
+                                var email_part = request.user_name.Split("@")[0].Trim();
+                                var clients = clientESService.GetByEmail(email_part);
+                                if (clients != null && clients.Count > 0)
                                 {
-                                    var client = clientESService.GetById((long)account_client.ClientId);
-                                    if (client != null && client.Id > 0)
+                                    foreach (var client in clients)
                                     {
+                                        var account_client = accountClientESService.GetByClientIdAndGoogleToken(client.Id, request.token);
 
-                                        var token = await clientServices.GenerateToken(account_client.UserName , ipAddress);
-                                        return Ok(new
+                                        if (account_client != null && account_client.Id > 0 && account_client.ClientId > 0)
                                         {
-                                            status = (int)ResponseType.SUCCESS,
-                                            msg = "Success",
-                                            data = new ClientLoginResponseModel()
+                                            var token = await clientServices.GenerateToken(account_client.UserName, ipAddress);
+                                            return Ok(new
                                             {
-                                                //account_client_id = account_client_exists.id,
-                                                user_name = account_client.UserName,
-                                                name = client.ClientName,
-                                                token = token,
-                                                ip = ipAddress,
-                                                time_expire = clientServices.GetExpiredTimeFromToken(token)
-                                            }
-                                        });
+                                                status = (int)ResponseType.SUCCESS,
+                                                msg = "Success",
+                                                data = new ClientLoginResponseModel()
+                                                {
+                                                    //account_client_id = account_client_exists.id,
+                                                    user_name = account_client.UserName,
+                                                    name = client.ClientName,
+                                                    token = token,
+                                                    ip = ipAddress,
+                                                    time_expire = clientServices.GetExpiredTimeFromToken(token)
+                                                }
+                                            });
+                                        }
                                     }
-
                                 }
+                                   
                             }
                             break;
                         default:
