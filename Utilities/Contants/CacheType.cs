@@ -25,5 +25,6 @@
         public const string PROVINCE = "PROVINCE";
         public const string DISTRICT = "DISTRICT";
         public const string WARD = "WARD";
+        public const string LABEL = "LABEL";
     }
 }

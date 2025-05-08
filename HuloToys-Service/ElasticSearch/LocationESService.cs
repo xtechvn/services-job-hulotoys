@@ -4,6 +4,7 @@ using HuloToys_Service.Utilities.Lib;
 using Nest;
 using System.Reflection;
 using Entities.Models;
+using HuloToys_Service.Models.Models;
 
 namespace Caching.Elasticsearch
 {

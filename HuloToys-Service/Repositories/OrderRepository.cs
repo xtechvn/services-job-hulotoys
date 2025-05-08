@@ -3,6 +3,7 @@ using Entities.ConfigModels;
 using Entities.Models;
 using Entities.ViewModels;
 using HuloToys_Service.Models.Article;
+using HuloToys_Service.Models.Models;
 using HuloToys_Service.Utilities.Lib;
 using Microsoft.Extensions.Options;
 using Repositories.IRepositories;

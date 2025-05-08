@@ -2,6 +2,7 @@
 using Entities.Models;
 using HuloToys_Service.Controllers.Client.Business;
 using HuloToys_Service.Models.Client;
+using HuloToys_Service.Models.Models;
 using HuloToys_Service.RedisWorker;
 using Newtonsoft.Json;
 using Utilities.Contants;
@@ -46,27 +47,27 @@ namespace HuloToys_Service.Controllers.Address.Business
                 var list = addressClientESService.GetByClientID(client_id);
                 if (list!=null && list.Count > 0)
                 {
-                    List<Entities.Models.Province> provinces = new List<Province>();
-                    List<Entities.Models.District> districts = new List<District>();
-                    List<Entities.Models.Ward> wards = new List<Ward>();
+                    List<Province> provinces = new List<Province>();
+                    List<District> districts = new List<District>();
+                    List<Ward> wards = new List<Ward>();
 
                     var cache_name = CacheType.PROVINCE;
                     var j_data =  redisService.GetAsync(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"])).Result;
                     if (j_data != null && j_data.Trim() != "")
                     {
-                        provinces = JsonConvert.DeserializeObject<List<Entities.Models.Province>>(j_data);
+                        provinces = JsonConvert.DeserializeObject<List<Province>>(j_data);
                     }
                     cache_name = CacheType.DISTRICT;
                     j_data = redisService.GetAsync(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"])).Result;
                     if (j_data != null && j_data.Trim() != "")
                     {
-                        districts = JsonConvert.DeserializeObject<List<Entities.Models.District>>(j_data);
+                        districts = JsonConvert.DeserializeObject<List<District>>(j_data);
                     }
                     cache_name = CacheType.WARD;
                     j_data = redisService.GetAsync(cache_name, Convert.ToInt32(configuration["Redis:Database:db_search_result"])).Result;
                     if (j_data != null && j_data.Trim() != "")
                     {
-                        wards = JsonConvert.DeserializeObject<List<Entities.Models.Ward>>(j_data);
+                        wards = JsonConvert.DeserializeObject<List<Ward>>(j_data);
                     }
                     foreach (var item in list) {
                         AddressClientFEModel submit_item = JsonConvert.DeserializeObject<AddressClientFEModel>(JsonConvert.SerializeObject(item));

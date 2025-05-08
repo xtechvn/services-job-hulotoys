@@ -22,6 +22,7 @@ using App_Push_Consummer.Model.Comments;
 using HuloToys_Service.ElasticSearch;
 using HuloToys_Service.Controllers.Shipping.Business;
 using Entities.Models;
+using HuloToys_Service.Models.Models;
 
 namespace HuloToys_Service.Controllers
 {

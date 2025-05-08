@@ -1,6 +1,7 @@
 ﻿using DAL.Generic;
 using DAL.StoreProcedure;
 using Entities.Models;
+using HuloToys_Service.Models.Models;
 using HuloToys_Service.Utilities.Lib;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;

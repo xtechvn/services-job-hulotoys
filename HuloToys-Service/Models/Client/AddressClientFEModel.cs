@@ -1,4 +1,6 @@
-﻿namespace Entities.Models
+﻿using HuloToys_Service.Models.Models;
+
+namespace Entities.Models
 {
     public partial class AddressClientFEModel : AddressClientESModel
     {

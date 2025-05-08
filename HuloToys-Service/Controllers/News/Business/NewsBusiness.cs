@@ -4,6 +4,7 @@ using HuloToys_Service.ElasticSearch;
 using HuloToys_Service.Models;
 using HuloToys_Service.Models.Article;
 using HuloToys_Service.Models.ElasticSearch;
+using HuloToys_Service.Models.Models;
 using HuloToys_Service.Models.Products;
 using HuloToys_Service.Utilities.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -96,7 +97,7 @@ namespace HuloToys_Service.Controllers.News.Business
                         entity.Image43 = model.Image43 ?? string.Empty;
                         entity.Image169 = model.Image169 ?? string.Empty;
                         entity.Status = model.Status;
-                        entity.ArticleType = model.ArticleType;
+                        entity.ArticleType = (int)model.ArticleType;
                         entity.ModifiedOn = DateTime.Now;
                         entity.PublishDate = model.PublishDate;
                         entity.UpTime = model.PublishDate;
@@ -119,7 +120,7 @@ namespace HuloToys_Service.Controllers.News.Business
                             Image11 = model.Image11 ?? string.Empty,
                             Image43 = model.Image43 ?? string.Empty,
                             Image169 = model.Image169 ?? string.Empty,
-                            ArticleType = model.ArticleType,
+                            ArticleType = (int)model.ArticleType,
                             AuthorId = model.AuthorId,
                             CreatedOn = DateTime.Now,
                             ModifiedOn = DateTime.Now,

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Entities.Models;
+namespace HuloToys_Service.Models.Models;
 
 public partial class DataMSContext : DbContext
 {
@@ -168,7 +167,7 @@ public partial class DataMSContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=103.163.216.41;Initial Catalog=Hulotoy;Persist Security Info=True;User ID=us;Password=us@585668;TrustServerCertificate=True");
+        => optionsBuilder.UseSqlServer("Data Source=103.163.216.41;Initial Catalog=Hulotoy_Bestmall;Persist Security Info=True;User ID=us;Password=us@585668;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -724,15 +723,12 @@ public partial class DataMSContext : DbContext
             entity.ToTable("Label");
 
             entity.Property(e => e.CreateTime).HasColumnType("datetime");
-            entity.Property(e => e.DescExpire).HasMaxLength(300);
-            entity.Property(e => e.Domain)
-                .HasMaxLength(255)
-                .IsUnicode(false);
+            entity.Property(e => e.Description).HasMaxLength(500);
             entity.Property(e => e.Icon).HasMaxLength(500);
-            entity.Property(e => e.PrefixOrderCode)
+            entity.Property(e => e.LabelCode)
                 .HasMaxLength(10)
                 .IsUnicode(false);
-            entity.Property(e => e.StoreName).HasMaxLength(50);
+            entity.Property(e => e.LabelName).HasMaxLength(50);
             entity.Property(e => e.UpdateTime).HasColumnType("datetime");
         });
 

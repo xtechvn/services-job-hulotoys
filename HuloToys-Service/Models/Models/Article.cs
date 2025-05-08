@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Entities.Models;
+namespace HuloToys_Service.Models.Models;
 
 public partial class Article
 {
@@ -15,7 +15,7 @@ public partial class Article
 
     public int Status { get; set; }
 
-    public int? ArticleType { get; set; }
+    public int ArticleType { get; set; }
 
     public int? PageView { get; set; }
 

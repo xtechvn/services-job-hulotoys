@@ -12,6 +12,7 @@ using HuloToys_Service.RedisWorker;
 using HuloToys_Service.Models.Location;
 using Repositories.IRepositories;
 using HuloToys_Front_End.Models.Products;
+using HuloToys_Service.Models.Models;
 
 namespace HuloToys_Service.Controllers
 {
@@ -58,10 +59,10 @@ namespace HuloToys_Service.Controllers
                     }
                     var cache_name = CacheType.PROVINCE;
                     var j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
-                    List<Entities.Models.Province> result = null;
+                    List<Province> result = null;
                     if (j_data != null && j_data.Trim() != "")
                     {
-                        result = JsonConvert.DeserializeObject<List<Entities.Models.Province>>(j_data);
+                        result = JsonConvert.DeserializeObject<List<Province>>(j_data);
                     }
                     else
                     {
@@ -75,7 +76,7 @@ namespace HuloToys_Service.Controllers
                     {
                         status = (int)ResponseType.SUCCESS,
                         msg = "Success",
-                        data = result != null? result : new List<Entities.Models.Province>()
+                        data = result != null? result : new List<Province>()
                     });
                 }
 
@@ -119,10 +120,10 @@ namespace HuloToys_Service.Controllers
                     }
                     var cache_name = CacheType.DISTRICT;
                     var j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
-                    List<Entities.Models.District> result = null;
+                    List<District> result = null;
                     if (j_data != null && j_data.Trim() != "")
                     {
-                        result = JsonConvert.DeserializeObject<List<Entities.Models.District>>(j_data);
+                        result = JsonConvert.DeserializeObject<List<District>>(j_data);
                     }
                     else
                     {
@@ -132,12 +133,12 @@ namespace HuloToys_Service.Controllers
                             _redisService.Set(cache_name, JsonConvert.SerializeObject(result), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
                         }
                     }
-                    var district_es = (result == null|| result.Count<=0) ? new List<Entities.Models.District>(): result.Where(x => x.ProvinceId == request.id).ToList();
+                    var district_es = (result == null|| result.Count<=0) ? new List<District>(): result.Where(x => x.ProvinceId == request.id).ToList();
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
                         msg = "Success",
-                        data = district_es != null ? district_es : new List<Entities.Models.District>()
+                        data = district_es != null ? district_es : new List<District>()
                     });
 
                 }
@@ -182,10 +183,10 @@ namespace HuloToys_Service.Controllers
                     }
                     var cache_name = CacheType.WARD;
                     var j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
-                    List<Entities.Models.Ward> result = null;
+                    List<Ward> result = null;
                     if (j_data != null && j_data.Trim() != "")
                     {
-                        result = JsonConvert.DeserializeObject<List<Entities.Models.Ward>>(j_data);
+                        result = JsonConvert.DeserializeObject<List<Ward>>(j_data);
                     }
                     else
                     {
@@ -195,12 +196,12 @@ namespace HuloToys_Service.Controllers
                             _redisService.Set(cache_name, JsonConvert.SerializeObject(result), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
                         }
                     }
-                    var ward_es = (result == null || result.Count <= 0) ? new List<Entities.Models.Ward>() : result.Where(x => x.DistrictId == request.id).ToList();
+                    var ward_es = (result == null || result.Count <= 0) ? new List<Ward>() : result.Where(x => x.DistrictId == request.id).ToList();
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
                         msg = "Success",
-                        data = ward_es != null ? ward_es : new List<Entities.Models.Ward>()
+                        data = ward_es != null ? ward_es : new List<Ward>()
                     });
 
                 }

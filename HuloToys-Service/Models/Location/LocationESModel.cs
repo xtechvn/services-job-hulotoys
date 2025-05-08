@@ -1,4 +1,5 @@
 ﻿using Entities.Models;
+using HuloToys_Service.Models.Models;
 
 namespace HuloToys_Service.Models.Location
 {

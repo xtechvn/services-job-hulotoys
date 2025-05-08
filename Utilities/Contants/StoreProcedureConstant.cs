@@ -305,6 +305,11 @@ namespace Utilities.Contants
         public static string Sp_UpdateOrder = "Sp_UpdateOrder";
 
 
+        public static string InsertLabel = "sp_InsertLabel";
+        public static string UpdateLabel = "sp_UpdateLabel";
+        public static string GetListLabels = "SP_GetListLabels";
+
+
         #region vin wonder
         public static string sp_InsertCampaign = "sp_InsertCampaign";
         public static string sp_UpdateCampaign = "sp_UpdateCampaign";

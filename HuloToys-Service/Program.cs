@@ -1,14 +1,10 @@
 using Entities.ConfigModels;
-using Entities.Models;
 using HuloToys_Service.IRepositories;
+using HuloToys_Service.Models.Models;
 using HuloToys_Service.RedisWorker;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using MongoDB.Driver.Core.Configuration;
 using Repositories.IRepositories;
 using Repositories.Repositories;
-using System.Text;
 
 internal class Program
 {
@@ -57,6 +53,7 @@ internal class Program
         builder.Services.AddSingleton<IProvinceRepository, ProvinceRepository>();
         builder.Services.AddSingleton<IDistrictRepository, DistrictRepository>();
         builder.Services.AddSingleton<IWardRepository, WardRepository>();
+        builder.Services.AddSingleton<ILabelRepository, LabelRepository>();
 
 
         builder.Services.AddSingleton<RedisConn>();

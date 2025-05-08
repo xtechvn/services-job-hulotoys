@@ -1,5 +1,6 @@
 ﻿using DAL.Generic;
 using Entities.Models;
+using HuloToys_Service.Models.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
