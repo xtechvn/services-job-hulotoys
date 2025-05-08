@@ -144,9 +144,18 @@ namespace HuloToys_Service.Controllers
                                 var clients = clientESService.GetByEmail(email_part);
                                 if (clients != null && clients.Count > 0)
                                 {
+                                    clients = clients.Where(x => x.Email.Trim().ToLower() == request.user_name.Trim().ToLower()).ToList();
+                                    if (clients == null || clients.Count <= 0)
+                                    {
+                                        return Ok(new
+                                        {
+                                            status = (int)ResponseType.FAILED,
+                                            msg = "Không tìm thấy tài khoản nào tương ứng với thông tin đăng nhập này, vui lòng thử lại"
+                                        });
+                                    }
                                     foreach (var client in clients)
                                     {
-                                        var account_client = accountClientESService.GetByClientIdAndGoogleToken(client.Id, request.token);
+                                        var account_client = accountClientESService.GetByClientID(client.Id);
 
                                         if (account_client != null && account_client.Id > 0 && account_client.ClientId > 0)
                                         {
