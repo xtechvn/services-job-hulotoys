@@ -52,6 +52,8 @@ namespace Entities.ViewModels.Products
         public float? package_width { get; set; }
         public float? package_height { get; set; }
         public float? package_depth { get; set; }
+        public int supplier_id { get; set; }
+        public int label_id { get; set; }
     }
     public class ProductMongoDbFEModel: ProductMongoDbModel
     {

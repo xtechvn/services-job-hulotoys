@@ -1,6 +1,7 @@
 ﻿using HuloToys_Front_End.Models.Products;
 using HuloToys_Service.Controllers.Product.Bussiness;
 using HuloToys_Service.Models.APIRequest;
+using HuloToys_Service.Models.Client;
 using HuloToys_Service.Models.Label;
 using HuloToys_Service.RedisWorker;
 using HuloToys_Service.Utilities.Lib;
@@ -13,6 +14,7 @@ using System.Linq;
 using System.Reflection;
 using Utilities;
 using Utilities.Contants;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HuloToys_Service.Controllers.Label
 {
@@ -39,17 +41,31 @@ namespace HuloToys_Service.Controllers.Label
                 JArray objParr = null;
                 if (input != null && input.token != null && CommonHelper.GetParamWithKey(input.token, out objParr, _configuration["KEY:private_key"]))
                 {
-                    string cache_name=CacheType.LABEL;
+
+                    var request = JsonConvert.DeserializeObject<LabelListingRequestModel>(objParr[0].ToString());
+                    if (request == null || request.page_index<1 || request.page_size<0)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.FAILED,
+                            msg = ResponseMessages.DataInvalid
+                        });
+                    }
+                    string cache_name =CacheType.LABEL;
                     var j_data = await _redisService.GetAsync(cache_name, Convert.ToInt32(_configuration["Redis:Database:db_common"]));
                     List<LabelListingModel> result = null;
                     if (j_data != null && j_data.Trim() != "")
                     {
                         result = JsonConvert.DeserializeObject<List<LabelListingModel>>(j_data);
+                    }
+                    if((request.page_size * request.page_index)>200)
+                    {
+                        result = await _labelRepository.Listing(0, null, request.page_index, request.page_size);
                         return Ok(new
                         {
                             status = (int)ResponseType.SUCCESS,
                             msg = ResponseMessages.Success,
-                            data = result.Select(x=>new {
+                            data = result.Select(x => new {
                                 x.Id,
                                 x.LabelName,
                                 x.Icon,
@@ -57,7 +73,21 @@ namespace HuloToys_Service.Controllers.Label
                             })
                         });
                     }
-                    result = await _labelRepository.Listing(0,null,-1,100);
+                    else if(result!=null && result.Count > 0)
+                    {
+                        return Ok(new
+                        {
+                            status = (int)ResponseType.SUCCESS,
+                            msg = ResponseMessages.Success,
+                            data = result.Skip((request.page_index-1)*request.page_size).Take(request.page_size).Select(x => new {
+                                x.Id,
+                                x.LabelName,
+                                x.Icon,
+                                x.LabelCode
+                            })
+                        });
+                    }
+                    result = await _labelRepository.Listing(0,null,1,200);
                     if (result != null && result.Count>0)
                     {
                         _redisService.Set(cache_name, JsonConvert.SerializeObject(result), Convert.ToInt32(_configuration["Redis:Database:db_search_result"]));
@@ -66,7 +96,7 @@ namespace HuloToys_Service.Controllers.Label
                     {
                         status = (int)ResponseType.SUCCESS,
                         msg = ResponseMessages.Success,
-                        data = result.Select(x => new {
+                        data = result.Skip((request.page_index - 1) * request.page_size).Take(request.page_size).Select(x => new {
                             x.Id,
                             x.LabelName,
                             x.Icon,
