@@ -69,8 +69,9 @@ namespace HuloToys_Service.Controllers.Label
                                 x.Id,
                                 x.LabelName,
                                 x.Icon,
-                                x.LabelCode
-                            })
+                                x.LabelCode,
+                            }),
+                            total= (result != null && result.Count > 0) ? result.First().TotalRow:0
                         });
                     }
                     else if(result!=null && result.Count > 0)
@@ -84,7 +85,9 @@ namespace HuloToys_Service.Controllers.Label
                                 x.LabelName,
                                 x.Icon,
                                 x.LabelCode
-                            })
+                            }),
+                            total = (result != null && result.Count > 0) ? result.First().TotalRow : 0
+
                         });
                     }
                     result = await _labelRepository.Listing(0,null,1,200);
@@ -101,7 +104,9 @@ namespace HuloToys_Service.Controllers.Label
                             x.LabelName,
                             x.Icon,
                             x.LabelCode
-                        })
+                        }),
+                        total = (result != null && result.Count > 0) ? result.First().TotalRow : 0
+
                     });
                 }
 
