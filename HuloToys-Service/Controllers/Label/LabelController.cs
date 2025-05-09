@@ -43,7 +43,7 @@ namespace HuloToys_Service.Controllers.Label
                 {
 
                     var request = JsonConvert.DeserializeObject<LabelListingRequestModel>(objParr[0].ToString());
-                    if (request == null || request.page_index<1 || request.page_size<0)
+                    if (request == null || request.top<1 )
                     {
                         return Ok(new
                         {
@@ -58,9 +58,9 @@ namespace HuloToys_Service.Controllers.Label
                     {
                         result = JsonConvert.DeserializeObject<List<LabelListingModel>>(j_data);
                     }
-                    if((request.page_size * request.page_index)>200)
+                    if(request.top>200)
                     {
-                        result = await _labelRepository.Listing(0, null, request.page_index, request.page_size);
+                        result = await _labelRepository.Listing(0, null, 1, request.top);
                         return Ok(new
                         {
                             status = (int)ResponseType.SUCCESS,
@@ -80,7 +80,7 @@ namespace HuloToys_Service.Controllers.Label
                         {
                             status = (int)ResponseType.SUCCESS,
                             msg = ResponseMessages.Success,
-                            data = result.Skip((request.page_index-1)*request.page_size).Take(request.page_size).Select(x => new {
+                            data = result.Take(request.top).Select(x => new {
                                 x.Id,
                                 x.LabelName,
                                 x.Icon,
@@ -99,7 +99,7 @@ namespace HuloToys_Service.Controllers.Label
                     {
                         status = (int)ResponseType.SUCCESS,
                         msg = ResponseMessages.Success,
-                        data = result.Skip((request.page_index - 1) * request.page_size).Take(request.page_size).Select(x => new {
+                        data = result.Take(request.top).Select(x => new {
                             x.Id,
                             x.LabelName,
                             x.Icon,
