@@ -72,8 +72,8 @@ namespace WEB.CMS.Controllers
                         });
                     }
                     // Kiểm tra các tham số giá
-                    if (request.price_from == null) request.price_from = 0; // Mặc định là 0 nếu không có giá trị
-                    if (request.price_to == null) request.price_to = 0; // Mặc định là giá trị tối đa
+                    if (request.price_from == 0) request.price_from = 0; // Mặc định là 0 nếu không có giá trị
+                    if (request.price_to == 0) request.price_to = double.MaxValue; // Mặc định là giá trị tối đa
                     if (request.keyword == null) request.keyword = "";
                     if (request.rating == null) request.rating = 0;
 
