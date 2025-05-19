@@ -4,6 +4,7 @@ using App_Push_Consummer.Engines.Address;
 using App_Push_Consummer.Engines.ProductRaiting;
 using App_Push_Consummer.Interfaces;
 using App_Push_Consummer.Model.Address;
+using App_Push_Consummer.Model.Client;
 using App_Push_Consummer.Model.Comments;
 using App_Push_Consummer.Model.Order;
 using App_Push_Consummer.Model.Queue;
@@ -26,9 +27,10 @@ namespace App_Push_Consummer.Engines
         private readonly IProductRaitingService productRaitingService;
         private readonly IOrderBusiness orderBusiness;
         private readonly WorkQueueClient workQueueClient;
+        private readonly IClientBusiness clientBusiness;
 
         public Factory(IAddressBusiness _address_business, IAccountClientBusiness _accountclient_business, ICommentsBusiness _comments_business,
-            IProductRaitingService _productRaitingService, IOrderBusiness _orderBusiness)
+            IProductRaitingService _productRaitingService, IOrderBusiness _orderBusiness, IClientBusiness _clientBusiness)
         {
             address_business = _address_business;
             accountclient_business = _accountclient_business;
@@ -36,6 +38,7 @@ namespace App_Push_Consummer.Engines
             productRaitingService = _productRaitingService;
             orderBusiness = _orderBusiness;
             workQueueClient = new WorkQueueClient();
+            clientBusiness = _clientBusiness;
         }
 
         public async void DoSomeRealWork(string data_queue)
@@ -137,6 +140,16 @@ namespace App_Push_Consummer.Engines
                             }
                             workQueueClient.SyncES(id, "SP_GetOrder", "hulotoys_sp_getorder", Convert.ToInt16(ProjectType.HULOTOYS));
 
+                            break;
+                        }
+                    case QueueType.UPDATE_ClIENT:
+                        {
+                            var model = JsonConvert.DeserializeObject<ClientDetailESModel>(queue_info.data_push);
+                            var id = await clientBusiness.UpdateClient(model);
+                            if (id < 0)
+                            {
+                                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "Cập nhật thông tin khách hàng thất bại");
+                            }
                             break;
                         }
                     default:

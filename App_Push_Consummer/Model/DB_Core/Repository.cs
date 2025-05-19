@@ -305,5 +305,46 @@ namespace App_Push_Consummer.Model.DB_Core
                 return -1;
             }
         }
+        public static int UpdateClient(ClientDetailESModel model)
+        {
+            try
+            {
+                SqlParameter[] objParam_order = new SqlParameter[]{
+                    new SqlParameter("@Id", model.Id),
+                    new SqlParameter("@ClientMapId", DBNull.Value),
+                    new SqlParameter("@SaleMapId", DBNull.Value),
+                    new SqlParameter("@ClientType", DBNull.Value),
+                    new SqlParameter("@ClientName", model.ClientName),
+                    new SqlParameter("@Email", model.Email),
+                    new SqlParameter("@Gender", model.Gender),
+                    new SqlParameter("@Status", DBNull.Value),
+                    new SqlParameter("@Note", DBNull.Value),
+                    new SqlParameter("@Avartar", DBNull.Value),
+                    new SqlParameter("@JoinDate", DBNull.Value),
+                    new SqlParameter("@isReceiverInfoEmail", DBNull.Value),
+                    new SqlParameter("@Phone", model.Phone),
+                    new SqlParameter("@Birthday", model.Birthday),
+                    new SqlParameter("@UpdateTime", DBNull.Value),
+                    new SqlParameter("@TaxNo", DBNull.Value),
+                    new SqlParameter("@AgencyType", DBNull.Value),
+                    new SqlParameter("@PermisionType", DBNull.Value),
+                    new SqlParameter("@BusinessAddress", DBNull.Value),
+                    new SqlParameter("@ExportBillAddress", DBNull.Value),
+                    new SqlParameter("@ClientCode", DBNull.Value),
+                    new SqlParameter("@IsRegisterAffiliate", DBNull.Value),
+                    new SqlParameter("@ReferralId", DBNull.Value),
+                    new SqlParameter("@ParentId", DBNull.Value),
+
+                };
+
+                var id = DBWorker.ExecuteNonQuery("sp_UpdateClient", objParam_order);
+                return id;
+            }
+            catch (Exception ex)
+            {
+                ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "GetDataset =>InsertProductRaiting error queue = " + ex.ToString());
+                return -1;
+            }
+        }
     }
 }
