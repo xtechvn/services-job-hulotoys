@@ -28,7 +28,7 @@ namespace App_Push_Consummer.Engines.Client
             try
             {
                 int InsertClient = Repository.UpdateClient(data);
-                workQueueClient.SyncES(InsertClient, "sp_UpdateClient", "hulotoys_sp_getclient", Convert.ToInt16(ProjectType.HULOTOYS));
+                workQueueClient.SyncES(InsertClient, "SP_GetClient", "hulotoys_sp_getclient", Convert.ToInt16(ProjectType.HULOTOYS));
 
               
 
