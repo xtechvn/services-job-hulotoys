@@ -3,6 +3,7 @@ using App_Push_Consummer.Common;
 using App_Push_Consummer.Engines;
 using App_Push_Consummer.Engines.AccountClient;
 using App_Push_Consummer.Engines.Address;
+using App_Push_Consummer.Engines.Client;
 using App_Push_Consummer.Engines.Comments;
 using App_Push_Consummer.Engines.Order;
 using App_Push_Consummer.Engines.ProductRaiting;
@@ -77,6 +78,7 @@ namespace App_Push_Consummer
                                 serviceProvider.AddSingleton<ICommentsBusiness, CommentsBusiness>();
                                 serviceProvider.AddSingleton<IProductRaitingService, ProductRaitingService>();
                                 serviceProvider.AddSingleton<IOrderBusiness, OrderBusiness>();
+                                serviceProvider.AddSingleton<IClientBusiness, ClientBusiness>();
 
                                 var Service_Provider = serviceProvider.BuildServiceProvider();
 
