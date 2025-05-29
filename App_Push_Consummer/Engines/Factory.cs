@@ -150,6 +150,7 @@ namespace App_Push_Consummer.Engines
                             {
                                 ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "Cập nhật thông tin khách hàng thất bại");
                             }
+                            workQueueClient.SyncES(id, "sp_GetClient", "hulotoys_sp_getclient", Convert.ToInt16(ProjectType.HULOTOYS));
                             break;
                         }
                     default:
