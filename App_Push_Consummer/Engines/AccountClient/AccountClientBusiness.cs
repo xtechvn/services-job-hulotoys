@@ -28,7 +28,7 @@ namespace App_Push_Consummer.Engines.AccountClient
             try
             {
                 int InsertClient = Repository.saveClient(data);
-                workQueueClient.SyncES(InsertClient, "SP_GetClient", "hulotoys_sp_getclient", Convert.ToInt16(ProjectType.HULOTOYS));
+                workQueueClient.SyncES(InsertClient, "sp_GetClient", "hulotoys_sp_getclient", Convert.ToInt16(ProjectType.HULOTOYS));
 
                 data.ClientId = InsertClient;
                 int response = Repository.saveAccountClient(data);
