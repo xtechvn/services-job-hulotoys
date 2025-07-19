@@ -51,7 +51,7 @@ namespace App_Push_Consummer.RabitMQ
                               };
                 var _data_push = JsonConvert.SerializeObject(j_param);
                 // Push message vào queue
-                var response_queue = InsertQueueSimpleDurable(_data_push, ConfigurationManager.AppSettings["QUEUE_SYNC_ES"]);
+                var response_queue = InsertQueueSyncES(_data_push);
                 ErrorWriter.InsertLogTelegram(tele_token, tele_group_id, "WorkQueueClient - SyncES [ "+ ConfigurationManager.AppSettings["QUEUE_V_HOST_SYNC"] + "/"+ ConfigurationManager.AppSettings["QUEUE_SYNC_ES"] + "] -> [" + id + "][" + store_procedure + "] [" + index_es + "][" + project_id + "]: "+ response_queue.ToString());
 
                 return true;
@@ -118,6 +118,51 @@ namespace App_Push_Consummer.RabitMQ
                 {
                     string error_msg = Assembly.GetExecutingAssembly().GetName().Name + "->" + MethodBase.GetCurrentMethod().Name + "=>" + ex.ToString();
                     ErrorWriter.InsertLogTelegramByUrl(tele_token, tele_group_id, "WorkQueueClient - InsertQueueSimpleDurable[" + message + "][" + queueName + "]: " + ex.ToString());
+                    return false;
+                }
+            }
+        }
+        public bool InsertQueueSyncES(string message)
+        {
+            var queue_setting_sync_es = new QueueSettingViewModel()
+            {
+                host = ConfigurationManager.AppSettings["QUEUE_HOST"],
+                port = Convert.ToInt32(ConfigurationManager.AppSettings["QUEUE_PORT"]),
+                v_host = ConfigurationManager.AppSettings["QUEUE_V_HOST_SYNC"],
+                username = ConfigurationManager.AppSettings["QUEUE_USERNAME_SYNC"],
+                password = ConfigurationManager.AppSettings["QUEUE_PASSWORD_SYNC"]
+            };
+            var factory_es = new ConnectionFactory()
+            {
+                HostName = queue_setting_sync_es.host,
+                UserName = queue_setting_sync_es.username,
+                Password = queue_setting_sync_es.password,
+                VirtualHost = queue_setting_sync_es.v_host,
+                Port = Protocols.DefaultProtocol.DefaultPort
+            };
+            using (var connection = factory_es.CreateConnection())
+            using (var channel = connection.CreateModel())
+            {
+                try
+                {
+                    channel.QueueDeclare(queue: ConfigurationManager.AppSettings["QUEUE_SYNC_ES"],
+                                     durable: true,
+                                     exclusive: false,
+                                     autoDelete: false,
+                                     arguments: null);
+
+                    var body = Encoding.UTF8.GetBytes(message);
+
+                    channel.BasicPublish(exchange: "",
+                                         routingKey: ConfigurationManager.AppSettings["QUEUE_SYNC_ES"],
+                                         basicProperties: null,
+                                         body: body);
+                    return true;
+
+                }
+                catch (Exception ex)
+                {
+
                     return false;
                 }
             }
